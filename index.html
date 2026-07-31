@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Store Manager</title>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <style>
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: #f0f2f5; margin: 0; padding: 15px; color: #333; }
+    .card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .btn { border: none; padding: 10px 15px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; }
+    .btn-plus { background: #28a745; color: white; }
+    .btn-minus { background: #dc3545; color: white; }
+    .btn-cloud { background: #007bff; color: white; width: 100%; padding: 14px; font-size: 18px; }
+    .btn-add { background: #17a2b8; color: white; margin-top: 10px; width: 100%; }
+    .item-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
+    .controls { display: flex; align-items: center; gap: 12px; }
+    .qty-display { font-size: 18px; font-weight: bold; min-width: 25px; text-align: center; }
+    .metric { font-size: 14px; margin-bottom: 5px; }
+    .metric span { font-weight: bold; float: right; }
+    input { width: 100%; padding: 8px; margin: 5px 0 10px; border: 1px solid #ccc; border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+  <h1>📱 Store Manager</h1>
+
+  <!-- 1. CLOUD SYNC -->
+  <div class="card">
+    <button class="btn btn-cloud" onclick="uploadDataToCloud()">☁️ Sync / Upload to Cloud</button>
+    <p id="sync-status" style="font-size: 12px; color: #666; text-align: center; margin-top: 5px;"></p>
+  </div>
+
+  <!-- 2. ADD PRODUCT -->
+  <div class="card">
+    <h3>➕ Add Product</h3>
+    <input type="text" id="p-name" placeholder="Product Name">
+    <input type="number" id="p-cost" placeholder="Cost Price ($)">
+    <input type="number" id="p-price" placeholder="Selling Price ($)">
+    <button class="btn btn-add" onclick="addProduct()">Save Product</button>
+  </div>
+
+  <!-- 3. DAILY REGISTER -->
+  <div class="card">
+    <h3>🛒 Today's Register</h3>
+    <div id="product-list"></div>
+  </div>
+
+  <!-- 4. PAYROLL SETTINGS -->
+  <div class="card">
+    <h3>⚙️ Monthly Payroll Settings</h3>
+    <label>Number of Workers:</label>
+    <input type="number" id="num-workers" value="1" onchange="renderApp()">
+    <label>Monthly Wage per Worker ($):</label>
+    <input type="number" id="monthly-wage" value="300" onchange="renderApp()">
+  </div>
+
+  <!-- 5. FINANCIAL SUMMARY -->
+  <div class="card">
+    <h3>📊 Today's Summary</h3>
+    <div class="metric">Total Revenue: <span id="summary-income">$0.00</span></div>
+    <div class="metric">Cost of Goods Sold: <span id="summary-cogs">$0.00</span></div>
+    <div class="metric">Daily Worker Payroll: <span id="summary-payroll">$0.00</span></div>
+    <hr>
+    <div class="metric" style="font-size: 16px;">Net Profit Today: <span id="summary-profit" style="color: #28a745;">$0.00</span></div>
+  </div>
+
+  <script>
+    // ==========================================
+    // 🔑 PASTE YOUR FIREBASE KEYS DIRECTLY BELOW 
+    // ==========================================
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAS49B83gZt2Od1XVlBlQ3VXZ-EGR1w2UE",
+  authDomain: "trackify-deeb0.firebaseapp.com",
+  projectId: "trackify-deeb0",
+  storageBucket: "trackify-deeb0.firebasestorage.app",
+  messagingSenderId: "685359390375",
+  appId: "1:685359390375:web:648d494d48b663f62e4582",
+  measurementId: "G-6C948M3V7C"
+};
+
+    // ==========================================
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // --- LOCAL STORAGE FUNCTIONS ---
+    function getStoredData() {
+      const defaultData = { products: [], sales: {}, workers: 1, wage: 300 };
+      return JSON.parse(localStorage.getItem('store_app_data')) || defaultData;
+    }
+
+    function saveData(data) {
+      localStorage.setItem('store_app_data', JSON.stringify(data));
+    }
+
+    // --- UI & LOGIC ---
+    function addProduct() {
+      const name = document.getElementById('p-name').value;
+      const cost = parseFloat(document.getElementById('p-cost').value) || 0;
+      const price = parseFloat(document.getElementById('p-price').value) || 0;
+      if (!name) return alert('Enter product name');
+
+      const data = getStoredData();
+      data.products.push({ id: Date.now(), name, cost, price });
+      saveData(data);
+
+      document.getElementById('p-name').value = '';
+      document.getElementById('p-cost').value = '';
+      document.getElementById('p-price').value = '';
+      renderApp();
+    }
+
+    function updateSales(productId, change) {
+      const data = getStoredData();
+      const current = data.sales[productId] || 0;
+      data.sales[productId] = Math.max(0, current + change);
+      saveData(data);
+      renderApp();
+    }
+
+    function renderApp() {
+      const data = getStoredData();
+      const workers = parseInt(document.getElementById('num-workers').value) || 0;
+      const wage = parseFloat(document.getElementById('monthly-wage').value) || 0;
+      data.workers = workers;
+      data.wage = wage;
+      saveData(data);
+
+      const listContainer = document.getElementById('product-list');
+      listContainer.innerHTML = '';
+      let totalIncome = 0;
+      let totalCogs = 0;
+
+      data.products.forEach(p => {
+        const qty = data.sales[p.id] || 0;
+        totalIncome += qty * p.price;
+        totalCogs += qty * p.cost;
+
+        const div = document.createElement('div');
+        div.className = 'item-row';
+        div.innerHTML = `
+          <div>
+            <strong>${p.name}</strong><br>
+            <small>Cost: $${p.cost.toFixed(2)} | Price: $${p.price.toFixed(2)}</small>
+          </div>
+          <div class="controls">
+            <button class="btn btn-minus" onclick="updateSales(${p.id}, -1)">➖</button>
+            <span class="qty-display">${qty}</span>
+            <button class="btn btn-plus" onclick="updateSales(${p.id}, 1)">➕</button>
+          </div>
+        `;
+        listContainer.appendChild(div);
+      });
+
+      const dailyPayroll = (workers * wage) / 30.0;
+      const netProfit = totalIncome - (totalCogs + dailyPayroll);
+
+      document.getElementById('summary-income').innerText = `$${totalIncome.toFixed(2)}`;
+      document.getElementById('summary-cogs').innerText = `$${totalCogs.toFixed(2)}`;
+      document.getElementById('summary-payroll').innerText = `$${dailyPayroll.toFixed(2)}`;
+      document.getElementById('summary-profit').innerText = `$${netProfit.toFixed(2)}`;
+    }
+
+    // --- CLOUD SYNC FUNCTION ---
+    async function uploadDataToCloud() {
+      const statusEl = document.getElementById('sync-status');
+      statusEl.innerText = "Connecting to Cloud...";
+
+      if (!navigator.onLine) {
+        statusEl.innerText = "⚠️ No internet connection! Data remains saved locally.";
+        return;
+      }
+
+      try {
+        const todayStr = new Date().toISOString().split('T')[0];
+        await db.collection("daily_records").doc(todayStr).set({
+          timestamp: new Date(),
+          storeData: getStoredData()
+        });
+        statusEl.innerText = "✅ Successfully uploaded to Firebase!";
+      } catch (error) {
+        statusEl.innerText = "❌ Upload failed: " + error.message;
+      }
+    }
+
+    window.onload = renderApp;
+  </script>
+</body>
+</html>
