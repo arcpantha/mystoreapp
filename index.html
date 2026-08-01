@@ -193,7 +193,6 @@
     // 🔑 PASTE YOUR FIREBASE KEYS DIRECTLY BELOW 
     // ==========================================
     // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyAS49B83gZt2Od1XVlBlQ3VXZ-EGR1w2UE",
   authDomain: "trackify-deeb0.firebaseapp.com",
@@ -456,4 +455,71 @@ const firebaseConfig = {
 
         totalRev += rev;
         totalProf += profit;
- 
+      });
+
+      document.getElementById('rep-revenue').innerText = `${sym}${totalRev.toFixed(2)}`;
+      document.getElementById('rep-profidocument.getElementById('rep-revenue').innerText = `${sym}${totalRev.toFixed(2)}`;
+      document.getElementById('rep-profit').innerText = `${sym}${totalProf.toFixed(2)}`;
+
+      updateChart(labels, revenueData, profitData);
+    }
+
+    function initChart() {
+      const ctx = document.getElementById('salesChart').getContext('2d');
+      if (chartInstance) chartInstance.destroy();
+
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: [],
+          datasets: [
+            { label: 'Revenue', data: [], backgroundColor: '#00b4d8' },
+            { label: 'Profit', data: [], backgroundColor: '#9ef01a' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { ticks: { color: '#94a3b8' } },
+            y: { ticks: { color: '#94a3b8' } }
+          }
+        }
+      });
+    }
+
+    function updateChart(labels, rev, profit) {
+      if (!chartInstance) initChart();
+      chartInstance.data.labels = labels;
+      chartInstance.data.datasets[0].data = rev;
+      chartInstance.data.datasets[1].data = profit;
+      chartInstance.update();
+    }
+
+    // --- HIDDEN ADMIN CLEAR FUNCTION ---
+    async function clearCloudHistory() {
+      const data = getStoredData();
+      const inputPin = prompt("🔑 Enter Admin PIN to confirm wipe:");
+      
+      if (inputPin !== (data.adminPin || '14324')) {
+        return alert("❌ Incorrect PIN! Action blocked.");
+      }
+
+      if (!confirm("⚠️ WARNING: This will permanently erase ALL cloud sales logs. Proceed?")) return;
+
+      try {
+        const snapshot = await db.collection("daily_records").get();
+        const batch = db.batch();
+        
+        snapshot.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+
+        alert("✅ Cloud sales history cleared.");
+        loadCloudHistory();
+      } catch (err) {
+        alert("❌ Failed to clear cloud history: " + err.message);
+      }
+    }
+  </script>
+</body>
+</html>
