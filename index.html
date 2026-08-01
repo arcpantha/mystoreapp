@@ -182,7 +182,7 @@
     <details style="margin-top: 15px;">
       <summary>🔒 Admin Settings (Clear Data)</summary>
       <div style="padding-top:10px;">
-        <p style="font-size:11px; opacity:0.7; margin:0 0 8px 0;">Requires PIN (Default: 1234) to clear synced cloud data.</p>
+        <p style="font-size:11px; opacity:0.7; margin:0 0 8px 0;">Requires PIN to clear synced cloud data.</p>
         <button class="btn btn-danger" onclick="clearCloudHistory()">🗑️ Wipe Cloud Sales History</button>
       </div>
     </details>
@@ -211,7 +211,7 @@ const firebaseConfig = {
     let cachedCloudRecords = [];
 
     function getStoredData() {
-      const defaultData = { products: [], sales: {}, workers: 1, wage: 250000, currency: 'USh ', theme: 'light', adminPin: '14324' };
+      const defaultData = { products: [], sales: {}, workers: 1, wage: 300, currency: 'USh ', theme: 'light', adminPin: '14324' };
       return JSON.parse(localStorage.getItem('store_app_data')) || defaultData;
     }
 
@@ -458,4 +458,4 @@ const firebaseConfig = {
       });
 
       document.getElementById('rep-revenue').innerText = `${sym}${totalRev.toFixed(2)}`;
-      document.getElement
+      document.getElementById('rep-profi
