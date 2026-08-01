@@ -3,59 +3,156 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Store Manager</title>
+  <title>BLESSINGS CLINIC</title>
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <style>
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: #f0f2f5; margin: 0; padding: 15px; color: #333; }
-    .card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .btn { border: none; padding: 10px 15px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; }
-    .btn-plus { background: #28a745; color: white; }
-    .btn-minus { background: #dc3545; color: white; }
-    .btn-cloud { background: #007bff; color: white; width: 100%; padding: 14px; font-size: 18px; }
-    .btn-add { background: #17a2b8; color: white; margin-top: 10px; width: 100%; }
-    .item-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
-    .controls { display: flex; align-items: center; gap: 12px; }
-    .qty-display { font-size: 18px; font-weight: bold; min-width: 25px; text-align: center; }
-    .metric { font-size: 14px; margin-bottom: 5px; }
-    .metric span { font-weight: bold; float: right; }
-    input { width: 100%; padding: 8px; margin: 5px 0 10px; border: 1px solid #ccc; border-radius: 4px; }
+    
+    /* Vibrant Blend Background: Navy Blue, Green, Cyan, and Lime */
+    body { 
+      background: linear-gradient(135deg, #0a192f 0%, #005c53 35%, #00b4d8 70%, #9ef01a 100%);
+      background-attachment: fixed;
+      margin: 0; 
+      padding: 16px; 
+      color: #1a202c; 
+      min-height: 100vh;
+    }
+
+    /* Custom Logo Styling */
+    .logo-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .logo-badge {
+      background: rgba(10, 25, 47, 0.85);
+      border: 2px solid #9ef01a;
+      padding: 10px 20px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      max-width: 100%;
+    }
+
+    .logo-icon {
+      background: #9ef01a;
+      color: #0a192f;
+      font-weight: 900;
+      font-size: 18px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .logo-text {
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-align: center;
+    }
+    
+    h3 { margin-top: 0; color: #0a192f; font-size: 18px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+
+    /* Frosted glass cards */
+    .card { 
+      background: rgba(255, 255, 255, 0.95); 
+      backdrop-filter: blur(8px);
+      padding: 18px; 
+      border-radius: 16px; 
+      margin-bottom: 16px; 
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); 
+    }
+    
+    label { font-size: 12px; font-weight: bold; color: #4a5568; text-transform: uppercase; letter-spacing: 0.5px; }
+    input, select { width: 100%; padding: 12px; margin: 6px 0 14px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 15px; outline: none; background: #f8fafc; }
+    input:focus, select:focus { border-color: #00b4d8; background: #fff; box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.2); }
+
+    .btn { border: none; padding: 10px 16px; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; transition: transform 0.1s, opacity 0.2s; }
+    .btn:active { transform: scale(0.98); }
+    
+    .btn-plus { background: #38a169; color: white; border-radius: 50%; width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .btn-minus { background: #e53e3e; color: white; border-radius: 50%; width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    
+    .btn-cloud { background: linear-gradient(135deg, #0a192f, #00b4d8); color: white; width: 100%; padding: 14px; font-size: 16px; box-shadow: 0 4px 10px rgba(0, 180, 216, 0.3); }
+    .btn-add { background: linear-gradient(135deg, #005c53, #9ef01a); color: #0a192f; width: 100%; padding: 12px; font-size: 16px; margin-top: 5px; }
+
+    .item-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #edf2f7; }
+    .item-row:last-child { border-bottom: none; }
+    .controls { display: flex; align-items: center; gap: 10px; }
+    .qty-display { font-size: 18px; font-weight: bold; min-width: 28px; text-align: center; }
+
+    .metric { font-size: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; color: #4a5568; }
+    .metric span { font-weight: bold; color: #1a202c; }
+    .profit-row { font-size: 18px; font-weight: bold; margin-top: 12px; padding-top: 10px; border-top: 2px solid #edf2f7; }
   </style>
 </head>
 <body>
 
-  <h1>📱 Store Manager</h1>
+  <!-- BRAND LOGO HEADER -->
+  <div class="logo-container">
+    <div class="logo-badge">
+      <div class="logo-icon">✚</div>
+      <div class="logo-text">BLESSINGS CLINIC</div>
+    </div>
+  </div>
 
   <!-- 1. CLOUD SYNC -->
   <div class="card">
     <button class="btn btn-cloud" onclick="uploadDataToCloud()">☁️ Sync / Upload to Cloud</button>
-    <p id="sync-status" style="font-size: 12px; color: #666; text-align: center; margin-top: 5px;"></p>
+    <p id="sync-status" style="font-size: 12px; color: #718096; text-align: center; margin-top: 8px; margin-bottom: 0;"></p>
   </div>
 
-  <!-- 2. ADD PRODUCT -->
+  <!-- 2. CURRENCY & SETTINGS -->
+  <div class="card">
+    <h3>⚙️ App Settings & Currency</h3>
+    <label>Select Currency Symbol:</label>
+    <select id="currency-select" onchange="renderApp()">
+      <option value="$">USD ($)</option>
+      <option value="USh ">UGX (USh)</option>
+      <option value="KSh ">KES (KSh)</option>
+      <option value="₦">NGN (₦)</option>
+      <option value="€">EUR (€)</option>
+      <option value="£">GBP (£)</option>
+      <option value="R">ZAR (R)</option>
+    </select>
+
+    <label>Number of Workers:</label>
+    <input type="number" id="num-workers" value="1" onchange="renderApp()">
+    
+    <label>Monthly Wage per Worker:</label>
+    <input type="number" id="monthly-wage" value="300" onchange="renderApp()">
+  </div>
+
+  <!-- 3. ADD PRODUCT -->
   <div class="card">
     <h3>➕ Add Product</h3>
-    <input type="text" id="p-name" placeholder="Product Name">
-    <input type="number" id="p-cost" placeholder="Cost Price ($)">
-    <input type="number" id="p-price" placeholder="Selling Price ($)">
+    <label>Product Name:</label>
+    <input type="text" id="p-name" placeholder="e.g. Paracetamol, Bandages">
+    
+    <label>Cost Price (<span class="curr-symbol">$</span>):</label>
+    <input type="number" id="p-cost" placeholder="0.00">
+    
+    <label>Selling Price (<span class="curr-symbol">$</span>):</label>
+    <input type="number" id="p-price" placeholder="0.00">
+    
     <button class="btn btn-add" onclick="addProduct()">Save Product</button>
   </div>
 
-  <!-- 3. DAILY REGISTER -->
+  <!-- 4. DAILY REGISTER -->
   <div class="card">
     <h3>🛒 Today's Register</h3>
     <div id="product-list"></div>
-  </div>
-
-  <!-- 4. PAYROLL SETTINGS -->
-  <div class="card">
-    <h3>⚙️ Monthly Payroll Settings</h3>
-    <label>Number of Workers:</label>
-    <input type="number" id="num-workers" value="1" onchange="renderApp()">
-    <label>Monthly Wage per Worker ($):</label>
-    <input type="number" id="monthly-wage" value="300" onchange="renderApp()">
   </div>
 
   <!-- 5. FINANCIAL SUMMARY -->
@@ -64,8 +161,7 @@
     <div class="metric">Total Revenue: <span id="summary-income">$0.00</span></div>
     <div class="metric">Cost of Goods Sold: <span id="summary-cogs">$0.00</span></div>
     <div class="metric">Daily Worker Payroll: <span id="summary-payroll">$0.00</span></div>
-    <hr>
-    <div class="metric" style="font-size: 16px;">Net Profit Today: <span id="summary-profit" style="color: #28a745;">$0.00</span></div>
+    <div class="metric profit-row">Net Profit Today: <span id="summary-profit" style="color: #2b6cb0;">$0.00</span></div>
   </div>
 
   <script>
@@ -73,7 +169,6 @@
     // 🔑 PASTE YOUR FIREBASE KEYS DIRECTLY BELOW 
     // ==========================================
     // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyAS49B83gZt2Od1XVlBlQ3VXZ-EGR1w2UE",
   authDomain: "trackify-deeb0.firebaseapp.com",
@@ -83,15 +178,13 @@ const firebaseConfig = {
   appId: "1:685359390375:web:648d494d48b663f62e4582",
   measurementId: "G-6C948M3V7C"
 };
-
     // ==========================================
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // --- LOCAL STORAGE FUNCTIONS ---
     function getStoredData() {
-      const defaultData = { products: [], sales: {}, workers: 1, wage: 300 };
+      const defaultData = { products: [], sales: {}, workers: 1, wage: 300, currency: '$' };
       return JSON.parse(localStorage.getItem('store_app_data')) || defaultData;
     }
 
@@ -99,7 +192,6 @@ const firebaseConfig = {
       localStorage.setItem('store_app_data', JSON.stringify(data));
     }
 
-    // --- UI & LOGIC ---
     function addProduct() {
       const name = document.getElementById('p-name').value;
       const cost = parseFloat(document.getElementById('p-cost').value) || 0;
@@ -126,16 +218,35 @@ const firebaseConfig = {
 
     function renderApp() {
       const data = getStoredData();
-      const workers = parseInt(document.getElementById('num-workers').value) || 0;
-      const wage = parseFloat(document.getElementById('monthly-wage').value) || 0;
-      data.workers = workers;
-      data.wage = wage;
+      
+      const currSelect = document.getElementById('currency-select');
+      if (document.activeElement === currSelect) {
+        data.currency = currSelect.value;
+      } else {
+        currSelect.value = data.currency || '$';
+      }
+      const sym = currSelect.value;
+
+      document.querySelectorAll('.curr-symbol').forEach(el => el.innerText = sym);
+
+      const workersInput = document.getElementById('num-workers');
+      const wageInput = document.getElementById('monthly-wage');
+      
+      if (document.activeElement !== workersInput) workersInput.value = data.workers || 1;
+      if (document.activeElement !== wageInput) wageInput.value = data.wage || 300;
+
+      data.workers = parseInt(workersInput.value) || 0;
+      data.wage = parseFloat(wageInput.value) || 0;
       saveData(data);
 
       const listContainer = document.getElementById('product-list');
       listContainer.innerHTML = '';
       let totalIncome = 0;
       let totalCogs = 0;
+
+      if (data.products.length === 0) {
+        listContainer.innerHTML = '<p style="text-align:center; color:#a0aec0; font-size:14px;">No products added yet.</p>';
+      }
 
       data.products.forEach(p => {
         const qty = data.sales[p.id] || 0;
@@ -147,33 +258,32 @@ const firebaseConfig = {
         div.innerHTML = `
           <div>
             <strong>${p.name}</strong><br>
-            <small>Cost: $${p.cost.toFixed(2)} | Price: $${p.price.toFixed(2)}</small>
+            <small style="color:#718096;">Cost: ${sym}${p.cost.toFixed(2)} | Price: ${sym}${p.price.toFixed(2)}</small>
           </div>
           <div class="controls">
-            <button class="btn btn-minus" onclick="updateSales(${p.id}, -1)">➖</button>
+            <button class="btn btn-minus" onclick="updateSales(${p.id}, -1)">−</button>
             <span class="qty-display">${qty}</span>
-            <button class="btn btn-plus" onclick="updateSales(${p.id}, 1)">➕</button>
+            <button class="btn btn-plus" onclick="updateSales(${p.id}, 1)">+</button>
           </div>
         `;
         listContainer.appendChild(div);
       });
 
-      const dailyPayroll = (workers * wage) / 30.0;
+      const dailyPayroll = (data.workers * data.wage) / 30.0;
       const netProfit = totalIncome - (totalCogs + dailyPayroll);
 
-      document.getElementById('summary-income').innerText = `$${totalIncome.toFixed(2)}`;
-      document.getElementById('summary-cogs').innerText = `$${totalCogs.toFixed(2)}`;
-      document.getElementById('summary-payroll').innerText = `$${dailyPayroll.toFixed(2)}`;
-      document.getElementById('summary-profit').innerText = `$${netProfit.toFixed(2)}`;
+      document.getElementById('summary-income').innerText = `${sym}${totalIncome.toFixed(2)}`;
+      document.getElementById('summary-cogs').innerText = `${sym}${totalCogs.toFixed(2)}`;
+      document.getElementById('summary-payroll').innerText = `${sym}${dailyPayroll.toFixed(2)}`;
+      document.getElementById('summary-profit').innerText = `${sym}${netProfit.toFixed(2)}`;
     }
 
-    // --- CLOUD SYNC FUNCTION ---
     async function uploadDataToCloud() {
       const statusEl = document.getElementById('sync-status');
       statusEl.innerText = "Connecting to Cloud...";
 
       if (!navigator.onLine) {
-        statusEl.innerText = "⚠️ No internet connection! Data remains saved locally.";
+        statusEl.innerText = "⚠️ No internet! Data saved locally.";
         return;
       }
 
@@ -183,7 +293,7 @@ const firebaseConfig = {
           timestamp: new Date(),
           storeData: getStoredData()
         });
-        statusEl.innerText = "✅ Successfully uploaded to Firebase!";
+        statusEl.innerText = "✅ Successfully uploaded to Cloud!";
       } catch (error) {
         statusEl.innerText = "❌ Upload failed: " + error.message;
       }
