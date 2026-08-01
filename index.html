@@ -13,17 +13,12 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   
-  <!-- Chart.js for Visual Graphs -->
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; transition: background 0.3s, color 0.3s; }
-    
-    /* LIGHT MODE */
-    body.light-mode { 
-      background: linear-gradient(135deg, #0a192f 0%, #005c53 35%, #00b4d8 70%, #9ef01a 100%);
-      background-attachment: fixed; margin: 0; padding: 16px; color: #1a202c; min-height: 100vh;
-    }
+    body.light-mode { background: linear-gradient(135deg, #0a192f 0%, #005c53 35%, #00b4d8 70%, #9ef01a 100%); background-attachment: fixed; margin: 0; padding: 16px; color: #1a202c; min-height: 100vh; }
     body.light-mode .card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); }
     body.light-mode h3 { color: #0a192f; border-bottom: 2px solid #e2e8f0; }
     body.light-mode label { color: #4a5568; }
@@ -31,7 +26,6 @@
     body.light-mode .metric { color: #4a5568; }
     body.light-mode .metric span { color: #1a202c; }
 
-    /* DARK MODE */
     body.dark-mode { background: #0f172a; margin: 0; padding: 16px; color: #f1f5f9; min-height: 100vh; }
     body.dark-mode .card { background: #1e293b; border: 1px solid #334155; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); }
     body.dark-mode h3 { color: #38bdf8; border-bottom: 2px solid #334155; }
@@ -40,7 +34,6 @@
     body.dark-mode .metric { color: #94a3b8; }
     body.dark-mode .metric span { color: #f1f5f9; }
 
-    /* Logo Styling */
     .logo-container { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; }
     .logo-badge { background: rgba(10, 25, 47, 0.9); border: 2px solid #9ef01a; padding: 10px 20px; border-radius: 30px; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); }
     .logo-icon { background: #9ef01a; color: #0a192f; font-weight: 900; font-size: 18px; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -75,18 +68,15 @@
     .profit-row { font-size: 18px; font-weight: bold; margin-top: 12px; padding-top: 10px; border-top: 2px solid rgba(148, 163, 184, 0.2); }
     .history-card { background: rgba(0, 0, 0, 0.1); border-radius: 8px; padding: 10px; margin-top: 10px; font-size: 13px; }
 
-    /* Filter Tabs */
     .filter-tabs { display: flex; gap: 8px; margin-bottom: 15px; }
     .filter-btn { flex: 1; padding: 8px; background: rgba(148, 163, 184, 0.2); border: none; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; color: inherit; }
     .filter-btn.active { background: #00b4d8; color: white; }
 
-    /* Admin Drawer */
     details summary { font-size: 12px; opacity: 0.6; cursor: pointer; text-align: center; margin-top: 10px; list-style: none; }
   </style>
 </head>
 <body class="light-mode">
 
-  <!-- BRAND LOGO HEADER -->
   <div class="logo-container">
     <div class="logo-badge">
       <div class="logo-icon">✚</div>
@@ -94,13 +84,11 @@
     </div>
   </div>
 
-  <!-- 1. CLOUD SYNC -->
   <div class="card">
     <button class="btn btn-cloud" onclick="uploadDataToCloud()">☁️ Sync / Upload to Cloud</button>
     <p id="sync-status" style="font-size: 12px; opacity: 0.8; text-align: center; margin-top: 8px; margin-bottom: 0;"></p>
   </div>
 
-  <!-- 2. CURRENCY & SETTINGS -->
   <div class="card">
     <h3>⚙️ App Settings & Theme</h3>
     <button class="btn btn-theme" onclick="toggleTheme()" id="theme-btn">🌙 Switch to Dark Mode</button>
@@ -123,7 +111,6 @@
     <input type="number" id="monthly-wage" placeholder="300" oninput="updateSettings()">
   </div>
 
-  <!-- 3. ADD PRODUCT WITH STOCK -->
   <div class="card">
     <h3>➕ Add Product</h3>
     <label>Product Name:</label>
@@ -141,13 +128,11 @@
     <button class="btn btn-add" onclick="addProduct()">Save Product</button>
   </div>
 
-  <!-- 4. DAILY REGISTER -->
   <div class="card">
     <h3>🛒 Today's Register</h3>
     <div id="product-list"></div>
   </div>
 
-  <!-- 5. FINANCIAL SUMMARY -->
   <div class="card">
     <h3>📊 Today's Summary</h3>
     <div class="metric">Total Revenue: <span id="summary-income">$0.00</span></div>
@@ -156,7 +141,6 @@
     <div class="metric profit-row">Net Profit Today: <span id="summary-profit" style="color: #22c55e;">$0.00</span></div>
   </div>
 
-  <!-- 6. ANALYTICS & REPORTS (GRAPHS) -->
   <div class="card">
     <h3>📈 Analytics & Reports</h3>
     <div class="filter-tabs">
@@ -173,7 +157,6 @@
     </div>
   </div>
 
-  <!-- 7. CLOUD HISTORY & ADMIN -->
   <div class="card">
     <h3>📜 Cloud Sales History</h3>
     <button class="btn btn-history" onclick="loadCloudHistory()">📥 Fetch All Synced Logs</button>
@@ -187,11 +170,7 @@
       </div>
     </details>
   </div>
-
-  <script>
-    // ==========================================
-    // 🔑 PASTE YOUR FIREBASE KEYS DIRECTLY BELOW 
-    // ==========================================
+    <script>
     // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyAS49B83gZt2Od1XVlBlQ3VXZ-EGR1w2UE",
@@ -202,7 +181,6 @@ const firebaseConfig = {
   appId: "1:685359390375:web:648d494d48b663f62e4582",
   measurementId: "G-6C948M3V7C"
 };
-    // ==========================================
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
@@ -417,7 +395,6 @@ const firebaseConfig = {
       }
     }
 
-    // --- ANALYTICS & GRAPH LOGIC ---
     function switchReportTab(type) {
       document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
       document.getElementById(`tab-${type}`).classList.add('active');
@@ -458,7 +435,6 @@ const firebaseConfig = {
       });
 
       document.getElementById('rep-revenue').innerText = `${sym}${totalRev.toFixed(2)}`;
-      document.getElementById('rep-profidocument.getElementById('rep-revenue').innerText = `${sym}${totalRev.toFixed(2)}`;
       document.getElementById('rep-profit').innerText = `${sym}${totalProf.toFixed(2)}`;
 
       updateChart(labels, revenueData, profitData);
@@ -496,7 +472,6 @@ const firebaseConfig = {
       chartInstance.update();
     }
 
-    // --- HIDDEN ADMIN CLEAR FUNCTION ---
     async function clearCloudHistory() {
       const data = getStoredData();
       const inputPin = prompt("🔑 Enter Admin PIN to confirm wipe:");
