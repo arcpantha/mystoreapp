@@ -12,6 +12,10 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  
+  <!-- Chart.js for Visual Graphs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; transition: background 0.3s, color 0.3s; }
     
@@ -58,6 +62,7 @@
     .btn-add { background: linear-gradient(135deg, #005c53, #9ef01a); color: #0a192f; width: 100%; padding: 12px; font-size: 16px; margin-top: 5px; }
     .btn-theme { background: #334155; color: #f1f5f9; width: 100%; padding: 10px; font-size: 14px; margin-bottom: 15px; border-radius: 8px; }
     .btn-history { background: #3b82f6; color: white; width: 100%; padding: 10px; font-size: 14px; border-radius: 8px; }
+    .btn-danger { background: #ef4444; color: white; width: 100%; padding: 10px; font-size: 13px; margin-top: 10px; }
 
     .item-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(148, 163, 184, 0.2); }
     .item-row:last-child { border-bottom: none; }
@@ -69,6 +74,14 @@
     .metric span { font-weight: bold; }
     .profit-row { font-size: 18px; font-weight: bold; margin-top: 12px; padding-top: 10px; border-top: 2px solid rgba(148, 163, 184, 0.2); }
     .history-card { background: rgba(0, 0, 0, 0.1); border-radius: 8px; padding: 10px; margin-top: 10px; font-size: 13px; }
+
+    /* Filter Tabs */
+    .filter-tabs { display: flex; gap: 8px; margin-bottom: 15px; }
+    .filter-btn { flex: 1; padding: 8px; background: rgba(148, 163, 184, 0.2); border: none; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; color: inherit; }
+    .filter-btn.active { background: #00b4d8; color: white; }
+
+    /* Admin Drawer */
+    details summary { font-size: 12px; opacity: 0.6; cursor: pointer; text-align: center; margin-top: 10px; list-style: none; }
   </style>
 </head>
 <body class="light-mode">
@@ -81,7 +94,7 @@
     </div>
   </div>
 
-  <!-- 1. CLOUD SYNC & ACTIONS -->
+  <!-- 1. CLOUD SYNC -->
   <div class="card">
     <button class="btn btn-cloud" onclick="uploadDataToCloud()">☁️ Sync / Upload to Cloud</button>
     <p id="sync-status" style="font-size: 12px; opacity: 0.8; text-align: center; margin-top: 8px; margin-bottom: 0;"></p>
@@ -143,11 +156,36 @@
     <div class="metric profit-row">Net Profit Today: <span id="summary-profit" style="color: #22c55e;">$0.00</span></div>
   </div>
 
-  <!-- 6. CLOUD HISTORY -->
+  <!-- 6. ANALYTICS & REPORTS (GRAPHS) -->
+  <div class="card">
+    <h3>📈 Analytics & Reports</h3>
+    <div class="filter-tabs">
+      <button class="filter-btn active" id="tab-daily" onclick="switchReportTab('daily')">Daily</button>
+      <button class="filter-btn" id="tab-weekly" onclick="switchReportTab('weekly')">Weekly</button>
+      <button class="filter-btn" id="tab-monthly" onclick="switchReportTab('monthly')">Monthly</button>
+    </div>
+
+    <div class="metric">Period Revenue: <span id="rep-revenue">$0.00</span></div>
+    <div class="metric">Period Net Profit: <span id="rep-profit" style="color:#22c55e;">$0.00</span></div>
+
+    <div style="position: relative; height:220px; margin-top:15px;">
+      <canvas id="salesChart"></canvas>
+    </div>
+  </div>
+
+  <!-- 7. CLOUD HISTORY & ADMIN -->
   <div class="card">
     <h3>📜 Cloud Sales History</h3>
-    <button class="btn btn-history" onclick="loadCloudHistory()">📥 Load Synced Reports</button>
+    <button class="btn btn-history" onclick="loadCloudHistory()">📥 Fetch All Synced Logs</button>
     <div id="history-list"></div>
+
+    <details style="margin-top: 15px;">
+      <summary>🔒 Admin Settings (Clear Data)</summary>
+      <div style="padding-top:10px;">
+        <p style="font-size:11px; opacity:0.7; margin:0 0 8px 0;">Requires PIN to clear synced cloud data.</p>
+        <button class="btn btn-danger" onclick="clearCloudHistory()">🗑️ Wipe Cloud Sales History</button>
+      </div>
+    </details>
   </div>
 
   <script>
@@ -169,8 +207,11 @@ const firebaseConfig = {
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    let chartInstance = null;
+    let cachedCloudRecords = [];
+
     function getStoredData() {
-      const defaultData = { products: [], sales: {}, workers: 1, wage: 300, currency: 'USh ', theme: 'light' };
+      const defaultData = { products: [], sales: {}, workers: 1, wage: 300, currency: 'USh ', theme: 'light', adminPin: '14324' };
       return JSON.parse(localStorage.getItem('store_app_data')) || defaultData;
     }
 
@@ -296,6 +337,8 @@ const firebaseConfig = {
       document.getElementById('summary-cogs').innerText = `${sym}${totalCogs.toFixed(2)}`;
       document.getElementById('summary-payroll').innerText = `${sym}${dailyPayroll.toFixed(2)}`;
       document.getElementById('summary-profit').innerText = `${sym}${netProfit.toFixed(2)}`;
+      
+      initChart();
     }
 
     window.onload = function() {
@@ -305,6 +348,7 @@ const firebaseConfig = {
       document.getElementById('monthly-wage').value = data.wage !== undefined ? data.wage : 300;
       applyTheme(data.theme || 'light');
       renderApp();
+      loadCloudHistory();
     };
 
     async function uploadDataToCloud() {
@@ -324,6 +368,7 @@ const firebaseConfig = {
           storeData: getStoredData()
         });
         statusEl.innerText = "✅ Successfully uploaded to Cloud!";
+        loadCloudHistory();
       } catch (error) {
         statusEl.innerText = "❌ Upload failed: " + error.message;
       }
@@ -335,14 +380,19 @@ const firebaseConfig = {
       
       try {
         const snapshot = await db.collection("daily_records").get();
+        cachedCloudRecords = [];
+        
         if (snapshot.empty) {
           container.innerHTML = '<p style="text-align:center; opacity:0.6;">No cloud records found.</p>';
+          renderAnalytics('daily');
           return;
         }
 
         container.innerHTML = '';
         snapshot.forEach(doc => {
           const record = doc.data();
+          cachedCloudRecords.push(record);
+          
           const d = record.storeData || {};
           const sym = d.currency || '$';
           
@@ -360,10 +410,52 @@ const firebaseConfig = {
           `;
           container.appendChild(div);
         });
+
+        renderAnalytics('daily');
       } catch (err) {
         container.innerHTML = `<p style="color:#ef4444; font-size:12px;">Failed to load: ${err.message}</p>`;
       }
     }
-  </script>
-</body>
-</html>
+
+    // --- ANALYTICS & GRAPH LOGIC ---
+    function switchReportTab(type) {
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`tab-${type}`).classList.add('active');
+      renderAnalytics(type);
+    }
+
+    function renderAnalytics(timeframe) {
+      const data = getStoredData();
+      const sym = data.currency || '$';
+      
+      let labels = [];
+      let revenueData = [];
+      let profitData = [];
+
+      let totalRev = 0;
+      let totalProf = 0;
+
+      cachedCloudRecords.forEach(rec => {
+        const d = rec.storeData || {};
+        let rev = 0;
+        let cogs = 0;
+
+        (d.products || []).forEach(p => {
+          const sold = (d.sales || {})[p.id] || 0;
+          rev += sold * p.price;
+          cogs += sold * p.cost;
+        });
+
+        const payroll = ((d.workers || 0) * (d.wage || 0)) / 30.0;
+        const profit = rev - (cogs + payroll);
+
+        labels.push(rec.date || 'Log');
+        revenueData.push(rev);
+        profitData.push(profit);
+
+        totalRev += rev;
+        totalProf += profit;
+      });
+
+      document.getElementById('rep-revenue').innerText = `${sym}${totalRev.toFixed(2)}`;
+      document.getElement
