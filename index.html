@@ -4,31 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BLESSINGS CLINIC</title>
-    <!-- Medical Icon for Home Screen & Favicon -->
+  
+  <!-- App Icons -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230a192f'/><path d='M32 50h36M50 32v36' stroke='%239ef01a' stroke-width='12' stroke-linecap='round'/></svg>">
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230a192f'/><path d='M32 50h36M50 32v36' stroke='%239ef01a' stroke-width='12' stroke-linecap='round'/></svg>">
+
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <style>
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; transition: background 0.3s, color 0.3s; }
     
-    /* LIGHT MODE (Vibrant Gradient Background) */
+    /* LIGHT MODE */
     body.light-mode { 
       background: linear-gradient(135deg, #0a192f 0%, #005c53 35%, #00b4d8 70%, #9ef01a 100%);
-      background-attachment: fixed;
-      margin: 0; 
-      padding: 16px; 
-      color: #1a202c; 
-      min-height: 100vh;
+      background-attachment: fixed; margin: 0; padding: 16px; color: #1a202c; min-height: 100vh;
     }
-
-    body.light-mode .card {
-      background: rgba(255, 255, 255, 0.95); 
-      backdrop-filter: blur(8px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); 
-    }
-
+    body.light-mode .card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); }
     body.light-mode h3 { color: #0a192f; border-bottom: 2px solid #e2e8f0; }
     body.light-mode label { color: #4a5568; }
     body.light-mode input, body.light-mode select { border: 1px solid #cbd5e0; background: #f8fafc; color: #1a202c; }
@@ -36,74 +28,22 @@
     body.light-mode .metric span { color: #1a202c; }
 
     /* DARK MODE */
-    body.dark-mode { 
-      background: #0f172a;
-      margin: 0; 
-      padding: 16px; 
-      color: #f1f5f9; 
-      min-height: 100vh;
-    }
-
-    body.dark-mode .card {
-      background: #1e293b; 
-      border: 1px solid #334155;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); 
-    }
-
+    body.dark-mode { background: #0f172a; margin: 0; padding: 16px; color: #f1f5f9; min-height: 100vh; }
+    body.dark-mode .card { background: #1e293b; border: 1px solid #334155; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); }
     body.dark-mode h3 { color: #38bdf8; border-bottom: 2px solid #334155; }
     body.dark-mode label { color: #94a3b8; }
     body.dark-mode input, body.dark-mode select { border: 1px solid #475569; background: #0f172a; color: #f1f5f9; }
     body.dark-mode .metric { color: #94a3b8; }
     body.dark-mode .metric span { color: #f1f5f9; }
 
-    /* Custom Logo Styling */
-    .logo-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    
-    .logo-badge {
-      background: rgba(10, 25, 47, 0.9);
-      border: 2px solid #9ef01a;
-      padding: 10px 20px;
-      border-radius: 30px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    }
-
-    .logo-icon {
-      background: #9ef01a;
-      color: #0a192f;
-      font-weight: 900;
-      font-size: 18px;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .logo-text {
-      color: #ffffff;
-      font-size: 18px;
-      font-weight: 800;
-      letter-spacing: 1.5px;
-    }
+    /* Logo Styling */
+    .logo-container { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; }
+    .logo-badge { background: rgba(10, 25, 47, 0.9); border: 2px solid #9ef01a; padding: 10px 20px; border-radius: 30px; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); }
+    .logo-icon { background: #9ef01a; color: #0a192f; font-weight: 900; font-size: 18px; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .logo-text { color: #ffffff; font-size: 18px; font-weight: 800; letter-spacing: 1.5px; }
     
     h3 { margin-top: 0; font-size: 18px; padding-bottom: 8px; }
-
-    .card { 
-      padding: 18px; 
-      border-radius: 16px; 
-      margin-bottom: 16px; 
-    }
-    
+    .card { padding: 18px; border-radius: 16px; margin-bottom: 16px; }
     label { font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
     input, select { width: 100%; padding: 12px; margin: 6px 0 14px; border-radius: 8px; font-size: 15px; outline: none; }
 
@@ -112,20 +52,23 @@
     
     .btn-plus { background: #22c55e; color: white; border-radius: 50%; width: 34px; height: 34px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; }
     .btn-minus { background: #ef4444; color: white; border-radius: 50%; width: 34px; height: 34px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid #ef4444; border-radius: 8px; padding: 6px 10px; font-size: 14px; margin-left: 8px; }
+    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid #ef4444; border-radius: 8px; padding: 6px 10px; font-size: 14px; margin-left: 4px; }
     
     .btn-cloud { background: linear-gradient(135deg, #0a192f, #00b4d8); color: white; width: 100%; padding: 14px; font-size: 16px; box-shadow: 0 4px 10px rgba(0, 180, 216, 0.3); }
     .btn-add { background: linear-gradient(135deg, #005c53, #9ef01a); color: #0a192f; width: 100%; padding: 12px; font-size: 16px; margin-top: 5px; }
     .btn-theme { background: #334155; color: #f1f5f9; width: 100%; padding: 10px; font-size: 14px; margin-bottom: 15px; border-radius: 8px; }
+    .btn-history { background: #3b82f6; color: white; width: 100%; padding: 10px; font-size: 14px; border-radius: 8px; }
 
     .item-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(148, 163, 184, 0.2); }
     .item-row:last-child { border-bottom: none; }
-    .controls { display: flex; align-items: center; gap: 8px; }
+    .controls { display: flex; align-items: center; gap: 6px; }
     .qty-display { font-size: 18px; font-weight: bold; min-width: 24px; text-align: center; }
 
+    .badge-warn { background: #ef4444; color: white; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 10px; margin-left: 6px; }
     .metric { font-size: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; }
     .metric span { font-weight: bold; }
     .profit-row { font-size: 18px; font-weight: bold; margin-top: 12px; padding-top: 10px; border-top: 2px solid rgba(148, 163, 184, 0.2); }
+    .history-card { background: rgba(0, 0, 0, 0.1); border-radius: 8px; padding: 10px; margin-top: 10px; font-size: 13px; }
   </style>
 </head>
 <body class="light-mode">
@@ -138,7 +81,7 @@
     </div>
   </div>
 
-  <!-- 1. CLOUD SYNC -->
+  <!-- 1. CLOUD SYNC & ACTIONS -->
   <div class="card">
     <button class="btn btn-cloud" onclick="uploadDataToCloud()">☁️ Sync / Upload to Cloud</button>
     <p id="sync-status" style="font-size: 12px; opacity: 0.8; text-align: center; margin-top: 8px; margin-bottom: 0;"></p>
@@ -147,7 +90,6 @@
   <!-- 2. CURRENCY & SETTINGS -->
   <div class="card">
     <h3>⚙️ App Settings & Theme</h3>
-    
     <button class="btn btn-theme" onclick="toggleTheme()" id="theme-btn">🌙 Switch to Dark Mode</button>
 
     <label>Select Currency Symbol:</label>
@@ -168,12 +110,15 @@
     <input type="number" id="monthly-wage" placeholder="300" oninput="updateSettings()">
   </div>
 
-  <!-- 3. ADD PRODUCT -->
+  <!-- 3. ADD PRODUCT WITH STOCK -->
   <div class="card">
     <h3>➕ Add Product</h3>
     <label>Product Name:</label>
     <input type="text" id="p-name" placeholder="e.g. Paracetamol, Bandages">
     
+    <label>Initial Stock Quantity:</label>
+    <input type="number" id="p-stock" placeholder="50">
+
     <label>Cost Price (<span class="curr-symbol">$</span>):</label>
     <input type="number" id="p-cost" placeholder="0.00">
     
@@ -196,6 +141,13 @@
     <div class="metric">Cost of Goods Sold: <span id="summary-cogs">$0.00</span></div>
     <div class="metric">Daily Worker Payroll: <span id="summary-payroll">$0.00</span></div>
     <div class="metric profit-row">Net Profit Today: <span id="summary-profit" style="color: #22c55e;">$0.00</span></div>
+  </div>
+
+  <!-- 6. CLOUD HISTORY -->
+  <div class="card">
+    <h3>📜 Cloud Sales History</h3>
+    <button class="btn btn-history" onclick="loadCloudHistory()">📥 Load Synced Reports</button>
+    <div id="history-list"></div>
   </div>
 
   <script>
@@ -226,7 +178,6 @@ const firebaseConfig = {
       localStorage.setItem('store_app_data', JSON.stringify(data));
     }
 
-    // Toggle Dark / Light Theme
     function toggleTheme() {
       const data = getStoredData();
       data.theme = (data.theme === 'dark') ? 'light' : 'dark';
@@ -245,7 +196,6 @@ const firebaseConfig = {
       }
     }
 
-    // Update worker/wage/currency settings safely without breaking inputs
     function updateSettings() {
       const data = getStoredData();
       data.currency = document.getElementById('currency-select').value;
@@ -257,22 +207,24 @@ const firebaseConfig = {
 
     function addProduct() {
       const name = document.getElementById('p-name').value;
+      const stock = parseInt(document.getElementById('p-stock').value) || 0;
       const cost = parseFloat(document.getElementById('p-cost').value) || 0;
       const price = parseFloat(document.getElementById('p-price').value) || 0;
       if (!name) return alert('Enter product name');
 
       const data = getStoredData();
-      data.products.push({ id: Date.now(), name, cost, price });
+      data.products.push({ id: Date.now(), name, stock, cost, price });
       saveData(data);
 
       document.getElementById('p-name').value = '';
+      document.getElementById('p-stock').value = '';
       document.getElementById('p-cost').value = '';
       document.getElementById('p-price').value = '';
       renderApp();
     }
 
     function removeProduct(productId) {
-      if (!confirm("Are you sure you want to delete this product?")) return;
+      if (!confirm("Delete product?")) return;
       const data = getStoredData();
       data.products = data.products.filter(p => p.id !== productId);
       delete data.sales[productId];
@@ -282,8 +234,14 @@ const firebaseConfig = {
 
     function updateSales(productId, change) {
       const data = getStoredData();
-      const current = data.sales[productId] || 0;
-      data.sales[productId] = Math.max(0, current + change);
+      const product = data.products.find(p => p.id === productId);
+      const currentSold = data.sales[productId] || 0;
+
+      if (change > 0 && product && (product.stock - currentSold) <= 0) {
+        return alert("Out of stock!");
+      }
+
+      data.sales[productId] = Math.max(0, currentSold + change);
       saveData(data);
       renderApp();
     }
@@ -292,10 +250,8 @@ const firebaseConfig = {
       const data = getStoredData();
       const sym = data.currency || '$';
 
-      // Update static symbol labels
       document.querySelectorAll('.curr-symbol').forEach(el => el.innerText = sym);
 
-      // Render Products in Register
       const listContainer = document.getElementById('product-list');
       listContainer.innerHTML = '';
       let totalIncome = 0;
@@ -306,20 +262,26 @@ const firebaseConfig = {
       }
 
       data.products.forEach(p => {
-        const qty = data.sales[p.id] || 0;
-        totalIncome += qty * p.price;
-        totalCogs += qty * p.cost;
+        const qtySold = data.sales[p.id] || 0;
+        const remainingStock = Math.max(0, p.stock - qtySold);
+        totalIncome += qtySold * p.price;
+        totalCogs += qtySold * p.cost;
+
+        const isLowStock = remainingStock <= 5;
+        const stockBadge = isLowStock 
+          ? `<span class="badge-warn">⚠️ Low: ${remainingStock} left</span>` 
+          : `<small style="opacity:0.7;">(Stock: ${remainingStock})</small>`;
 
         const div = document.createElement('div');
         div.className = 'item-row';
         div.innerHTML = `
           <div>
-            <strong>${p.name}</strong><br>
+            <strong>${p.name}</strong> ${stockBadge}<br>
             <small style="opacity:0.7;">Cost: ${sym}${p.cost.toFixed(2)} | Price: ${sym}${p.price.toFixed(2)}</small>
           </div>
           <div class="controls">
             <button class="btn btn-minus" onclick="updateSales(${p.id}, -1)">−</button>
-            <span class="qty-display">${qty}</span>
+            <span class="qty-display">${qtySold}</span>
             <button class="btn btn-plus" onclick="updateSales(${p.id}, 1)">+</button>
             <button class="btn btn-delete" onclick="removeProduct(${p.id})">🗑️</button>
           </div>
@@ -327,7 +289,6 @@ const firebaseConfig = {
         listContainer.appendChild(div);
       });
 
-      // Calculate Summary
       const dailyPayroll = (data.workers * data.wage) / 30.0;
       const netProfit = totalIncome - (totalCogs + dailyPayroll);
 
@@ -337,15 +298,11 @@ const firebaseConfig = {
       document.getElementById('summary-profit').innerText = `${sym}${netProfit.toFixed(2)}`;
     }
 
-    // Initialize Page
     window.onload = function() {
       const data = getStoredData();
-      
-      // Load saved settings into fields ONCE on initial page load
       document.getElementById('currency-select').value = data.currency || 'USh ';
       document.getElementById('num-workers').value = data.workers !== undefined ? data.workers : 1;
       document.getElementById('monthly-wage').value = data.wage !== undefined ? data.wage : 300;
-      
       applyTheme(data.theme || 'light');
       renderApp();
     };
@@ -355,19 +312,56 @@ const firebaseConfig = {
       statusEl.innerText = "Connecting to Cloud...";
 
       if (!navigator.onLine) {
-        statusEl.innerText = "⚠️ No internet! Data saved locally.";
+        statusEl.innerText = "⚠️ No internet! Saved locally.";
         return;
       }
 
       try {
         const todayStr = new Date().toISOString().split('T')[0];
         await db.collection("daily_records").doc(todayStr).set({
+          date: todayStr,
           timestamp: new Date(),
           storeData: getStoredData()
         });
         statusEl.innerText = "✅ Successfully uploaded to Cloud!";
       } catch (error) {
         statusEl.innerText = "❌ Upload failed: " + error.message;
+      }
+    }
+
+    async function loadCloudHistory() {
+      const container = document.getElementById('history-list');
+      container.innerHTML = '<p style="text-align:center; opacity:0.7;">Fetching records...</p>';
+      
+      try {
+        const snapshot = await db.collection("daily_records").get();
+        if (snapshot.empty) {
+          container.innerHTML = '<p style="text-align:center; opacity:0.6;">No cloud records found.</p>';
+          return;
+        }
+
+        container.innerHTML = '';
+        snapshot.forEach(doc => {
+          const record = doc.data();
+          const d = record.storeData || {};
+          const sym = d.currency || '$';
+          
+          let income = 0;
+          (d.products || []).forEach(p => {
+            const sold = (d.sales || {})[p.id] || 0;
+            income += sold * p.price;
+          });
+
+          const div = document.createElement('div');
+          div.className = 'history-card';
+          div.innerHTML = `
+            <strong>📅 Date: ${doc.id}</strong><br>
+            <span>Revenue: <strong>${sym}${income.toFixed(2)}</strong> | Workers: ${d.workers || 0}</span>
+          `;
+          container.appendChild(div);
+        });
+      } catch (err) {
+        container.innerHTML = `<p style="color:#ef4444; font-size:12px;">Failed to load: ${err.message}</p>`;
       }
     }
   </script>
