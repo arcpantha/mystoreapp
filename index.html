@@ -1,937 +1,1190 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BLESSINGS CLINIC</title>
-
-  <link rel="manifest" href="manifest.json">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#0a192f">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BLESSINGS CLINIC - Patient Care & Inventory</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0a192f" />
   
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230a192f'/><path d='M32 50h36M50 32v36' stroke='%239ef01a' stroke-width='12' stroke-linecap='round'/></svg>">
-  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230a192f'/><path d='M32 50h36M50 32v36' stroke='%239ef01a' stroke-width='12' stroke-linecap='round'/></svg>">
-
+  <!-- Firebase & Chart.js Dependencies -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-  
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; transition: background 0.3s, color 0.3s; }
-    body.light-mode { background: linear-gradient(135deg, #0a192f 0%, #005c53 35%, #00b4d8 70%, #9ef01a 100%); background-attachment: fixed; margin: 0; padding: 16px; color: #1a202c; min-height: 100vh; }
-    body.light-mode .card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); }
-    body.light-mode h3 { color: #0a192f; border-bottom: 2px solid #e2e8f0; }
-    body.light-mode label { color: #4a5568; }
-    body.light-mode input, body.light-mode select, body.light-mode textarea { border: 1px solid #cbd5e0; background: #f8fafc; color: #1a202c; }
-    body.light-mode .metric { color: #4a5568; }
-    body.light-mode .metric span { color: #1a202c; }
-
-    body.dark-mode { background: #0f172a; margin: 0; padding: 16px; color: #f1f5f9; min-height: 100vh; }
-    body.dark-mode .card { background: #1e293b; border: 1px solid #334155; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); }
-    body.dark-mode h3 { color: #38bdf8; border-bottom: 2px solid #334155; }
-    body.dark-mode label { color: #94a3b8; }
-    body.dark-mode input, body.dark-mode select, body.dark-mode textarea { border: 1px solid #475569; background: #0f172a; color: #f1f5f9; }
-    body.dark-mode .metric { color: #94a3b8; }
-    body.dark-mode .metric span { color: #f1f5f9; }
-
-    .logo-container { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; }
-    .logo-badge { background: rgba(10, 25, 47, 0.9); border: 2px solid #9ef01a; padding: 10px 20px; border-radius: 30px; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); }
-    .logo-icon { background: #9ef01a; color: #0a192f; font-weight: 900; font-size: 18px; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .logo-text { color: #ffffff; font-size: 18px; font-weight: 800; letter-spacing: 1.5px; }
-    
-    h3 { margin-top: 0; font-size: 18px; padding-bottom: 8px; }
-    .card { padding: 18px; border-radius: 16px; margin-bottom: 16px; }
-    label { font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
-    input, select, textarea { width: 100%; padding: 12px; margin: 6px 0 14px; border-radius: 8px; font-size: 15px; outline: none; }
-    textarea { resize: vertical; min-height: 60px; }
-
-    .search-input { background: #fff !important; border: 2px solid #00b4d8 !important; padding: 10px 14px; border-radius: 20px !important; font-weight: 500; margin-bottom: 15px; }
-    body.dark-mode .search-input { background: #0f172a !important; color: #fff !important; }
-
-    .btn { border: none; padding: 10px 16px; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; transition: transform 0.1s; }
-    .btn:active { transform: scale(0.98); }
-    
-    .btn-plus { background: #22c55e; color: white; border-radius: 50%; width: 34px; height: 34px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-    .btn-minus { background: #ef4444; color: white; border-radius: 50%; width: 34px; height: 34px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-    .btn-delete { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid #ef4444; border-radius: 8px; padding: 6px 10px; font-size: 14px; margin-left: 4px; }
-    
-    .btn-cloud { background: linear-gradient(135deg, #0a192f, #00b4d8); color: white; width: 100%; padding: 14px; font-size: 16px; box-shadow: 0 4px 10px rgba(0, 180, 216, 0.3); }
-    .btn-add { background: linear-gradient(135deg, #005c53, #9ef01a); color: #0a192f; width: 100%; padding: 12px; font-size: 16px; margin-top: 5px; }
-    .btn-theme { background: #334155; color: #f1f5f9; width: 100%; padding: 10px; font-size: 14px; margin-bottom: 15px; border-radius: 8px; }
-    .btn-history { background: #3b82f6; color: white; width: 100%; padding: 10px; font-size: 14px; border-radius: 8px; }
-    .btn-danger { background: #ef4444; color: white; width: 100%; padding: 10px; font-size: 13px; margin-top: 10px; }
-    .btn-status { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
-
-    .item-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(148, 163, 184, 0.2); }
-    .item-row:last-child { border-bottom: none; }
-    .controls { display: flex; align-items: center; gap: 6px; }
-    .qty-display { font-size: 18px; font-weight: bold; min-width: 24px; text-align: center; }
-
-    .badge-warn { background: #ef4444; color: white; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 10px; margin-left: 4px; }
-    .badge-expiring { background: #eab308; color: black; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 10px; margin-left: 4px; }
-    .badge-expired { background: #dc2626; color: white; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 10px; margin-left: 4px; }
-
-    .metric { font-size: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; }
-    .metric span { font-weight: bold; }
-    .profit-row { font-size: 18px; font-weight: bold; margin-top: 12px; padding-top: 10px; border-top: 2px solid rgba(148, 163, 184, 0.2); }
-    
-    .patient-card { background: rgba(0, 0, 0, 0.05); border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 10px; padding: 12px; margin-bottom: 10px; }
-    .patient-card.active-care { border-left: 4px solid #f59e0b; }
-    .patient-card.completed-care { border-left: 4px solid #22c55e; opacity: 0.85; }
-
-    .alert-card-item { background: rgba(239, 68, 68, 0.08); border-left: 4px solid #ef4444; padding: 10px; margin-bottom: 8px; border-radius: 6px; font-size: 13px; }
-    .expiry-card-item { background: rgba(234, 179, 8, 0.1); border-left: 4px solid #eab308; padding: 10px; margin-bottom: 8px; border-radius: 6px; font-size: 13px; }
-
-    .filter-tabs { display: flex; gap: 8px; margin-bottom: 15px; }
-    .filter-btn { flex: 1; padding: 8px; background: rgba(148, 163, 184, 0.2); border: none; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; color: inherit; }
-    .filter-btn.active { background: #00b4d8; color: white; }
-
-    /* Modal / Print Overlay */
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; padding: 16px; }
-    .modal-overlay.active { display: flex; }
-    .receipt-box { background: #fff; color: #000; padding: 24px; border-radius: 12px; width: 100%; max-width: 380px; font-family: 'Courier New', Courier, monospace; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-    .receipt-header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 12px; }
-    .receipt-body p { margin: 6px 0; font-size: 13px; line-height: 1.4; }
-    .receipt-footer { border-top: 2px dashed #000; padding-top: 10px; margin-top: 12px; font-weight: bold; display: flex; justify-content: space-between; font-size: 15px; }
-
-    @media print {
-      body * { visibility: hidden; }
-      #receipt-modal, #receipt-modal * { visibility: visible; }
-      #receipt-modal { position: absolute; left: 0; top: 0; width: 100%; background: white; }
-      .no-print { display: none !important; }
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-color: #f8fafc;
+      --accent-color: #9ef01a;
+      --blue-accent: #00b4d8;
+      --border-color: #334155;
     }
 
-    details summary { font-size: 12px; opacity: 0.6; cursor: pointer; text-align: center; margin-top: 10px; list-style: none; }
+    body.light-mode {
+      --bg-color: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-color: #0f172a;
+      --accent-color: #16a34a;
+      --blue-accent: #0284c7;
+      --border-color: #cbd5e1;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 12px;
+      padding-bottom: 40px;
+    }
+
+    .container { max-width: 800px; margin: 0 auto; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--border-color);
+    }
+    h1 { margin: 0; font-size: 1.3rem; color: var(--accent-color); }
+
+    /* TAB NAVIGATION SYSTEM */
+    .tab-nav {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+      background: var(--card-bg);
+      padding: 6px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px 4px;
+      border: none;
+      background: transparent;
+      color: var(--text-color);
+      font-weight: bold;
+      font-size: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+    .tab-btn.active {
+      background: var(--accent-color);
+      color: #000;
+      opacity: 1;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* COMMON CARDS & INPUTS */
+    .card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+      border: 1px solid var(--border-color);
+    }
+    .card h2 { margin-top: 0; font-size: 1.1rem; border-bottom: 1px dashed var(--border-color); padding-bottom: 6px; }
+
+    input, select, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      box-sizing: border-box;
+      background: rgba(0,0,0,0.1);
+      color: var(--text-color);
+    }
+
+    .btn {
+      cursor: pointer;
+      font-weight: bold;
+      border: none;
+      transition: opacity 0.2s;
+    }
+    .btn:active { opacity: 0.8; }
+    .btn-main { background: var(--accent-color); color: #000; }
+    .btn-sub { background: var(--blue-accent); color: #fff; }
+
+    /* Alert Boxes & Badges */
+    .alert-card-item { background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; padding: 8px; border-radius: 6px; margin-bottom: 6px; font-size: 12px; }
+    .expiry-card-item { background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; padding: 8px; border-radius: 6px; margin-bottom: 6px; font-size: 12px; }
+
+    .patient-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; margin-bottom: 10px; }
+    .patient-card.active-care { border-left: 5px solid #f59e0b; }
+    .patient-card.completed-care { border-left: 5px solid #22c55e; }
+
+    .item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-color); }
+    .controls { display: flex; align-items: center; gap: 6px; }
+    .controls button { width: 32px; height: 32px; padding: 0; margin: 0; }
+    .qty-display { min-width: 24px; text-align: center; font-weight: bold; }
+
+    /* Summary Grid */
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: center; }
+    .summary-box { background: rgba(0,0,0,0.15); padding: 10px; border-radius: 10px; border: 1px solid var(--border-color); }
+
+    /* Receipt Modal */
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; z-index: 1000; }
+    .modal.active { display: flex; }
+    .modal-content { background: var(--card-bg); width: 90%; max-width: 400px; padding: 20px; border-radius: 14px; text-align: center; }
   </style>
 </head>
-<body class="light-mode">
+<body class="dark-mode">
+  <div class="container">
+    
+    <header>
+      <h1>🏥 BLESSINGS CLINIC</h1>
+      <button id="theme-btn" class="btn" style="width:auto; margin:0; font-size:11px; padding:6px 10px;" onclick="toggleTheme()">☀️ Light Mode</button>
+    </header>
 
-  <div class="logo-container">
-    <div class="logo-badge">
-      <div class="logo-icon">✚</div>
-      <div class="logo-text">BLESSINGS CLINIC</div>
+    <!-- TAB NAVIGATION BAR -->
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchMainTab('tab-entry')">📝 Entry</button>
+      <button class="tab-btn" onclick="switchMainTab('tab-records')">📋 Records & Stock</button>
+      <button class="tab-btn" onclick="switchMainTab('tab-analytics')">📊 Analytics</button>
     </div>
-  </div>
+        <!-- ==================== TAB 1: DATA ENTRY ==================== -->
+    <div id="tab-entry" class="tab-content active">
+      
+      <!-- Patient Consultation & Care Input -->
+      <div class="card">
+        <h2>🩺 Patient Consultation & Care Input</h2>
+        <input type="text" id="p-care-name" placeholder="Patient Full Name" />
+        <input type="text" id="p-care-treatment" placeholder="Diagnosis / Medical Procedure" />
 
-  <div class="card">
-    <button class="btn btn-cloud" onclick="uploadDataToCloud()">☁️ Sync / Upload to Cloud</button>
-    <p id="sync-status" style="font-size: 12px; opacity: 0.8; text-align: center; margin-top: 8px; margin-bottom: 0;"></p>
-  </div>
+        <!-- Dynamic Stock Drug Picker -->
+        <label style="font-size: 11px; opacity: 0.8; margin-top: 6px; display: block;">💊 Prescribe Medications from Inventory:</label>
+        <div style="display: flex; gap: 6px;">
+          <select id="p-care-med-select" style="flex: 2;">
+            <option value="">-- Select Drug from Stock --</option>
+          </select>
+          <input type="number" id="p-care-med-qty" placeholder="Qty / Tabs" style="flex: 1;" min="1" />
+          <button class="btn btn-sub" style="width: auto; margin-top: 6px;" onclick="addMedToPrescription()">➕ Add</button>
+        </div>
 
-  <div class="card">
-    <h3>⚙️ App Settings & Theme</h3>
-    <button class="btn btn-theme" onclick="toggleTheme()" id="theme-btn">🌙 Switch to Dark Mode</button>
+        <!-- Prescribed Meds Sub-List -->
+        <div id="prescribed-meds-list" style="margin-top: 6px; font-size: 12px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 6px;">
+          <em style="opacity:0.6;">No drugs selected yet.</em>
+        </div>
 
-    <label>Select Currency Symbol:</label>
-    <select id="currency-select" onchange="updateSettings()">
-      <option value="$">USD ($)</option>
-      <option value="USh ">UGX (USh)</option>
-      <option value="KSh ">KES (KSh)</option>
-      <option value="₦">NGN (₦)</option>
-      <option value="€">EUR (€)</option>
-      <option value="£">GBP (£)</option>
-      <option value="R">ZAR (R)</option>
-    </select>
+        <!-- Fee Structure Inputs -->
+        <div style="display:flex; gap:10px; margin-top:10px;">
+          <div style="flex: 1;">
+            <label style="font-size: 11px; opacity: 0.8;">Meds Subtotal:</label>
+            <input type="number" id="p-care-meds-cost" value="0.00" readonly style="background: rgba(255,255,255,0.05); font-weight: bold; color: var(--accent-color);" />
+          </div>
+          <div style="flex: 1;">
+            <label style="font-size: 11px; opacity: 0.8;">Service / Labor Charge:</label>
+            <input type="number" id="p-care-service-fee" placeholder="0.00" oninput="calculateTotalPatientFee()" />
+          </div>
+        </div>
 
-    <label>Number of Workers:</label>
-    <input type="number" id="num-workers" placeholder="1" oninput="updateSettings()">
-    
-    <label>Monthly Wage per Worker:</label>
-    <input type="number" id="monthly-wage" placeholder="300" oninput="updateSettings()">
-  </div>
+        <div style="display:flex; gap:10px;">
+          <div style="flex: 1;">
+            <label style="font-size: 11px; opacity: 0.8;">Total Fee Charged:</label>
+            <input type="number" id="p-care-fee" placeholder="0.00" readonly style="font-weight: bold; font-size: 16px; color: var(--blue-accent);" />
+          </div>
+          <div style="flex: 1;">
+            <label style="font-size: 11px; opacity: 0.8;">Payment Status:</label>
+            <select id="p-care-payment">
+              <option value="paid">✅ Paid</option>
+              <option value="unpaid">❌ Unpaid / On Credit</option>
+            </select>
+          </div>
+        </div>
 
-  <div class="card" style="border: 2px solid #ef4444;">
-    <h3>🚨 Clinic Inventory Alerts</h3>
-    
-    <h4 style="margin: 10px 0 6px; font-size: 13px; color: #ef4444;">📦 Low Stock & Restock List</h4>
-    <div id="restock-alert-list"></div>
+        <select id="p-care-status">
+          <option value="active">🟡 Active / In Treatment</option>
+          <option value="completed">✅ Completed</option>
+        </select>
 
-    <h4 style="margin: 15px 0 6px; font-size: 13px; color: #eab308;">⚠️ Expired & Soon-Expiring Medicines</h4>
-    <div id="expiry-alert-list"></div>
-  </div>
+        <button class="btn btn-main" onclick="addPatientCareRecord()">💾 Save Patient Record & Print Receipt</button>
+      </div>
 
-  <div class="card">
-    <h3>🩺 Patient Care & Treatment Records</h3>
-    
-    <input type="text" class="search-input" id="patient-search" placeholder="🔍 Search patient by name, treatment, or medications..." oninput="renderApp()">
+      <!-- Record Patient Debt -->
+      <div class="card">
+        <h2>📋 Record Patient Credit / Debt</h2>
+        <input type="text" id="debt-patient" placeholder="Patient Name" />
+        <input type="text" id="debt-items" placeholder="Medications / Services Owed For" />
+        <input type="number" id="debt-amount" placeholder="Amount Owed" />
+        <button class="btn btn-sub" onclick="addPatientDebt()">📌 Save Credit Record</button>
+      </div>
 
-    <label>Patient Full Name:</label>
-    <input type="text" id="p-care-name" placeholder="e.g. Sarah Connor">
+      <!-- Drug Inventory Registration -->
+      <div class="card">
+        <h2>💊 Add New Drug to Inventory</h2>
+        <input type="text" id="p-name" placeholder="Drug / Product Name" />
+        <div style="display:flex; gap:10px;">
+          <input type="number" id="p-stock" placeholder="Initial Stock Qty" />
+          <input type="number" id="p-min-stock" placeholder="Alert Threshold (e.g. 5)" />
+        </div>
+        <input type="date" id="p-expiry" placeholder="Expiry Date" />
+        <div style="display:flex; gap:10px;">
+          <input type="number" id="p-cost" placeholder="Unit Cost Price" />
+          <input type="number" id="p-price" placeholder="Unit Selling Price" />
+        </div>
+        <button class="btn btn-main" onclick="addProduct()">➕ Add Drug to Stock</button>
+      </div>
 
-    <label>Diagnosis / Treatment Details:</label>
-    <input type="text" id="p-care-treatment" placeholder="e.g. Malaria Treatment & IV Drip">
-
-    <label>Medications Prescribed / Given:</label>
-    <textarea id="p-care-meds" placeholder="e.g. Coartem 20/120mg x1 tab, Paracetamol 500mg x2 tabs"></textarea>
-
-    <label>Total Fee Charged (<span class="curr-symbol">$</span>):</label>
-    <input type="number" id="p-care-fee" placeholder="0.00">
-
-    <label>Payment Status:</label>
-    <select id="p-care-payment">
-      <option value="paid">✅ Paid in Full</option>
-      <option value="unpaid">❌ Unpaid / On Credit (Adds to Debt Tracker)</option>
-    </select>
-
-    <label>Care Status:</label>
-    <select id="p-care-status">
-      <option value="active">🟡 Currently on Medication / Treatment</option>
-      <option value="completed">✅ Treatment Completed</option>
-    </select>
-
-    <p style="font-size: 11px; opacity: 0.7; margin: -6px 0 10px 0;">* Date and Time will be automatically recorded upon saving.</p>
-
-    <button class="btn btn-add" onclick="addPatientCareRecord()">Save Record & Print Receipt</button>
-
-    <h4 style="margin-top: 24px; margin-bottom: 8px; font-size: 15px; color: #f59e0b; border-bottom: 2px solid #f59e0b; padding-bottom: 4px;">
-      🟡 Patients Currently On Medication / Treatment
-    </h4>
-    <div id="patient-active-list"></div>
-
-    <h4 style="margin-top: 24px; margin-bottom: 8px; font-size: 15px; color: #22c55e; border-bottom: 2px solid #22c55e; padding-bottom: 4px;">
-      ✅ Patients Completed Treatment
-    </h4>
-    <div id="patient-completed-list"></div>
-  </div>
-
-  <div class="card">
-    <h3>📋 Patient Credit & Debt Tracker</h3>
-    <label>Patient Name:</label>
-    <input type="text" id="debt-patient" placeholder="e.g. John Doe">
-    
-    <label>Medication / Services Owed For:</label>
-    <input type="text" id="debt-items" placeholder="e.g. Amoxicillin x2, Syringe">
-
-    <label>Amount Owed (<span class="curr-symbol">$</span>):</label>
-    <input type="number" id="debt-amount" placeholder="0.00">
-
-    <button class="btn btn-add" onclick="addPatientDebt()">Record Patient Credit</button>
-
-    <h4 style="margin-top: 18px; margin-bottom: 10px; font-size: 14px;">Active Credit Records</h4>
-    <div id="debt-list"></div>
-  </div>
-
-  <div class="card">
-    <h3>➕ Add Product Inventory</h3>
-    <label>Product Name:</label>
-    <input type="text" id="p-name" placeholder="e.g. Paracetamol, Bandages">
-    
-    <label>Initial Stock Quantity:</label>
-    <input type="number" id="p-stock" placeholder="50">
-
-    <label>Low-Stock Alert Threshold (Qty):</label>
-    <input type="number" id="p-min-stock" placeholder="5 (Alerts when stock hits this or below)">
-
-    <label>Medication Expiry Date (Optional):</label>
-    <input type="date" id="p-expiry">
-
-    <label>Cost Price (<span class="curr-symbol">$</span>):</label>
-    <input type="number" id="p-cost" placeholder="0.00">
-    
-    <label>Selling Price (<span class="curr-symbol">$</span>):</label>
-    <input type="number" id="p-price" placeholder="0.00">
-    
-    <button class="btn btn-add" onclick="addProduct()">Save Product</button>
-  </div>
-
-  <div class="card">
-    <h3>🛒 Today's Counter Register</h3>
-    <input type="text" class="search-input" id="inventory-search" placeholder="🔍 Search medications in stock..." oninput="renderApp()">
-    <div id="product-list"></div>
-  </div>
-
-  <div class="card">
-    <h3>📊 Today's Summary</h3>
-    <div class="metric">Total Revenue: <span id="summary-income">$0.00</span></div>
-    <div class="metric">Cost of Goods Sold: <span id="summary-cogs">$0.00</span></div>
-    <div class="metric">Daily Worker Payroll: <span id="summary-payroll">$0.00</span></div>
-    <div class="metric profit-row">Net Profit Today: <span id="summary-profit" style="color: #22c55e;">$0.00</span></div>
-  </div>
-
-  <div class="card">
-    <h3>📈 Analytics & Reports</h3>
-    <div class="filter-tabs">
-      <button class="filter-btn active" id="tab-daily" onclick="switchReportTab('daily')">Daily</button>
-      <button class="filter-btn" id="tab-weekly" onclick="switchReportTab('weekly')">Weekly</button>
-      <button class="filter-btn" id="tab-monthly" onclick="switchReportTab('monthly')">Monthly</button>
     </div>
 
-    <div class="metric">Period Revenue: <span id="rep-revenue">$0.00</span></div>
-    <div class="metric">Period Net Profit: <span id="rep-profit" style="color:#22c55e;">$0.00</span></div>
+    <!-- ==================== TAB 2: RECORDS & INVENTORY ==================== -->
+    <div id="tab-records" class="tab-content">
+      
+      <!-- Restock & Expiry Warnings -->
+      <div class="card">
+        <h2>⚠️ Restock & Expiry Warnings</h2>
+        <div id="restock-alert-list"></div>
+        <div id="expiry-alert-list"></div>
+      </div>
 
-    <div style="position: relative; height:220px; margin-top:15px;">
-      <canvas id="salesChart"></canvas>
+      <!-- Patients Care Lists -->
+      <div class="card">
+        <h2>👥 Patient Records Search</h2>
+        <input type="text" id="patient-search" placeholder="🔍 Search patient name or treatment..." oninput="renderApp()" />
+        
+        <h3 style="color:#f59e0b; font-size:13px; margin-top:14px;">🟡 Active / In-Treatment Patients</h3>
+        <div id="patient-active-list"></div>
+
+        <h3 style="color:#22c55e; font-size:13px; margin-top:14px;">✅ Completed Patient Care Logs</h3>
+        <div id="patient-completed-list"></div>
+      </div>
+
+      <!-- Patient Debt & Credit Tracker -->
+      <div class="card">
+        <h2>💳 Patient Debt & Bill Tracker</h2>
+        <div id="debt-list"></div>
+      </div>
+
+      <!-- Counter & Stock Register -->
+      <div class="card">
+        <h2>📦 Pharmacy Counter & Drug Register</h2>
+        <input type="text" id="inventory-search" placeholder="🔍 Search medicine stock..." oninput="renderApp()" />
+        <div id="product-list"></div>
+      </div>
+
+    </div>
+
+    <!-- ==================== TAB 3: ANALYTICS & FINANCE ==================== -->
+    <div id="tab-analytics" class="tab-content">
+      
+      <!-- Daily Summary -->
+      <div class="card">
+        <h2>📊 Financial Overview (Today)</h2>
+        <div class="summary-grid">
+          <div class="summary-box">
+            <small>Gross Income</small>
+            <h3 style="margin:4px 0; color:var(--blue-accent);"><span class="curr-symbol"></span><span id="summary-income">0.00</span></h3>
+          </div>
+          <div class="summary-box">
+            <small>Total COGS</small>
+            <h3 style="margin:4px 0; color:#ef4444;"><span class="curr-symbol"></span><span id="summary-cogs">0.00</span></h3>
+          </div>
+          <div class="summary-box">
+            <small>Daily Wages</small>
+            <h3 style="margin:4px 0; color:#f59e0b;"><span class="curr-symbol"></span><span id="summary-payroll">0.00</span></h3>
+          </div>
+          <div class="summary-box">
+            <small>Net Profit</small>
+            <h3 style="margin:4px 0; color:var(--accent-color);"><span class="curr-symbol"></span><span id="summary-profit">0.00</span></h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Graph & Performance -->
+      <div class="card">
+        <h2>📈 Revenue & Profit Analytics</h2>
+        <div style="display:flex; gap:6px; margin-bottom:10px;">
+          <button class="tab-btn filter-btn active" id="tab-daily" onclick="switchReportTab('daily')">Daily</button>
+          <button class="tab-btn filter-btn" id="tab-weekly" onclick="switchReportTab('weekly')">Weekly</button>
+          <button class="tab-btn filter-btn" id="tab-monthly" onclick="switchReportTab('monthly')">Monthly</button>
+        </div>
+        
+        <div style="height:220px;">
+          <canvas id="salesChart"></canvas>
+        </div>
+
+        <div style="margin-top:14px; font-size:12px; display:flex; justify-content:space-between;">
+          <span>Report Revenue: <strong><span class="curr-symbol"></span><span id="rep-revenue">0.00</span></strong></span>
+          <span>Report Profit: <strong><span class="curr-symbol"></span><span id="rep-profit">0.00</span></strong></span>
+        </div>
+      </div>
+
+      <!-- Settings & Cloud Backup -->
+      <div class="card">
+        <h2>⚙️ Settings & Cloud Backup</h2>
+        <div style="display:flex; gap:10px;">
+          <div>
+            <label style="font-size:11px;">Currency</label>
+            <select id="currency-select" onchange="updateSettings()">
+              <option value="USh ">USh (Ugandan Shilling)</option>
+              <option value="$">$ (USD)</option>
+              <option value="KSh ">KSh (Kenyan Shilling)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11px;">Staff Count</label>
+            <input type="number" id="num-workers" value="1" onchange="updateSettings()" />
+          </div>
+          <div>
+            <label style="font-size:11px;">Monthly Wage</label>
+            <input type="number" id="monthly-wage" value="300" onchange="updateSettings()" />
+          </div>
+        </div>
+
+        <button class="btn btn-main" onclick="uploadDataToCloud()">☁️ Upload Data to Cloud</button>
+        <div id="sync-status" style="font-size:11px; text-align:center; opacity:0.8; margin-top:4px;"></div>
+        
+        <h3 style="font-size:12px; margin-top:14px;">☁️ Cloud Logs History</h3>
+        <div id="history-list"></div>
+        
+        <button class="btn" style="background:#ef4444; color:white; font-size:11px; margin-top:10px;" onclick="clearCloudHistory()">🗑️ Wipe Cloud Logs (Admin)</button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- RECEIPT PRINT MODAL -->
+  <div id="receipt-modal" class="modal">
+    <div class="modal-content">
+      <h2 style="margin-top:0;">🧾 BLESSINGS CLINIC</h2>
+      <p style="font-size:11px; opacity:0.7;" id="r-date"></p>
+      <hr style="border-color:var(--border-color);" />
+      <p style="text-align:left; font-size:13px;"><strong>Patient:</strong> <span id="r-patient"></span></p>
+      <p style="text-align:left; font-size:13px;"><strong>Diagnosis:</strong> <span id="r-treatment"></span></p>
+      <p style="text-align:left; font-size:13px;"><strong>Prescription:</strong> <span id="r-meds"></span></p>
+      <p style="text-align:left; font-size:13px;"><strong>Status:</strong> <span id="r-status"></span></p>
+      <p style="text-align:left; font-size:13px;"><strong>Payment:</strong> <span id="r-payment"></span></p>
+      <h3>Total: <span id="r-total"></span></h3>
+      <button class="btn btn-main" onclick="window.print()">🖨️ Print Receipt</button>
+      <button class="btn" style="background:#64748b; color:white; margin-top:6px;" onclick="closeReceipt()">Close</button>
     </div>
   </div>
-
-  <div class="card">
-    <h3>📜 Cloud Sales History</h3>
-    <button class="btn btn-history" onclick="loadCloudHistory()">📥 Fetch All Synced Logs</button>
-    <div id="history-list"></div>
-
-    <details style="margin-top: 15px;">
-      <summary>🔒 Admin Settings (Clear Data)</summary>
-      <div style="padding-top:10px;">
-        <p style="font-size:11px; opacity:0.7; margin:0 0 8px 0;">Requires PIN to clear synced cloud data.</p>
-        <button class="btn btn-danger" onclick="clearCloudHistory()">🗑️ Wipe Cloud Sales History</button>
-      </div>
-    </details>
-  </div>
-
-  <div class="modal-overlay" id="receipt-modal">
-    <div class="receipt-box">
-      <div class="receipt-header">
-        <h2 style="margin: 0; font-size: 18px;">BLESSINGS CLINIC</h2>
-        <p style="margin: 4px 0 0; font-size: 11px;">Patient Treatment & Payment Receipt</p>
-        <small style="font-size: 10px;" id="r-date"></small>
-      </div>
-      <div class="receipt-body">
-        <p><strong>PATIENT:</strong> <span id="r-patient"></span></p>
-        <p><strong>TREATMENT:</strong> <span id="r-treatment"></span></p>
-        <p><strong>MEDICATIONS:</strong><br><span id="r-meds" style="display:block; padding-left: 8px;"></span></p>
-        <p><strong>CARE STATUS:</strong> <span id="r-status"></span></p>
-        <p><strong>PAYMENT STATUS:</strong> <span id="r-payment"></span></p>
-      </div>
-      <div class="receipt-footer">
-        <span>TOTAL FEE:</span>
-        <span id="r-total">$0.00</span>
-      </div>
-      <div class="no-print" style="margin-top: 18px; display: flex; gap: 8px;">
-        <button class="btn" style="flex:1; background:#00a896; color:white;" onclick="window.print()">🖨️ Print</button>
-        <button class="btn" style="flex:1; background:#ef4444; color:white;" onclick="closeReceipt()">Close</button>
-      </div>
-    </div>
-  </div>
-<script>
-  // --- FIREBASE CONFIGURATION & INITIALIZATION ---
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-
-  let chartInstance = null;
-  let cachedCloudRecords = [];
-
-  // --- LOCAL STORAGE HELPERS & THEME CONTROL ---
-  function getStoredData() {
-    const defaultData = { products: [], sales: {}, debts: [], patientCare: [], workers: 1, wage: 300, currency: 'USh ', theme: 'light', adminPin: '14324' };
-    return JSON.parse(localStorage.getItem('store_app_data')) || defaultData;
-  }
-
-  function saveData(data) {
-    localStorage.setItem('store_app_data', JSON.stringify(data));
-  }
-
-  function toggleTheme() {
-    const data = getStoredData();
-    data.theme = (data.theme === 'dark') ? 'light' : 'dark';
-    saveData(data);
-    applyTheme(data.theme);
-  }
-
-  function applyTheme(theme) {
-    const btn = document.getElementById('theme-btn');
-    if (theme === 'dark') {
-      document.body.className = 'dark-mode';
-      btn.innerText = '☀️ Switch to Light Mode';
-    } else {
-      document.body.className = 'light-mode';
-      btn.innerText = '🌙 Switch to Dark Mode';
-    }
-  }
-
-  function updateSettings() {
-    const data = getStoredData();
-    data.currency = document.getElementById('currency-select').value;
-    data.workers = parseInt(document.getElementById('num-workers').value) || 0;
-    data.wage = parseFloat(document.getElementById('monthly-wage').value) || 0;
-    saveData(data);
-    renderApp();
-  }
-
-  // --- PATIENT CARE & RECEIPT FUNCTIONS ---
-  function addPatientCareRecord() {
-    const name = document.getElementById('p-care-name').value;
-    const treatment = document.getElementById('p-care-treatment').value;
-    const meds = document.getElementById('p-care-meds').value;
-    const fee = parseFloat(document.getElementById('p-care-fee').value) || 0;
-    const paymentStatus = document.getElementById('p-care-payment').value;
-    const status = document.getElementById('p-care-status').value;
-
-    if (!name || !treatment) {
-      return alert("Please enter patient name and treatment details.");
-    }
-
-    // Auto timestamping
-    const autoTimestamp = new Date().toLocaleString();
-
-    const record = {
-      id: Date.now(),
-      patient: name,
-      treatment: treatment,
-      meds: meds || 'N/A',
-      fee: fee,
-      paymentStatus: paymentStatus,
-      status: status,
-      date: autoTimestamp
+    <!-- JavaScript Engine -->
+  <script>
+    // --- FIREBASE CONFIGURATION ---
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
     };
 
-    const data = getStoredData();
-    if (!data.patientCare) data.patientCare = [];
-    data.patientCare.unshift(record);
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-    // Auto-sync unpaid fees to Debt Tracker
-    if (paymentStatus === 'unpaid' && fee > 0) {
-      if (!data.debts) data.debts = [];
-      data.debts.unshift({
-        id: Date.now() + 1,
-        patient: name,
-        items: `${treatment} (${meds || 'Meds'})`,
-        amount: fee,
-        status: 'pending',
-        date: new Date().toLocaleDateString()
-      });
-    }
-
-    saveData(data);
-
-    document.getElementById('p-care-name').value = '';
-    document.getElementById('p-care-treatment').value = '';
-    document.getElementById('p-care-meds').value = '';
-    document.getElementById('p-care-fee').value = '';
-
-    renderApp();
-    openPatientReceipt(record);
-  }
-
-  function togglePatientCareStatus(recordId) {
-    const data = getStoredData();
-    const rec = (data.patientCare || []).find(p => p.id === recordId);
-    if (!rec) return;
-
-    rec.status = (rec.status === 'active') ? 'completed' : 'active';
-    saveData(data);
-    renderApp();
-  }
-
-  function openPatientReceiptById(recordId) {
-    const data = getStoredData();
-    const rec = (data.patientCare || []).find(p => p.id === recordId);
-    if (rec) openPatientReceipt(rec);
-  }
-
-  function openPatientReceipt(rec) {
-    const data = getStoredData();
-    const sym = data.currency || '$';
-
-    document.getElementById('r-date').innerText = rec.date;
-    document.getElementById('r-patient').innerText = rec.patient;
-    document.getElementById('r-treatment').innerText = rec.treatment;
-    document.getElementById('r-meds').innerText = rec.meds;
-    document.getElementById('r-status').innerText = (rec.status === 'active') ? '🟡 Ongoing Medication' : '✅ Care Completed';
-    document.getElementById('r-payment').innerText = (rec.paymentStatus === 'unpaid') ? '❌ Unpaid / On Credit' : '✅ Paid in Full';
-    document.getElementById('r-total').innerText = `${sym}${rec.fee.toFixed(2)}`;
-
-    document.getElementById('receipt-modal').classList.add('active');
-  }
-
-  function closeReceipt() {
-    document.getElementById('receipt-modal').classList.remove('active');
-  }
-
-  // --- PRODUCT INVENTORY & DEBT MANAGEMENT ---
-  function addProduct() {
-    const name = document.getElementById('p-name').value;
-    const stock = parseInt(document.getElementById('p-stock').value) || 0;
-    const minStock = parseInt(document.getElementById('p-min-stock').value) || 5;
-    const expiry = document.getElementById('p-expiry').value;
-    const cost = parseFloat(document.getElementById('p-cost').value) || 0;
-    const price = parseFloat(document.getElementById('p-price').value) || 0;
-    if (!name) return alert('Enter product name');
-
-    const data = getStoredData();
-    data.products.push({ id: Date.now(), name, stock, minStock, expiry, cost, price });
-    saveData(data);
-
-    document.getElementById('p-name').value = '';
-    document.getElementById('p-stock').value = '';
-    document.getElementById('p-min-stock').value = '';
-    document.getElementById('p-expiry').value = '';
-    document.getElementById('p-cost').value = '';
-    document.getElementById('p-price').value = '';
-    renderApp();
-  }
-
-  function removeProduct(productId) {
-    if (!confirm("Delete product?")) return;
-    const data = getStoredData();
-    data.products = data.products.filter(p => p.id !== productId);
-    delete data.sales[productId];
-    saveData(data);
-    renderApp();
-  }
-
-  function updateSales(productId, change) {
-    const data = getStoredData();
-    const product = data.products.find(p => p.id === productId);
-    const currentSold = data.sales[productId] || 0;
-
-    if (change > 0 && product && (product.stock - currentSold) <= 0) {
-      return alert("Out of stock!");
-    }
-
-    data.sales[productId] = Math.max(0, currentSold + change);
-    saveData(data);
-    renderApp();
-  }
-
-  function addPatientDebt() {
-    const name = document.getElementById('debt-patient').value;
-    const items = document.getElementById('debt-items').value;
-    const amount = parseFloat(document.getElementById('debt-amount').value) || 0;
-
-    if (!name || !items || amount <= 0) {
-      return alert('Please enter patient name, medications, and valid amount.');
-    }
-
-    const data = getStoredData();
-    if (!data.debts) data.debts = [];
+    let chartInstance = null;
+    let cachedCloudRecords = [];
+    let currentPrescription = [];
     
-    data.debts.unshift({
-      id: Date.now(),
-      patient: name,
-      items: items,
-      amount: amount,
-      status: 'pending',
-      date: new Date().toLocaleDateString()
-    });
+    // List expansion toggles
+    let showAllActive = false;
+    let showAllCompleted = false;
+    let showAllDebts = false;
 
-    saveData(data);
-    document.getElementById('debt-patient').value = '';
-    document.getElementById('debt-items').value = '';
-    document.getElementById('debt-amount').value = '';
-    renderApp();
-  }
+    // Navigation Tab Switcher
+    function switchMainTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
 
-  function clearPatientDebt(debtId) {
-    const data = getStoredData();
-    const debt = (data.debts || []).find(d => d.id === debtId);
-    if (!debt) return;
+      document.getElementById(tabId).classList.add('active');
+      
+      const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => 
+        btn.getAttribute('onclick').includes(tabId)
+      );
+      if (activeBtn) activeBtn.classList.add('active');
 
-    if (confirm(`Mark credit for "${debt.patient}" as Cleared / Paid?`)) {
-      debt.status = 'cleared';
+      if (tabId === 'tab-analytics') {
+        renderAnalytics('daily');
+      }
+    }
+
+    // --- LOCAL STORAGE HELPERS & THEME ---
+    function getStoredData() {
+      const defaultData = { products: [], sales: {}, debts: [], patientCare: [], workers: 1, wage: 300, currency: 'USh ', theme: 'dark', adminPin: '14324' };
+      return JSON.parse(localStorage.getItem('store_app_data')) || defaultData;
+    }
+
+    function saveData(data) {
+      localStorage.setItem('store_app_data', JSON.stringify(data));
+    }
+
+    function toggleTheme() {
+      const data = getStoredData();
+      data.theme = (data.theme === 'dark') ? 'light' : 'dark';
+      saveData(data);
+      applyTheme(data.theme);
+    }
+
+    function applyTheme(theme) {
+      const btn = document.getElementById('theme-btn');
+      if (theme === 'dark') {
+        document.body.className = 'dark-mode';
+        btn.innerText = '☀️ Switch to Light Mode';
+      } else {
+        document.body.className = 'light-mode';
+        btn.innerText = '🌙 Switch to Dark Mode';
+      }
+    }
+
+    function updateSettings() {
+      const data = getStoredData();
+      data.currency = document.getElementById('currency-select').value;
+      data.workers = parseInt(document.getElementById('num-workers').value) || 0;
+      data.wage = parseFloat(document.getElementById('monthly-wage').value) || 0;
       saveData(data);
       renderApp();
     }
-  }
 
-  function createPatientCardHTML(p, sym) {
-    const isActive = p.status === 'active';
-    const isPaid = p.paymentStatus !== 'unpaid';
+    // --- DYNAMIC MEDICATION PICKER LOGIC ---
+    function populateMedicationDropdown() {
+      const data = getStoredData();
+      const select = document.getElementById('p-care-med-select');
+      if (!select) return;
 
-    return `
-      <div class="patient-card ${isActive ? 'active-care' : 'completed-care'}">
-        <div style="display:flex; justify-content:space-between; align-items:start;">
-          <div>
-            <strong>👤 ${p.patient}</strong><br>
-            <small style="opacity:0.8;">🕒 <strong>Time:</strong> ${p.date}</small><br>
-            <small style="opacity:0.9;">🩺 <strong>Treatment:</strong> ${p.treatment}</small><br>
-            <small style="opacity:0.8;">💊 <strong>Meds:</strong> ${p.meds}</small><br>
-            <strong>Fee: ${sym}${p.fee.toFixed(2)}</strong> 
-            <span style="font-size:11px; padding:2px 6px; border-radius:4px; font-weight:bold; background:${isPaid ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}; color:${isPaid ? '#22c55e' : '#ef4444'};">
-              ${isPaid ? 'Paid' : 'Unpaid'}
-            </span>
-          </div>
-          <div style="text-align:right;">
-            <button class="btn btn-status" style="background:${isActive ? '#f59e0b' : '#22c55e'}; color:white; margin-bottom: 6px;" onclick="togglePatientCareStatus(${p.id})">
-              ${isActive ? 'Mark Complete' : 'Re-open'}
-            </button><br>
-            <button class="btn" style="background:#00b4d8; color:white; padding:4px 8px; font-size:11px;" onclick="openPatientReceiptById(${p.id})">🖨️ Receipt</button>
-          </div>
-        </div>
-      </div>
-    `;
-  }
+      select.innerHTML = '<option value="">-- Select Drug from Stock --</option>';
       
-// --- MAIN RENDER FUNCTION ---
-  function renderApp() {
-    const data = getStoredData();
-    const sym = data.currency || '$';
-    const today = new Date();
-
-    document.querySelectorAll('.curr-symbol').forEach(el => el.innerText = sym);
-
-    // 1. RENDER ALERTS
-    const restockContainer = document.getElementById('restock-alert-list');
-    const expiryContainer = document.getElementById('expiry-alert-list');
-    restockContainer.innerHTML = '';
-    expiryContainer.innerHTML = '';
-
-    let lowStockCount = 0;
-    let expiryCount = 0;
-
-    data.products.forEach(p => {
-      const qtySold = data.sales[p.id] || 0;
-      const remaining = Math.max(0, p.stock - qtySold);
-      const threshold = p.minStock !== undefined ? p.minStock : 5;
-
-      if (remaining <= threshold) {
-        lowStockCount++;
-        const div = document.createElement('div');
-        div.className = 'alert-card-item';
-        div.innerHTML = `<strong>${p.name}</strong> — Stock: <strong>${remaining}</strong> (Threshold: ${threshold})`;
-        restockContainer.appendChild(div);
-      }
-
-      if (p.expiry) {
-        const expDate = new Date(p.expiry);
-        const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
-        if (diffDays <= 30) {
-          expiryCount++;
-          const div = document.createElement('div');
-          div.className = 'expiry-card-item';
-          const statusText = diffDays <= 0 ? '⛔ EXPIRED' : `⌛ Expires in ${diffDays} day(s)`;
-          div.innerHTML = `<strong>${p.name}</strong> — Expiry: ${p.expiry} (<strong>${statusText}</strong>)`;
-          expiryContainer.appendChild(div);
+      data.products.forEach(p => {
+        const qtySold = (data.sales || {})[p.id] || 0;
+        const stockLeft = Math.max(0, p.stock - qtySold);
+        
+        if (stockLeft > 0) {
+          select.innerHTML += `<option value="${p.id}">${p.name} (Stock: ${stockLeft} | ${data.currency || '$'}${p.price})</option>`;
         }
-      }
-    });
-
-    if (lowStockCount === 0) restockContainer.innerHTML = '<p style="font-size:12px; opacity:0.6; margin:0;">✅ All stock levels are sufficient.</p>';
-    if (expiryCount === 0) expiryContainer.innerHTML = '<p style="font-size:12px; opacity:0.6; margin:0;">✅ No expired or soon-expiring items.</p>';
-
-    // 2. RENDER PATIENT CARE LISTS
-    const patientQuery = (document.getElementById('patient-search').value || '').toLowerCase().trim();
-    const activeContainer = document.getElementById('patient-active-list');
-    const completedContainer = document.getElementById('patient-completed-list');
-
-    activeContainer.innerHTML = '';
-    completedContainer.innerHTML = '';
-
-    let careRecords = data.patientCare || [];
-
-    if (patientQuery) {
-      careRecords = careRecords.filter(p => 
-        (p.patient && p.patient.toLowerCase().includes(patientQuery)) ||
-        (p.treatment && p.treatment.toLowerCase().includes(patientQuery)) ||
-        (p.meds && p.meds.toLowerCase().includes(patientQuery))
-      );
-    }
-
-    const activeRecords = careRecords.filter(p => p.status === 'active');
-    const completedRecords = careRecords.filter(p => p.status === 'completed');
-
-    if (activeRecords.length === 0) {
-      activeContainer.innerHTML = '<p style="font-size:13px; opacity:0.6;">No active patients found matching search.</p>';
-    } else {
-      activeRecords.forEach(p => {
-        activeContainer.innerHTML += createPatientCardHTML(p, sym);
       });
     }
 
-    if (completedRecords.length === 0) {
-      completedContainer.innerHTML = '<p style="font-size:13px; opacity:0.6;">No completed patient records found matching search.</p>';
-    } else {
-      completedRecords.forEach(p => {
-        completedContainer.innerHTML += createPatientCardHTML(p, sym);
-      });
-    }
+    function addMedToPrescription() {
+      const select = document.getElementById('p-care-med-select');
+      const qtyInput = document.getElementById('p-care-med-qty');
+      const productId = parseInt(select.value);
+      const qty = parseInt(qtyInput.value) || 0;
 
-    // 3. RENDER DEBT LIST
-    const debtContainer = document.getElementById('debt-list');
-    debtContainer.innerHTML = '';
-    const debts = data.debts || [];
-
-    if (debts.length === 0) {
-      debtContainer.innerHTML = '<p style="text-align:center; opacity:0.6; font-size:13px;">No patient credit records.</p>';
-    } else {
-      debts.forEach(d => {
-        const div = document.createElement('div');
-        const isCleared = d.status === 'cleared';
-        div.style.cssText = `background: ${isCleared ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)'}; border: 1px solid ${isCleared ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}; border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; ${isCleared ? 'opacity: 0.7;' : ''}`;
-
-        div.innerHTML = `
-          <div>
-            <strong>👤 ${d.patient}</strong> <small style="opacity:0.7;">(${d.date})</small><br>
-            <small style="opacity:0.8;">💊 ${d.items}</small><br>
-            <strong>Owed: ${sym}${d.amount.toFixed(2)}</strong>
-          </div>
-          <div>
-            ${isCleared 
-              ? '<span style="color:#22c55e; font-weight:bold; font-size:12px;">✅ Paid</span>' 
-              : `<button class="btn btn-clear-debt" onclick="clearPatientDebt(${d.id})">Clear Bill</button>`}
-          </div>
-        `;
-        debtContainer.appendChild(div);
-      });
-    }
-
-    // 4. RENDER COUNTER REGISTER
-    const invQuery = (document.getElementById('inventory-search').value || '').toLowerCase().trim();
-    const listContainer = document.getElementById('product-list');
-    listContainer.innerHTML = '';
-    let totalIncome = 0;
-    let totalCogs = 0;
-
-    let filteredProducts = data.products;
-    if (invQuery) {
-      filteredProducts = filteredProducts.filter(p => p.name.toLowerCase().includes(invQuery));
-    }
-
-    if (filteredProducts.length === 0) {
-      listContainer.innerHTML = '<p style="text-align:center; opacity:0.6; font-size:14px;">No products match your search.</p>';
-    }
-
-    data.products.forEach(p => {
-      const qtySold = data.sales[p.id] || 0;
-      totalIncome += qtySold * p.price;
-      totalCogs += qtySold * p.cost;
-    });
-
-    filteredProducts.forEach(p => {
-      const qtySold = data.sales[p.id] || 0;
-      const remainingStock = Math.max(0, p.stock - qtySold);
-      const threshold = p.minStock !== undefined ? p.minStock : 5;
-
-      const isLowStock = remainingStock <= threshold;
-      const stockBadge = isLowStock 
-        ? `<span class="badge-warn">⚠️ Low: ${remainingStock} left</span>` 
-        : `<small style="opacity:0.7;">(Stock: ${remainingStock})</small>`;
-
-      let expiryBadge = '';
-      if (p.expiry) {
-        const expDate = new Date(p.expiry);
-        const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
-
-        if (diffDays <= 0) {
-          expiryBadge = `<span class="badge-expired">⛔ EXPIRED</span>`;
-        } else if (diffDays <= 30) {
-          expiryBadge = `<span class="badge-expiring">⌛ Expires in ${diffDays}d</span>`;
-        } else {
-          expiryBadge = `<small style="opacity:0.6;">(Exp: ${p.expiry})</small>`;
-        }
+      if (!productId || qty <= 0) {
+        return alert('Please select a medicine and enter a valid quantity.');
       }
 
-      const div = document.createElement('div');
-      div.className = 'item-row';
-      div.innerHTML = `
-        <div>
-          <strong>${p.name}</strong> ${stockBadge} ${expiryBadge}<br>
-          <small style="opacity:0.7;">Cost: ${sym}${p.cost.toFixed(2)} | Price: ${sym}${p.price.toFixed(2)} | Alert at: ≤${threshold}</small>
-        </div>
-        <div class="controls">
-          <button class="btn btn-minus" onclick="updateSales(${p.id}, -1)">−</button>
-          <span class="qty-display">${qtySold}</span>
-          <button class="btn btn-plus" onclick="updateSales(${p.id}, 1)">+</button>
-          <button class="btn btn-delete" onclick="removeProduct(${p.id})">🗑️</button>
-        </div>
-      `;
-      listContainer.appendChild(div);
-    });
+      const data = getStoredData();
+      const product = data.products.find(p => p.id === productId);
 
-    const dailyPayroll = (data.workers * data.wage) / 30.0;
-    const netProfit = totalIncome - (totalCogs + dailyPayroll);
+      if (!product) return;
 
-    document.getElementById('summary-income').innerText = `${sym}${totalIncome.toFixed(2)}`;
-    document.getElementById('summary-cogs').innerText = `${sym}${totalCogs.toFixed(2)}`;
-    document.getElementById('summary-payroll').innerText = `${sym}${dailyPayroll.toFixed(2)}`;
-    document.getElementById('summary-profit').innerText = `${sym}${netProfit.toFixed(2)}`;
-    
-    initChart();
-  }
+      const currentSold = (data.sales || {})[productId] || 0;
+      const availableStock = product.stock - currentSold;
 
-  // --- APP INITIALIZATION & CLOUD SYNC ---
-  window.onload = function() {
-    const data = getStoredData();
-    document.getElementById('currency-select').value = data.currency || 'USh ';
-    document.getElementById('num-workers').value = data.workers !== undefined ? data.workers : 1;
-    document.getElementById('monthly-wage').value = data.wage !== undefined ? data.wage : 300;
-    applyTheme(data.theme || 'light');
-    renderApp();
-    loadCloudHistory();
-  };
+      if (qty > availableStock) {
+        return alert(`Not enough stock! Only ${availableStock} units left.`);
+      }
 
-  async function uploadDataToCloud() {
-    const statusEl = document.getElementById('sync-status');
-    statusEl.innerText = "Connecting to Cloud...";
+      const existingIndex = currentPrescription.findIndex(item => item.productId === productId);
+      if (existingIndex > -1) {
+        currentPrescription[existingIndex].qty += qty;
+        currentPrescription[existingIndex].totalPrice = currentPrescription[existingIndex].qty * product.price;
+      } else {
+        currentPrescription.push({
+          productId: product.id,
+          name: product.name,
+          qty: qty,
+          unitPrice: product.price,
+          totalPrice: qty * product.price
+        });
+      }
 
-    if (!navigator.onLine) {
-      statusEl.innerText = "⚠️ No internet! Saved locally.";
-      return;
+      select.value = '';
+      qtyInput.value = '';
+      renderPrescriptionList();
     }
 
-    try {
-      const todayStr = new Date().toISOString().split('T')[0];
-      await db.collection("daily_records").doc(todayStr).set({
-        date: todayStr,
-        timestamp: new Date(),
-        storeData: getStoredData()
-      });
-      statusEl.innerText = "✅ Successfully uploaded to Cloud!";
-      loadCloudHistory();
-    } catch (error) {
-      statusEl.innerText = "❌ Upload failed: " + error.message;
+    function removePrescribedMed(index) {
+      currentPrescription.splice(index, 1);
+      renderPrescriptionList();
     }
-  }
 
-  async function loadCloudHistory() {
-    const container = document.getElementById('history-list');
-    container.innerHTML = '<p style="text-align:center; opacity:0.7;">Fetching records...</p>';
-    
-    try {
-      const snapshot = await db.collection("daily_records").get();
-      cachedCloudRecords = [];
-      
-      if (snapshot.empty) {
-        container.innerHTML = '<p style="text-align:center; opacity:0.6;">No cloud records found.</p>';
-        renderAnalytics('daily');
+    function renderPrescriptionList() {
+      const container = document.getElementById('prescribed-meds-list');
+      const data = getStoredData();
+      const sym = data.currency || '$';
+
+      if (currentPrescription.length === 0) {
+        container.innerHTML = '<em style="opacity:0.6;">No drugs selected yet.</em>';
+        document.getElementById('p-care-meds-cost').value = '0.00';
+        calculateTotalPatientFee();
         return;
       }
 
       container.innerHTML = '';
-      snapshot.forEach(doc => {
-        const record = doc.data();
-        cachedCloudRecords.push(record);
-        
-        const d = record.storeData || {};
-        const sym = d.currency || '$';
-        
-        let income = 0;
-        (d.products || []).forEach(p => {
-          const sold = (d.sales || {})[p.id] || 0;
-          income += sold * p.price;
-        });
+      let medsCostTotal = 0;
 
-        const div = document.createElement('div');
-        div.className = 'history-card';
-        div.innerHTML = `
-          <strong>📅 Date: ${doc.id}</strong><br>
-          <span>Revenue: <strong>${sym}${income.toFixed(2)}</strong> | Workers: ${d.workers || 0}</span>
+      currentPrescription.forEach((item, index) => {
+        medsCostTotal += item.totalPrice;
+        container.innerHTML += `
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; background:rgba(255,255,255,0.05); padding:4px 8px; border-radius:4px;">
+            <span>💊 <strong>${item.name}</strong> × ${item.qty} tabs (${sym}${item.totalPrice.toFixed(2)})</span>
+            <button onclick="removePrescribedMed(${index})" style="background:#ef4444; color:white; border:none; border-radius:4px; width:20px; height:20px; line-height:10px; cursor:pointer;">×</button>
+          </div>
         `;
-        container.appendChild(div);
       });
 
-      renderAnalytics('daily');
-    } catch (err) {
-      container.innerHTML = `<p style="color:#ef4444; font-size:12px;">Failed to load: ${err.message}</p>`;
+      document.getElementById('p-care-meds-cost').value = medsCostTotal.toFixed(2);
+      calculateTotalPatientFee();
     }
-  }
 
-  function switchReportTab(type) {
-    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById(`tab-${type}`).classList.add('active');
-    renderAnalytics(type);
-  }
+    function calculateTotalPatientFee() {
+      const medsCost = parseFloat(document.getElementById('p-care-meds-cost').value) || 0;
+      const serviceFee = parseFloat(document.getElementById('p-care-service-fee').value) || 0;
+      const total = medsCost + serviceFee;
+      
+      document.getElementById('p-care-fee').value = total.toFixed(2);
+    }
 
-  function renderAnalytics(timeframe) {
-    const data = getStoredData();
-    const sym = data.currency || '$';
-    
-    let labels = [];
-    let revenueData = [];
-    let profitData = [];
+    // --- PATIENT CARE RECORD SAVING ---
+    function addPatientCareRecord() {
+      const name = document.getElementById('p-care-name').value;
+      const treatment = document.getElementById('p-care-treatment').value;
+      const serviceFee = parseFloat(document.getElementById('p-care-service-fee').value) || 0;
+      const medsCost = parseFloat(document.getElementById('p-care-meds-cost').value) || 0;
+      const totalFee = parseFloat(document.getElementById('p-care-fee').value) || 0;
+      const paymentStatus = document.getElementById('p-care-payment').value;
+      const status = document.getElementById('p-care-status').value;
 
-    let totalRev = 0;
-    let totalProf = 0;
+      if (!name || !treatment) {
+        return alert("Please enter patient name and treatment details.");
+      }
 
-    cachedCloudRecords.forEach(rec => {
-      const d = rec.storeData || {};
-      let rev = 0;
-      let cogs = 0;
+      const data = getStoredData();
 
-      (d.products || []).forEach(p => {
-        const sold = (d.sales || {})[p.id] || 0;
-        rev += sold * p.price;
-        cogs += sold * p.cost;
+      // Auto deduct stock & calculate text
+      let medsTextList = [];
+      currentPrescription.forEach(item => {
+        medsTextList.push(`${item.name} × ${item.qty}`);
+        if (!data.sales[item.productId]) data.sales[item.productId] = 0;
+        data.sales[item.productId] += item.qty;
       });
 
-      const payroll = ((d.workers || 0) * (d.wage || 0)) / 30.0;
-      const profit = rev - (cogs + payroll);
+      const medsString = medsTextList.length > 0 ? medsTextList.join(', ') : 'None';
 
-      labels.push(rec.date || 'Log');
-      revenueData.push(rev);
-      profitData.push(profit);
+      const record = {
+        id: Date.now(),
+        patient: name,
+        treatment: treatment,
+        meds: medsString,
+        medsCost: medsCost,
+        serviceFee: serviceFee,
+        fee: totalFee,
+        paymentStatus: paymentStatus,
+        status: status,
+        date: new Date().toLocaleString()
+      };
 
-      totalRev += rev;
-      totalProf += profit;
-    });
+      if (!data.patientCare) data.patientCare = [];
+      data.patientCare.unshift(record);
 
-    document.getElementById('rep-revenue').innerText = `${sym}${totalRev.toFixed(2)}`;
-    document.getElementById('rep-profit').innerText = `${sym}${totalProf.toFixed(2)}`;
+      // Auto sync unpaid bill to debt tracker
+      if (paymentStatus === 'unpaid' && totalFee > 0) {
+        if (!data.debts) data.debts = [];
+        data.debts.unshift({
+          id: Date.now() + 1,
+          patient: name,
+          items: `${treatment} (${medsString})`,
+          amount: totalFee,
+          status: 'pending',
+          date: new Date().toLocaleDateString()
+        });
+      }
 
-    updateChart(labels, revenueData, profitData);
-  }
+      saveData(data);
 
-  function initChart() {
-    const ctx = document.getElementById('salesChart').getContext('2d');
-    if (chartInstance) chartInstance.destroy();
+      // Reset Form
+      document.getElementById('p-care-name').value = '';
+      document.getElementById('p-care-treatment').value = '';
+      document.getElementById('p-care-service-fee').value = '';
+      document.getElementById('p-care-meds-cost').value = '0.00';
+      document.getElementById('p-care-fee').value = '';
+      currentPrescription = [];
+      renderPrescriptionList();
 
-    chartInstance = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: [],
-        datasets: [
-          { label: 'Revenue', data: [], backgroundColor: '#00b4d8' },
-          { label: 'Profit', data: [], backgroundColor: '#9ef01a' }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          x: { ticks: { color: '#94a3b8' } },
-          y: { ticks: { color: '#94a3b8' } }
+      renderApp();
+      populateMedicationDropdown();
+      openPatientReceipt(record);
+    }
+
+    function togglePatientCareStatus(recordId) {
+      const data = getStoredData();
+      const rec = (data.patientCare || []).find(p => p.id === recordId);
+      if (!rec) return;
+
+      rec.status = (rec.status === 'active') ? 'completed' : 'active';
+      saveData(data);
+      renderApp();
+    }
+
+    function openPatientReceiptById(recordId) {
+      const data = getStoredData();
+      const rec = (data.patientCare || []).find(p => p.id === recordId);
+      if (rec) openPatientReceipt(rec);
+    }
+
+    function openPatientReceipt(rec) {
+      const data = getStoredData();
+      const sym = data.currency || '$';
+
+      document.getElementById('r-date').innerText = rec.date;
+      document.getElementById('r-patient').innerText = rec.patient;
+      document.getElementById('r-treatment').innerText = rec.treatment;
+      document.getElementById('r-meds').innerText = rec.meds;
+      document.getElementById('r-status').innerText = (rec.status === 'active') ? '🟡 Ongoing Medication' : '✅ Care Completed';
+      document.getElementById('r-payment').innerText = (rec.paymentStatus === 'unpaid') ? '❌ Unpaid / On Credit' : '✅ Paid in Full';
+      document.getElementById('r-total').innerText = `${sym}${rec.fee.toFixed(2)}`;
+
+      document.getElementById('receipt-modal').classList.add('active');
+    }
+
+    function closeReceipt() {
+      document.getElementById('receipt-modal').classList.remove('active');
+    }
+        // --- PRODUCT INVENTORY & DEBT ---
+    function addProduct() {
+      const name = document.getElementById('p-name').value;
+      const stock = parseInt(document.getElementById('p-stock').value) || 0;
+      const minStock = parseInt(document.getElementById('p-min-stock').value) || 5;
+      const expiry = document.getElementById('p-expiry').value;
+      const cost = parseFloat(document.getElementById('p-cost').value) || 0;
+      const price = parseFloat(document.getElementById('p-price').value) || 0;
+      if (!name) return alert('Enter product name');
+
+      const data = getStoredData();
+      data.products.push({ id: Date.now(), name, stock, minStock, expiry, cost, price });
+      saveData(data);
+
+      document.getElementById('p-name').value = '';
+      document.getElementById('p-stock').value = '';
+      document.getElementById('p-min-stock').value = '';
+      document.getElementById('p-expiry').value = '';
+      document.getElementById('p-cost').value = '';
+      document.getElementById('p-price').value = '';
+
+      renderApp();
+      populateMedicationDropdown();
+    }
+
+    function removeProduct(productId) {
+      if (!confirm("Delete product?")) return;
+      const data = getStoredData();
+      data.products = data.products.filter(p => p.id !== productId);
+      delete data.sales[productId];
+      saveData(data);
+      renderApp();
+      populateMedicationDropdown();
+    }
+
+    function updateSales(productId, change) {
+      const data = getStoredData();
+      const product = data.products.find(p => p.id === productId);
+      const currentSold = data.sales[productId] || 0;
+
+      if (change > 0 && product && (product.stock - currentSold) <= 0) {
+        return alert("Out of stock!");
+      }
+
+      data.sales[productId] = Math.max(0, currentSold + change);
+      saveData(data);
+      renderApp();
+      populateMedicationDropdown();
+    }
+
+    function addPatientDebt() {
+      const name = document.getElementById('debt-patient').value;
+      const items = document.getElementById('debt-items').value;
+      const amount = parseFloat(document.getElementById('debt-amount').value) || 0;
+
+      if (!name || !items || amount <= 0) {
+        return alert('Please enter patient name, medications, and valid amount.');
+      }
+
+      const data = getStoredData();
+      if (!data.debts) data.debts = [];
+      
+      data.debts.unshift({
+        id: Date.now(),
+        patient: name,
+        items: items,
+        amount: amount,
+        status: 'pending',
+        date: new Date().toLocaleDateString()
+      });
+
+      saveData(data);
+      document.getElementById('debt-patient').value = '';
+      document.getElementById('debt-items').value = '';
+      document.getElementById('debt-amount').value = '';
+      renderApp();
+    }
+
+    function clearPatientDebt(debtId) {
+      const data = getStoredData();
+      const debt = (data.debts || []).find(d => d.id === debtId);
+      if (!debt) return;
+
+      if (confirm(`Mark credit for "${debt.patient}" as Cleared / Paid?`)) {
+        debt.status = 'cleared';
+        saveData(data);
+        renderApp();
+      }
+    }
+
+    function toggleActiveLimit() { showAllActive = !showAllActive; renderApp(); }
+    function toggleCompletedLimit() { showAllCompleted = !showAllCompleted; renderApp(); }
+    function toggleDebtLimit() { showAllDebts = !showAllDebts; renderApp(); }
+
+    function createPatientCardHTML(p, sym) {
+      const isActive = p.status === 'active';
+      const isPaid = p.paymentStatus !== 'unpaid';
+
+      return `
+        <div class="patient-card ${isActive ? 'active-care' : 'completed-care'}">
+          <div style="display:flex; justify-content:space-between; align-items:start;">
+            <div>
+              <strong>👤 ${p.patient}</strong><br>
+              <small style="opacity:0.8;">🕒 ${p.date}</small><br>
+              <small style="opacity:0.9;">🩺 <strong>Diagnosis:</strong> ${p.treatment}</small><br>
+              <small style="opacity:0.8;">💊 <strong>Meds:</strong> ${p.meds}</small><br>
+              <strong>Fee: ${sym}${p.fee.toFixed(2)}</strong> 
+              <span style="font-size:11px; padding:2px 6px; border-radius:4px; font-weight:bold; background:${isPaid ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}; color:${isPaid ? '#22c55e' : '#ef4444'};">
+                ${isPaid ? 'Paid' : 'Unpaid'}
+              </span>
+            </div>
+            <div style="text-align:right;">
+              <button class="btn btn-status" style="background:${isActive ? '#f59e0b' : '#22c55e'}; color:white; margin-bottom: 6px;" onclick="togglePatientCareStatus(${p.id})">
+                ${isActive ? 'Mark Complete' : 'Re-open'}
+              </button><br>
+              <button class="btn" style="background:#00b4d8; color:white; padding:4px 8px; font-size:11px;" onclick="openPatientReceiptById(${p.id})">🖨️ Receipt</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- MAIN UI RENDER FUNCTION ---
+    function renderApp() {
+      const data = getStoredData();
+      const sym = data.currency || '$';
+      const today = new Date();
+
+      document.querySelectorAll('.curr-symbol').forEach(el => el.innerText = sym);
+
+      // 1. Alerts
+      const restockContainer = document.getElementById('restock-alert-list');
+      const expiryContainer = document.getElementById('expiry-alert-list');
+      restockContainer.innerHTML = '';
+      expiryContainer.innerHTML = '';
+
+      let lowStockCount = 0;
+      let expiryCount = 0;
+
+      data.products.forEach(p => {
+        const qtySold = data.sales[p.id] || 0;
+        const remaining = Math.max(0, p.stock - qtySold);
+        const threshold = p.minStock !== undefined ? p.minStock : 5;
+
+        if (remaining <= threshold) {
+          lowStockCount++;
+          const div = document.createElement('div');
+          div.className = 'alert-card-item';
+          div.innerHTML = `<strong>${p.name}</strong> — Stock: <strong>${remaining}</strong> (Threshold: ${threshold})`;
+          restockContainer.appendChild(div);
+        }
+
+        if (p.expiry) {
+          const expDate = new Date(p.expiry);
+          const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+          if (diffDays <= 30) {
+            expiryCount++;
+            const div = document.createElement('div');
+            div.className = 'expiry-card-item';
+            const statusText = diffDays <= 0 ? '⛔ EXPIRED' : `⌛ Expires in ${diffDays} day(s)`;
+            div.innerHTML = `<strong>${p.name}</strong> — Expiry: ${p.expiry} (<strong>${statusText}</strong>)`;
+            expiryContainer.appendChild(div);
+          }
+        }
+      });
+
+      if (lowStockCount === 0) restockContainer.innerHTML = '<p style="font-size:12px; opacity:0.6; margin:0;">✅ All stock levels sufficient.</p>';
+      if (expiryCount === 0) expiryContainer.innerHTML = '<p style="font-size:12px; opacity:0.6; margin:0;">✅ No expiring items.</p>';
+
+      // 2. Render Patient Lists (Capped at 3)
+      const patientQuery = (document.getElementById('patient-search').value || '').toLowerCase().trim();
+      const activeContainer = document.getElementById('patient-active-list');
+      const completedContainer = document.getElementById('patient-completed-list');
+
+      activeContainer.innerHTML = '';
+      completedContainer.innerHTML = '';
+
+      let careRecords = data.patientCare || [];
+
+      if (patientQuery) {
+        careRecords = careRecords.filter(p => 
+          (p.patient && p.patient.toLowerCase().includes(patientQuery)) ||
+          (p.treatment && p.treatment.toLowerCase().includes(patientQuery)) ||
+          (p.meds && p.meds.toLowerCase().includes(patientQuery))
+        );
+      }
+
+      const activeRecords = careRecords.filter(p => p.status === 'active');
+      const completedRecords = careRecords.filter(p => p.status === 'completed');
+
+      if (activeRecords.length === 0) {
+        activeContainer.innerHTML = '<p style="font-size:13px; opacity:0.6;">No active patients found.</p>';
+      } else {
+        const visibleActive = showAllActive ? activeRecords : activeRecords.slice(0, 3);
+        visibleActive.forEach(p => activeContainer.innerHTML += createPatientCardHTML(p, sym));
+
+        if (activeRecords.length > 3) {
+          const rem = activeRecords.length - 3;
+          activeContainer.innerHTML += `
+            <button class="btn" style="background:rgba(245, 158, 11, 0.2); color:#f59e0b; border:1px solid #f59e0b;" onclick="toggleActiveLimit()">
+              ${showAllActive ? '⬆️ Show Less' : `⬇️ Show More (${rem} more)`}
+            </button>
+          `;
         }
       }
-    });
-  }
 
-  function updateChart(labels, rev, profit) {
-    if (!chartInstance) initChart();
-    chartInstance.data.labels = labels;
-    chartInstance.data.datasets[0].data = rev;
-    chartInstance.data.datasets[1].data = profit;
-    chartInstance.update();
-  }
+      if (completedRecords.length === 0) {
+        completedContainer.innerHTML = '<p style="font-size:13px; opacity:0.6;">No completed patient records found.</p>';
+      } else {
+        const visibleCompleted = showAllCompleted ? completedRecords : completedRecords.slice(0, 3);
+        visibleCompleted.forEach(p => completedContainer.innerHTML += createPatientCardHTML(p, sym));
 
-  async function clearCloudHistory() {
-    const data = getStoredData();
-    const inputPin = prompt("🔑 Enter Admin PIN to confirm wipe:");
-    
-    if (inputPin !== (data.adminPin || '14324')) {
-      return alert("❌ Incorrect PIN! Action blocked.");
-    }
+        if (completedRecords.length > 3) {
+          const rem = completedRecords.length - 3;
+          completedContainer.innerHTML += `
+            <button class="btn" style="background:rgba(34, 197, 94, 0.2); color:#22c55e; border:1px solid #22c55e;" onclick="toggleCompletedLimit()">
+              ${showAllCompleted ? '⬆️ Show Less' : `⬇️ Show More (${rem} more)`}
+            </button>
+          `;
+        }
+      }
 
-    if (!confirm("⚠️ WARNING: This will permanently erase ALL cloud sales logs. Proceed?")) return;
+      // 3. Render Debt Tracker (Capped at 3)
+      const debtContainer = document.getElementById('debt-list');
+      debtContainer.innerHTML = '';
+      const debts = data.debts || [];
 
-    try {
-      const snapshot = await db.collection("daily_records").get();
-      const batch = db.batch();
+      if (debts.length === 0) {
+        debtContainer.innerHTML = '<p style="text-align:center; opacity:0.6; font-size:13px;">No patient credit records.</p>';
+      } else {
+        const visibleDebts = showAllDebts ? debts : debts.slice(0, 3);
+        visibleDebts.forEach(d => {
+          const div = document.createElement('div');
+          const isCleared = d.status === 'cleared';
+          div.style.cssText = `background: ${isCleared ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)'}; border: 1px solid ${isCleared ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}; border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; ${isCleared ? 'opacity: 0.7;' : ''}`;
+
+          div.innerHTML = `
+            <div>
+              <strong>👤 ${d.patient}</strong> <small style="opacity:0.7;">(${d.date})</small><br>
+              <small style="opacity:0.8;">💊 ${d.items}</small><br>
+              <strong>Owed: ${sym}${d.amount.toFixed(2)}</strong>
+            </div>
+            <div>
+              ${isCleared ? '<span style="color:#22c55e; font-weight:bold; font-size:12px;">✅ Paid</span>' : `<button class="btn btn-clear-debt" onclick="clearPatientDebt(${d.id})">Clear Bill</button>`}
+            </div>
+          `;
+          debtContainer.appendChild(div);
+        });
+
+        if (debts.length > 3) {
+          const rem = debts.length - 3;
+          debtContainer.innerHTML += `
+            <button class="btn" style="background:rgba(59, 130, 246, 0.2); color:#3b82f6; border:1px solid #3b82f6;" onclick="toggleDebtLimit()">
+              ${showAllDebts ? '⬆️ Show Less' : `⬇️ Show More (${rem} more)`}
+            </button>
+          `;
+        }
+      }
+
+      // 4. Counter Register & Financials calculation
+      const invQuery = (document.getElementById('inventory-search').value || '').toLowerCase().trim();
+      const listContainer = document.getElementById('product-list');
+      listContainer.innerHTML = '';
       
-      snapshot.forEach(doc => batch.delete(doc.ref));
-      await batch.commit();
+      let totalIncome = 0;
+      let totalCogs = 0;
 
-      alert("✅ Cloud sales history cleared.");
-      loadCloudHistory();
-    } catch (err) {
-      alert("❌ Failed to clear cloud history: " + err.message);
+      // Include sales from medication counters
+      data.products.forEach(p => {
+        const qtySold = data.sales[p.id] || 0;
+        totalIncome += qtySold * p.price;
+        totalCogs += qtySold * p.cost;
+      });
+
+      // Include service fees from patient consultation records
+      (data.patientCare || []).forEach(p => {
+        if (p.serviceFee) {
+          totalIncome += p.serviceFee;
+        }
+      });
+
+      let filteredProducts = data.products;
+      if (invQuery) {
+        filteredProducts = filteredProducts.filter(p => p.name.toLowerCase().includes(invQuery));
+      }
+
+      if (filteredProducts.length === 0) {
+        listContainer.innerHTML = '<p style="text-align:center; opacity:0.6; font-size:14px;">No products match your search.</p>';
+      }
+
+      filteredProducts.forEach(p => {
+        const qtySold = data.sales[p.id] || 0;
+        const remainingStock = Math.max(0, p.stock - qtySold);
+        const threshold = p.minStock !== undefined ? p.minStock : 5;
+
+        const isLowStock = remainingStock <= threshold;
+        const stockBadge = isLowStock 
+          ? `<span class="badge-warn">⚠️ Low: ${remainingStock} left</span>` 
+          : `<small style="opacity:0.7;">(Stock: ${remainingStock})</small>`;
+
+        let expiryBadge = '';
+        if (p.expiry) {
+          const expDate = new Date(p.expiry);
+          const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+
+          if (diffDays <= 0) {
+            expiryBadge = `<span class="badge-expired">⛔ EXPIRED</span>`;
+          } else if (diffDays <= 30) {
+            expiryBadge = `<span class="badge-expiring">⌛ Expires in ${diffDays}d</span>`;
+          } else {
+            expiryBadge = `<small style="opacity:0.6;">(Exp: ${p.expiry})</small>`;
+          }
+        }
+
+        const div = document.createElement('div');
+        div.className = 'item-row';
+        div.innerHTML = `
+          <div>
+            <strong>${p.name}</strong> ${stockBadge} ${expiryBadge}<br>
+            <small style="opacity:0.7;">Cost: ${sym}${p.cost.toFixed(2)} | Price: ${sym}${p.price.toFixed(2)}</small>
+          </div>
+          <div class="controls">
+            <button class="btn btn-minus" onclick="updateSales(${p.id}, -1)">−</button>
+            <span class="qty-display">${qtySold}</span>
+            <button class="btn btn-plus" onclick="updateSales(${p.id}, 1)">+</button>
+            <button class="btn btn-delete" onclick="removeProduct(${p.id})">🗑️</button>
+          </div>
+        `;
+        listContainer.appendChild(div);
+      });
+
+      const dailyPayroll = (data.workers * data.wage) / 30.0;
+      const netProfit = totalIncome - (totalCogs + dailyPayroll);
+
+      document.getElementById('summary-income').innerText = `${sym}${totalIncome.toFixed(2)}`;
+      document.getElementById('summary-cogs').innerText = `${sym}${totalCogs.toFixed(2)}`;
+      document.getElementById('summary-payroll').innerText = `${sym}${dailyPayroll.toFixed(2)}`;
+      document.getElementById('summary-profit').innerText = `${sym}${netProfit.toFixed(2)}`;
+      
+      initChart();
     }
-  }
 
-  // Register PWA Service Worker
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js');
-  }
-</script>
-</body>
-        </html>
+    // --- APP INITIALIZATION ---
+    window.onload = function() {
+      const data = getStoredData();
+      document.getElementById('currency-select').value = data.currency || 'USh ';
+      document.getElementById('num-workers').value = data.workers !== undefined ? data.workers : 1;
+      document.getElementById('monthly-wage').value = data.wage !== undefined ? data.wage : 300;
+      applyTheme(data.theme || 'dark');
+      renderApp();
+      populateMedicationDropdown();
+      loadCloudHistory();
+    };
+
+    // --- CLOUD BACKUP & ANALYTICS ---
+    async function uploadDataToCloud() {
+      const statusEl = document.getElementById('sync-status');
+      statusEl.innerText = "Connecting to Cloud...";
+
+      if (!navigator.onLine) {
+        statusEl.innerText = "⚠️ No internet connection! Saved locally.";
+        return;
+      }
+
+      try {
+        const todayStr = new Date().toISOString().split('T')[0];
+        await db.collection("daily_records").doc(todayStr).set({
+          date: todayStr,
+          timestamp: new Date(),
+          storeData: getStoredData()
+        });
+        statusEl.innerText = "✅ Successfully uploaded to Cloud!";
+        loadCloudHistory();
+      } catch (error) {
+        statusEl.innerText = "❌ Upload failed: " + error.message;
+      }
+    }
+
+    async function loadCloudHistory() {
+      const container = document.getElementById('history-list');
+      container.innerHTML = '<p style="text-align:center; opacity:0.7;">Fetching records...</p>';
+      
+      try {
+        const snapshot = await db.collection("daily_records").get();
+        cachedCloudRecords = [];
+        
+        if (snapshot.empty) {
+          container.innerHTML = '<p style="text-align:center; opacity:0.6;">No cloud records found.</p>';
+          renderAnalytics('daily');
+          return;
+        }
+
+        container.innerHTML = '';
+        snapshot.forEach(doc => {
+          const record = doc.data();
+          cachedCloudRecords.push(record);
           
+          const d = record.storeData || {};
+          const sym = d.currency || '$';
+          
+          let income = 0;
+          (d.products || []).forEach(p => {
+            const sold = (d.sales || {})[p.id] || 0;
+            income += sold * p.price;
+          });
+
+          const div = document.createElement('div');
+          div.className = 'history-card';
+          div.innerHTML = `
+            <strong>📅 Date: ${doc.id}</strong><br>
+            <span>Revenue: <strong>${sym}${income.toFixed(2)}</strong> | Staff: ${d.workers || 0}</span>
+          `;
+          container.appendChild(div);
+        });
+
+        renderAnalytics('daily');
+      } catch (err) {
+        container.innerHTML = `<p style="color:#ef4444; font-size:12px;">Failed to load: ${err.message}</p>`;
+      }
+    }
+
+    function switchReportTab(type) {
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`tab-${type}`).classList.add('active');
+      renderAnalytics(type);
+    }
+
+    function renderAnalytics(timeframe) {
+      const data = getStoredData();
+      const sym = data.currency || '$';
+      
+      let labels = [];
+      let revenueData = [];
+      let profitData = [];
+
+      let totalRev = 0;
+      let totalProf = 0;
+
+      cachedCloudRecords.forEach(rec => {
+        const d = rec.storeData || {};
+        let rev = 0;
+        let cogs = 0;
+
+        (d.products || []).forEach(p => {
+          const sold = (d.sales || {})[p.id] || 0;
+          rev += sold * p.price;
+          cogs += sold * p.cost;
+        });
+
+        const payroll = ((d.workers || 0) * (d.wage || 0)) / 30.0;
+        const profit = rev - (cogs + payroll);
+
+        labels.push(rec.date || 'Log');
+        revenueData.push(rev);
+        profitData.push(profit);
+
+        totalRev += rev;
+        totalProf += profit;
+      });
+
+      document.getElementById('rep-revenue').innerText = `${sym}${totalRev.toFixed(2)}`;
+      document.getElementById('rep-profit').innerText = `${sym}${totalProf.toFixed(2)}`;
+
+      updateChart(labels, revenueData, profitData);
+    }
+
+    function initChart() {
+      const ctx = document.getElementById('salesChart').getContext('2d');
+      if (chartInstance) chartInstance.destroy();
+
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: [],
+          datasets: [
+            { label: 'Revenue', data: [], backgroundColor: '#00b4d8' },
+            { label: 'Profit', data: [], backgroundColor: '#9ef01a' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { ticks: { color: '#94a3b8' } },
+            y: { ticks: { color: '#94a3b8' } }
+          }
+        }
+      });
+    }
+
+    function updateChart(labels, rev, profit) {
+      if (!chartInstance) initChart();
+      chartInstance.data.labels = labels;
+      chartInstance.data.datasets[0].data = rev;
+      chartInstance.data.datasets[1].data = profit;
+      chartInstance.update();
+    }
+
+    async function clearCloudHistory() {
+      const data = getStoredData();
+      const inputPin = prompt("🔑 Enter Admin PIN to confirm wipe:");
+      
+            if (inputPin !== (data.adminPin || '14324')) {
+        return alert("❌ Incorrect PIN! Action blocked.");
+      }
+
+      if (!confirm("⚠️ WARNING: This will permanently erase ALL cloud sales logs. Proceed?")) return;
+
+      try {
+        const snapshot = await db.collection("daily_records").get();
+        const batch = db.batch();
+        
+        snapshot.forEach(doc => batch.delete(doc.ref));
+        await batch.commit();
+
+        alert("✅ Cloud sales history cleared.");
+        loadCloudHistory();
+      } catch (err) {
+        alert("❌ Failed to clear cloud history: " + err.message);
+      }
+    }
+
+    // Register Service Worker for Mobile PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
+</body>
+</html>
+
+       
