@@ -174,7 +174,8 @@
         </div>
       </div>
     </div>
-        <!-- RECORDS TAB -->
+
+    <!-- RECORDS TAB -->
     <div id="tab-records" class="tab-content">
       <div class="card">
         <h2>🟡 Active / In-Treatment Patients</h2>
@@ -215,8 +216,7 @@
     </div>
 
   </div>
-
-  <script>
+    <script>
     let currentTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', currentTheme);
 
@@ -258,7 +258,8 @@
       
       if (tabId === 'records') renderRecords();
     }
-        let selectedMeds = [];
+
+    let selectedMeds = [];
 
     function populateDrugDropdown() {
       const data = getStoredData();
@@ -404,8 +405,7 @@
       resetForm();
       populateDrugDropdown();
     }
-
-    function resetForm() {
+          function resetForm() {
       selectedMeds = [];
       renderSelectedMeds();
       document.getElementById('editing-patient-id').value = '';
@@ -417,7 +417,8 @@
       document.getElementById('form-title').innerText = '🩺 Patient Consultation & Care Input';
       document.getElementById('save-btn').innerText = '💾 Save Patient Record & Print Receipt';
     }
-        function reopenPatient(id) {
+
+    function reopenPatient(id) {
       const data = getStoredData();
       const p = data.patients.find(item => item.id === id);
       if (!p) return;
