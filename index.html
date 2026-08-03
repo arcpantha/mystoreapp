@@ -3,113 +3,89 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blessings Clinic - Management System</title>
+  <title>Blessings Clinic</title>
   <link rel="manifest" href="manifest.json">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      /* Clean Medical Light Mode Theme Palette */
-      --bg: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%);
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --subtext: #475569;
-      --border: #cbd5e1;
-      --input-bg: #f8fafc;
-      --accent: #059669;
-      --accent-hover: #047857;
-      --card-border: #e2e8f0;
-      --btn-bg: #0284c7;
-      --btn-bg-hover: #0369a1;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --danger-hover: #dc2626;
-      --shadow: rgba(0, 0, 0, 0.08);
-    }
-
-    [data-theme="dark"] {
       --bg: #0f172a;
       --card-bg: #1e293b;
       --text: #f8fafc;
       --subtext: #94a3b8;
       --border: #334155;
       --input-bg: #0f172a;
-      --accent: #10b981;
-      --accent-hover: #059669;
+      --accent: #84cc16;
+      --accent-hover: #65a30d;
       --card-border: #334155;
-      --btn-bg: #0284c7;
-      --btn-bg-hover: #0369a1;
-      --warning: #f59e0b;
-      --danger: #f87171;
-      --danger-hover: #ef4444;
-      --shadow: rgba(0, 0, 0, 0.4);
+      --btn-bg: #06b6d4;
+      --danger: #ef4444;
     }
 
-    * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
-    body { background: var(--bg); min-height: 100vh; color: var(--text); margin: 0; padding: 12px; transition: background 0.3s, color 0.3s; }
-    .container { max-width: 800px; margin: 0 auto; }
-    
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; background: var(--card-bg); padding: 12px 18px; border-radius: 16px; border: 1px solid var(--card-border); box-shadow: 0 4px 12px var(--shadow); }
-    .header h1 { font-size: 1.3rem; color: var(--accent); margin: 0; display: flex; align-items: center; gap: 8px; font-weight: 700; }
-    .theme-btn { background: var(--border); border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; color: var(--text); font-weight: 600; font-size: 0.85rem; transition: 0.2s; }
-    .theme-btn:hover { opacity: 0.9; }
+    [data-theme="light"] {
+      --bg: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%);
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --subtext: #64748b;
+      --border: #cbd5e1;
+      --input-bg: #f8fafc;
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --card-border: #cbd5e1;
+      --btn-bg: #0284c7;
+      --danger: #ef4444;
+    }
 
-    .nav-tabs { display: flex; background: var(--card-bg); padding: 6px; border-radius: 14px; margin-bottom: 16px; gap: 6px; box-shadow: 0 4px 12px var(--shadow); border: 1px solid var(--card-border); }
-    .nav-tab { flex: 1; text-align: center; padding: 10px 6px; border-radius: 10px; cursor: pointer; font-weight: 600; color: var(--subtext); border: none; background: transparent; transition: 0.2s; font-size: 0.9rem; }
-    .nav-tab.active { background: var(--accent); color: white; }
+    * { box-sizing: border-box; font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', sans-serif; }
+    body { background: var(--bg); min-height: 100vh; color: var(--text); margin: 0; padding: 12px; transition: background 0.3s, color 0.3s; }
+    .container { max-width: 650px; margin: 0 auto; }
+    
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .header h1 { font-size: 1.4rem; color: var(--accent); margin: 0; display: flex; align-items: center; gap: 6px; }
+    .theme-btn { background: var(--border); border: none; padding: 6px 12px; border-radius: 20px; cursor: pointer; color: var(--text); font-weight: bold; font-size: 0.8rem; }
+    
+    .nav-tabs { display: flex; background: var(--card-bg); padding: 4px; border-radius: 12px; margin-bottom: 12px; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    .nav-tab { flex: 1; text-align: center; padding: 10px 4px; border-radius: 8px; cursor: pointer; font-weight: bold; color: var(--subtext); border: none; background: transparent; transition: 0.2s; font-size: 0.85rem; }
+    .nav-tab.active { background: var(--accent); color: #0f172a; }
 
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    .card { background: var(--card-bg); border-radius: 16px; padding: 18px; margin-bottom: 16px; border: 1px solid var(--card-border); box-shadow: 0 4px 12px var(--shadow); }
-    .card h2 { font-size: 1.15rem; margin-top: 0; margin-bottom: 14px; color: var(--text); display: flex; align-items: center; gap: 8px; font-weight: 700; }
+    .card { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--card-border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2); }
+    .card h2 { font-size: 1.1rem; margin-top: 0; margin-bottom: 12px; color: var(--text); display: flex; align-items: center; gap: 6px; }
     
-    .form-group { margin-bottom: 12px; }
-    label { display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 4px; color: var(--subtext); }
-    input, select, textarea, button { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 0.9rem; outline: none; transition: border-color 0.2s; }
-    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+    .form-group { margin-bottom: 10px; }
+    label { display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 4px; color: var(--subtext); }
+    input, select, button { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 0.9rem; }
     
     .med-row { display: flex; gap: 6px; margin-bottom: 8px; }
-    .med-row input[type="text"] { flex: 1.5; }
-    .med-row select { flex: 2; }
+    .med-row input[type="text"] { flex: 2; }
     .med-row input[type="number"] { flex: 1; }
-    .med-row button { flex: 0.8; background: var(--btn-bg); color: white; border: none; font-weight: bold; cursor: pointer; }
-    .med-row button:hover { background: var(--btn-bg-hover); }
-
-    .med-list { font-size: 0.85rem; background: var(--input-bg); padding: 10px; border-radius: 8px; border: 1px dashed var(--border); margin-bottom: 12px; min-height: 40px; }
-    .med-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); }
+    .med-row button { flex: 0.9; background: var(--btn-bg); color: white; border: none; font-weight: bold; cursor: pointer; }
+    
+    .med-list { font-size: 0.85rem; background: var(--input-bg); padding: 8px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 10px; min-height: 35px; }
+    .med-item { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid var(--border); }
     .med-item:last-child { border-bottom: none; }
-
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-
-    .btn-main { background: var(--accent); color: white; border: none; padding: 12px; font-size: 1rem; font-weight: 700; border-radius: 10px; cursor: pointer; margin-top: 8px; transition: background 0.2s; }
+    
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    
+    .btn-main { background: var(--accent); color: #0f172a; border: none; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 6px; }
     .btn-main:hover { background: var(--accent-hover); }
 
-    .patient-card { background: var(--card-bg); border: 1px solid var(--card-border); border-left: 5px solid var(--accent); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; position: relative; }
+    .patient-card { background: var(--card-bg); border: 1px solid var(--border); border-left: 5px solid var(--accent); border-radius: 10px; padding: 12px; margin-bottom: 10px; position: relative; }
     .patient-card.unpaid { border-left-color: var(--danger); }
-    .patient-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-    .patient-name { font-weight: 700; font-size: 1.05rem; }
-    
-    .tag { font-size: 0.72rem; padding: 3px 8px; border-radius: 6px; font-weight: 700; text-transform: uppercase; }
+    .patient-header { display: flex; justify-content: space-between; align-items: center; }
+    .patient-name { font-weight: bold; font-size: 1rem; }
+    .tag { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
     .tag.paid { background: #10b98122; color: #10b981; }
     .tag.unpaid { background: #ef444422; color: #ef4444; }
-    .tag.warning { background: #f59e0b22; color: #f59e0b; }
-
-    .card-actions { display: flex; gap: 8px; margin-top: 10px; }
-    .action-btn { padding: 6px 12px; font-size: 0.8rem; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; width: auto; }
-    .btn-reopen { background: var(--accent); color: white; }
-    .btn-print { background: var(--btn-bg); color: white; }
+    .card-actions { display: flex; gap: 6px; margin-top: 10px; }
+    .action-btn { padding: 6px 10px; font-size: 0.75rem; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; width: auto; }
+    .btn-complete { background: #f59e0b; color: #0f172a; }
+    .btn-reopen { background: var(--accent); color: #0f172a; }
+    .btn-receipt { background: var(--btn-bg); color: white; }
     .btn-delete { background: var(--danger); color: white; }
 
-    .debt-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-
-    /* Modal / Receipt Styling */
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
-    .modal-overlay.active { display: flex; }
-    .receipt-box { background: #ffffff; color: #000000; width: 90%; max-width: 420px; padding: 20px; border-radius: 12px; font-family: 'Courier New', Courier, monospace; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
-    .receipt-header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
-    .receipt-line { display: flex; justify-content: space-between; margin: 4px 0; font-size: 0.88rem; }
-    .receipt-total { border-top: 2px dashed #000; margin-top: 10px; padding-top: 8px; font-weight: bold; font-size: 1.05rem; }
+    .debt-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
   </style>
 </head>
 <body>
@@ -117,205 +93,144 @@
   <div class="container">
     <div class="header">
       <h1>🏥 BLESSINGS CLINIC</h1>
-      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙 Dark Mode</button>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">☀️ Switch to Light Mode</button>
     </div>
 
     <div class="nav-tabs">
-      <button class="nav-tab active" id="tab-btn-entry" onclick="switchTab('entry')">📝 Care Input</button>
-      <button class="nav-tab" id="tab-btn-records" onclick="switchTab('records')">📋 Patients & Bills</button>
-      <button class="nav-tab" id="tab-btn-inventory" onclick="switchTab('inventory')">📦 Pharmacy</button>
+      <button class="nav-tab active" id="tab-btn-entry" onclick="switchTab('entry')">📝 Entry</button>
+      <button class="nav-tab" id="tab-btn-records" onclick="switchTab('records')">📋 Records & Stock</button>
       <button class="nav-tab" id="tab-btn-analytics" onclick="switchTab('analytics')">📊 Analytics</button>
     </div>
 
     <!-- ENTRY TAB -->
     <div id="tab-entry" class="tab-content active">
       <div class="card">
-        <h2 id="form-title">🩺 Patient Registration & Medical Care</h2>
+        <h2 id="form-title">🩺 Patient Consultation & Care Input</h2>
         <input type="hidden" id="editing-patient-id" value="">
         
-        <div class="grid-2">
-          <div class="form-group">
-            <label>Patient Full Name *</label>
-            <input type="text" id="patient-name" placeholder="e.g. John Mugisha">
-          </div>
-          <div class="form-group">
-            <label>Age & Gender</label>
-            <input type="text" id="patient-age-gender" placeholder="e.g. 28 / Male">
-          </div>
-        </div>
-
-        <div class="grid-2">
-          <div class="form-group">
-            <label>Contact Phone</label>
-            <input type="text" id="patient-phone" placeholder="e.g. 0770000000">
-          </div>
-          <div class="form-group">
-            <label>Vitals / Triage (BP, Temp, Weight)</label>
-            <input type="text" id="patient-vitals" placeholder="e.g. BP: 120/80, Temp: 36.8°C">
-          </div>
-        </div>
-
         <div class="form-group">
-          <label>Diagnosis / Clinical Findings *</label>
-          <textarea id="diagnosis" rows="2" placeholder="e.g. Acute Malaria - Prescribed Artemether"></textarea>
+          <input type="text" id="patient-name" placeholder="Patient Full Name">
+        </div>
+        <div class="form-group">
+          <input type="text" id="diagnosis" placeholder="Diagnosis / Medical Procedure">
         </div>
         
-        <label>💊 Prescribe Dispensed Medications from Stock:</label>
+        <label>💊 Prescribe Medications from Inventory:</label>
         <div class="med-row">
-          <input type="text" id="drug-search" placeholder="🔍 Search drug..." oninput="filterDrugDropdown()">
-          <select id="drug-select">
-            <option value="">-- Select Drug --</option>
-          </select>
-          <input type="number" id="drug-qty" placeholder="Qty" min="1">
+          <!-- Live Typeahead Search connected to Stock Datalist -->
+          <input type="text" id="drug-input" list="stock-datalist" placeholder="Type or select drug name..." oninput="autoFillPrice()">
+          <datalist id="stock-datalist"></datalist>
+          
+          <input type="number" id="drug-qty" placeholder="Qty / Tabs" min="1">
           <button type="button" onclick="addMedication()">+ Add</button>
         </div>
         
         <div class="med-list" id="selected-meds">
-          <em style="color:var(--subtext)">No prescription items added yet.</em>
+          <em style="color:var(--subtext)">No drugs selected yet.</em>
         </div>
 
         <div class="grid-2">
           <div class="form-group">
-            <label>Medication Total (USh):</label>
-            <input type="number" id="meds-total" value="0.00" readonly>
+            <label>Meds Subtotal:</label>
+            <input type="number" id="meds-total" value="0.00" readonly style="color:var(--accent); font-weight:bold;">
           </div>
           <div class="form-group">
-            <label>Consultation / Service Fee (USh):</label>
+            <label>Service / Labor Charge:</label>
             <input type="number" id="service-charge" value="0.00" oninput="calculateTotal()">
           </div>
         </div>
 
         <div class="grid-2">
           <div class="form-group">
-            <label>Grand Total Fee (USh):</label>
-            <input type="number" id="total-fee" value="0.00" readonly style="font-weight:bold; color:var(--accent)">
+            <label>Total Fee Charged:</label>
+            <input type="number" id="total-fee" value="0.00" readonly style="font-weight:bold;">
           </div>
           <div class="form-group">
             <label>Payment Status:</label>
             <select id="payment-status">
-              <option value="Paid">✅ Paid in Full</option>
-              <option value="Unpaid">❌ Unpaid / Added to Debt</option>
+              <option value="Paid">✅ Paid</option>
+              <option value="Unpaid">❌ Unpaid / Debt</option>
             </select>
           </div>
         </div>
 
         <div class="form-group">
-          <label>Care Status:</label>
           <select id="patient-status">
-            <option value="Active">🟡 Active / Receiving Treatment</option>
+            <option value="Active">🟡 Active / In Treatment</option>
             <option value="Completed">🟢 Completed & Discharged</option>
           </select>
         </div>
 
-        <button class="btn-main" id="save-btn" onclick="savePatientRecord()">💾 Save Patient Record & Generate Receipt</button>
+        <button class="btn-main" id="save-btn" onclick="savePatientRecord()">💾 Save Patient Record & Print Receipt</button>
+      </div>
+
+      <div class="card">
+        <h2>📋 Record Patient Credit / Debt</h2>
+        <div class="form-group">
+          <input type="text" id="debt-name" placeholder="Patient Name">
+        </div>
+        <div class="form-group">
+          <input type="text" id="debt-desc" placeholder="Items / Treatment Owed">
+        </div>
+        <div class="grid-2">
+          <input type="number" id="debt-amount" placeholder="Amount Owed (USh)">
+          <button class="btn-main" style="margin:0; background:var(--btn-bg); color:white;" onclick="saveDebtRecord()">📌 Log Debt</button>
+        </div>
       </div>
     </div>
 
     <!-- RECORDS TAB -->
     <div id="tab-records" class="tab-content">
       <div class="card">
-        <h2>🔍 Patient Search & Filter</h2>
-        <input type="text" id="patient-search-query" placeholder="🔍 Search by name, diagnosis, or phone..." oninput="renderRecords()">
-      </div>
-
-      <div class="card">
+        <h2>👥 Patient Records Search</h2>
+        <input type="text" id="patient-search-query" placeholder="🔍 Search patient name or treatment..." oninput="renderRecords()" style="margin-bottom:12px;">
+        
         <h2>🟡 Active / In-Treatment Patients</h2>
         <div id="active-patients-list"></div>
 
-        <h2>🟢 Discharged / Care Logs</h2>
+        <h2>✅ Completed Patient Care Logs</h2>
         <div id="completed-patients-list"></div>
       </div>
 
       <div class="card">
-        <h2>💳 Patient Debt & Outstanding Balances</h2>
+        <h2>💳 Patient Debt & Bill Tracker</h2>
         <div id="debt-list"></div>
       </div>
-    </div>
 
-    <!-- INVENTORY TAB -->
-    <div id="tab-inventory" class="tab-content">
       <div class="card">
-        <h2>📦 Pharmacy Counter & Drug Inventory</h2>
-        <input type="text" id="stock-search" placeholder="🔍 Search stock by drug name..." oninput="renderStock()" style="margin-bottom:12px;">
+        <h2>📦 Pharmacy Counter & Drug Register</h2>
+        <input type="text" id="stock-search" placeholder="🔍 Search medicine stock..." oninput="renderStock()" style="margin-bottom:10px;">
         <div id="stock-list"></div>
-      </div>
-
-      <div class="card">
-        <h3>➕ Add New Medication to Register</h3>
+        <hr style="border:0; border-top:1px solid var(--border); margin:15px 0;">
+        <h3>➕ Add New Drug to Stock</h3>
         <div class="grid-2">
-          <div class="form-group">
-            <label>Drug Name</label>
-            <input type="text" id="new-drug-name" placeholder="e.g. Paracetamol 500mg">
-          </div>
-          <div class="form-group">
-            <label>Unit Price (USh)</label>
-            <input type="number" id="new-drug-price" placeholder="e.g. 500">
-          </div>
+          <input type="text" id="new-drug-name" placeholder="Drug Name">
+          <input type="number" id="new-drug-price" placeholder="Unit Price">
         </div>
-        <div class="grid-3">
-          <div class="form-group">
-            <label>Initial Stock Qty</label>
-            <input type="number" id="new-drug-stock" placeholder="e.g. 100">
-          </div>
-          <div class="form-group">
-            <label>Low Stock Alert Limit</label>
-            <input type="number" id="new-drug-min" value="10">
-          </div>
-          <div class="form-group">
-            <label>Expiry Date</label>
-            <input type="date" id="new-drug-expiry">
-          </div>
+        <div class="grid-2" style="margin-top:6px;">
+          <input type="number" id="new-drug-stock" placeholder="Initial Stock Qty">
+          <button class="btn-main" style="margin:0; background:var(--btn-bg); color:white;" onclick="addNewDrug()">Add to Register</button>
         </div>
-        <button class="btn-main" style="background:var(--btn-bg);" onclick="addNewDrug()">➕ Add to Drug Inventory</button>
       </div>
     </div>
 
     <!-- ANALYTICS TAB -->
     <div id="tab-analytics" class="tab-content">
       <div class="card">
-        <h2>📊 Financial & Patient Analytics</h2>
-        <canvas id="revenueChart" style="max-height:300px;"></canvas>
-      </div>
-      <div class="card" style="text-align:center;">
-        <button class="action-btn btn-delete" onclick="clearAllDataPIN()">⚠️ Admin Reset All Clinic Data</button>
+        <h2>📊 Financial Overview</h2>
+        <canvas id="revenueChart"></canvas>
       </div>
     </div>
 
   </div>
-
-  <!-- RECEIPT MODAL -->
-  <div class="modal-overlay" id="receipt-modal">
-    <div class="receipt-box">
-      <div class="receipt-header">
-        <h2 style="margin:0;">BLESSINGS CLINIC</h2>
-        <p style="margin:2px 0; font-size:0.8rem;">Official Patient Care Receipt</p>
-        <small id="r-date"></small>
-      </div>
-      <div>
-        <p><strong>Patient:</strong> <span id="r-name"></span></p>
-        <p><strong>Diagnosis:</strong> <span id="r-diagnosis"></span></p>
-        <hr style="border-top:1px dashed #000;">
-        <div id="r-meds-list"></div>
-        <hr style="border-top:1px dashed #000;">
-        <div class="receipt-line"><span>Service Fee:</span><span id="r-service"></span></div>
-        <div class="receipt-line receipt-total"><span>TOTAL:</span><span id="r-total"></span></div>
-        <div class="receipt-line"><span>Status:</span><span id="r-status"></span></div>
-      </div>
-      <div style="margin-top:16px; display:flex; gap:8px;">
-        <button onclick="window.print()" style="background:#000; color:#fff; border:none; padding:8px; font-weight:bold; cursor:pointer;">🖨️ Print</button>
-        <button onclick="closeReceiptModal()" style="background:#888; color:#fff; border:none; padding:8px; font-weight:bold; cursor:pointer;">Close</button>
-      </div>
-    </div>
-              </div>
-                <script>
-    let currentTheme = localStorage.getItem('theme') || 'light';
+    <script>
+    let currentTheme = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', currentTheme);
-    document.getElementById('theme-btn').innerText = currentTheme === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode';
 
     const defaultStock = [
-      { id: '1', name: 'Paracetamol 500mg', price: 200, stock: 150, minStock: 15, expiry: '2027-12-31' },
-      { id: '2', name: 'Coartem 80/480mg', price: 5000, stock: 45, minStock: 10, expiry: '2026-11-20' },
-      { id: '3', name: 'Amoxicillin 500mg', price: 3000, stock: 30, minStock: 10, expiry: '2027-05-15' }
+      { id: '1', name: 'Paracetamol', price: 100, stock: 100 },
+      { id: '2', name: 'Coartem', price: 2000, stock: 50 },
+      { id: '3', name: 'Amoxicillin', price: 2500, stock: 40 }
     ];
 
     function getStoredData() {
@@ -332,10 +247,10 @@
     }
 
     function toggleTheme() {
-      currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+      currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', currentTheme);
       localStorage.setItem('theme', currentTheme);
-      document.getElementById('theme-btn').innerText = currentTheme === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode';
+      document.getElementById('theme-btn').innerText = currentTheme === 'dark' ? '☀️ Switch to Light Mode' : '🌙 Switch to Dark Mode';
     }
 
     function switchTab(tabId) {
@@ -349,49 +264,43 @@
       if (content) content.classList.add('active');
       
       if (tabId === 'records') renderRecords();
-      if (tabId === 'inventory') renderStock();
-      if (tabId === 'analytics') renderAnalytics();
     }
 
     let selectedMeds = [];
 
-    function populateDrugDropdown() {
+    // Populates datalist options dynamically so users can type & get auto-suggestions
+    function populateDrugDatalist() {
       const data = getStoredData();
-      const select = document.getElementById('drug-select');
-      select.innerHTML = '<option value="">-- Select Drug --</option>';
+      const datalist = document.getElementById('stock-datalist');
+      datalist.innerHTML = '';
       data.stock.forEach(item => {
-        select.innerHTML += `<option value="${item.id}">${item.name} (USh ${item.price}) - Stock: ${item.stock}</option>`;
-      });
-    }
-
-    function filterDrugDropdown() {
-      const query = document.getElementById('drug-search').value.toLowerCase();
-      const data = getStoredData();
-      const select = document.getElementById('drug-select');
-      select.innerHTML = '<option value="">-- Select Drug --</option>';
-      data.stock.filter(item => item.name.toLowerCase().includes(query)).forEach(item => {
-        select.innerHTML += `<option value="${item.id}">${item.name} (USh ${item.price}) - Stock: ${item.stock}</option>`;
+        datalist.innerHTML += `<option value="${item.name}">USh ${item.price} - Available Stock: ${item.stock}</option>`;
       });
     }
 
     function addMedication() {
-      const drugId = document.getElementById('drug-select').value;
+      const inputVal = document.getElementById('drug-input').value.trim();
       const qty = parseInt(document.getElementById('drug-qty').value);
-      if (!drugId || !qty || qty <= 0) return alert('Please select a medication and enter a valid quantity');
+      if (!inputVal || !qty || qty <= 0) return alert('Please select or type a valid drug and enter a quantity.');
 
       const data = getStoredData();
-      const drug = data.stock.find(d => d.id === drugId);
+      // Case-insensitive match on drug name
+      const drug = data.stock.find(d => d.name.toLowerCase() === inputVal.toLowerCase());
 
-      if (qty > drug.stock) return alert('Not enough stock available!');
+      if (!drug) return alert('Drug not found in inventory register! Please check the spelling.');
+      if (qty > drug.stock) return alert(`Not enough stock available! Current stock for ${drug.name} is ${drug.stock}.`);
 
       selectedMeds.push({ id: drug.id, name: drug.name, qty: qty, price: drug.price, total: drug.price * qty });
+      
+      document.getElementById('drug-input').value = '';
+      document.getElementById('drug-qty').value = '';
       renderSelectedMeds();
     }
 
     function renderSelectedMeds() {
       const list = document.getElementById('selected-meds');
       if (selectedMeds.length === 0) {
-        list.innerHTML = '<em style="color:var(--subtext)">No prescription items added yet.</em>';
+        list.innerHTML = '<em style="color:var(--subtext)">No drugs selected yet.</em>';
         document.getElementById('meds-total').value = '0.00';
         calculateTotal();
         return;
@@ -402,8 +311,8 @@
       selectedMeds.forEach((m, idx) => {
         subtotal += m.total;
         html += `<div class="med-item">
-          <span><strong>${m.name}</strong> x${m.qty} (USh ${m.total.toLocaleString()})</span>
-          <button style="width:auto; padding:2px 8px; background:var(--danger); color:white; border:none; border-radius:4px; cursor:pointer;" onclick="removeMed(${idx})">✕</button>
+          <span>${m.name} x${m.qty} (USh ${m.total.toFixed(2)})</span>
+          <button style="width:auto; padding:2px 6px; background:var(--danger); color:white; border:none; border-radius:4px; cursor:pointer;" onclick="removeMed(${idx})">✕</button>
         </div>`;
       });
       list.innerHTML = html;
@@ -425,20 +334,15 @@
     function savePatientRecord() {
       const editingId = document.getElementById('editing-patient-id').value;
       const name = document.getElementById('patient-name').value.trim();
-      const ageGender = document.getElementById('patient-age-gender').value.trim();
-      const phone = document.getElementById('patient-phone').value.trim();
-      const vitals = document.getElementById('patient-vitals').value.trim();
       const diagnosis = document.getElementById('diagnosis').value.trim();
       const serviceCharge = parseFloat(document.getElementById('service-charge').value) || 0;
       const total = parseFloat(document.getElementById('total-fee').value);
       const paymentStatus = document.getElementById('payment-status').value;
       const patientStatus = document.getElementById('patient-status').value;
 
-      if (!name || !diagnosis) return alert('Please enter patient name and clinical diagnosis');
+      if (!name || !diagnosis) return alert('Please enter patient name and diagnosis');
 
       const data = getStoredData();
-
-      let patientRecord;
 
       if (editingId) {
         const index = data.patients.findIndex(p => p.id === editingId);
@@ -446,9 +350,6 @@
           data.patients[index] = {
             ...data.patients[index],
             name,
-            ageGender,
-            phone,
-            vitals,
             diagnosis,
             meds: [...selectedMeds],
             serviceCharge,
@@ -456,20 +357,20 @@
             paymentStatus,
             status: patientStatus
           };
-          patientRecord = data.patients[index];
         }
+        document.getElementById('editing-patient-id').value = '';
+        document.getElementById('form-title').innerText = '🩺 Patient Consultation & Care Input';
+        document.getElementById('save-btn').innerText = '💾 Save Patient Record & Print Receipt';
       } else {
+        // Deduct inventory stock
         selectedMeds.forEach(m => {
           const item = data.stock.find(s => s.id === m.id);
           if (item) item.stock = Math.max(0, item.stock - m.qty);
         });
 
-        patientRecord = {
+        const newRecord = {
           id: Date.now().toString(),
           name,
-          ageGender,
-          phone,
-          vitals,
           diagnosis,
           meds: [...selectedMeds],
           serviceCharge,
@@ -478,16 +379,18 @@
           status: patientStatus,
           date: new Date().toLocaleString()
         };
-        data.patients.unshift(patientRecord);
+        data.patients.unshift(newRecord);
       }
 
-      // Synchronize with Debt Tracker
-      const debtIndex = data.debts.findIndex(d => d.id === patientRecord.id);
+      // Synchronize with Debt Tracker accurately
+      const targetId = editingId || data.patients[0].id;
+      const debtIndex = data.debts.findIndex(d => d.id === targetId);
+      
       if (paymentStatus === 'Unpaid') {
         const debtData = {
-          id: patientRecord.id,
+          id: targetId,
           name: name,
-          desc: diagnosis + ' (' + (selectedMeds.map(m=>m.name+' x'+m.qty).join(', ') || 'Service') + ')',
+          desc: diagnosis + ' (' + (selectedMeds.map(m=>m.name+' x'+m.qty).join(', ') || 'Service Only') + ')',
           amount: total,
           status: 'Unpaid',
           date: new Date().toLocaleDateString()
@@ -505,24 +408,21 @@
       saveData('clinic_patients', data.patients);
       saveData('clinic_debts', data.debts);
 
-      openReceiptModal(patientRecord);
+      alert('Patient record saved successfully!');
       resetForm();
-      populateDrugDropdown();
+      populateDrugDatalist();
     }
-                      function resetForm() {
+          function resetForm() {
       selectedMeds = [];
       renderSelectedMeds();
       document.getElementById('editing-patient-id').value = '';
       document.getElementById('patient-name').value = '';
-      document.getElementById('patient-age-gender').value = '';
-      document.getElementById('patient-phone').value = '';
-      document.getElementById('patient-vitals').value = '';
       document.getElementById('diagnosis').value = '';
       document.getElementById('service-charge').value = '0.00';
       document.getElementById('payment-status').value = 'Paid';
       document.getElementById('patient-status').value = 'Active';
-      document.getElementById('form-title').innerText = '🩺 Patient Registration & Medical Care';
-      document.getElementById('save-btn').innerText = '💾 Save Patient Record & Generate Receipt';
+      document.getElementById('form-title').innerText = '🩺 Patient Consultation & Care Input';
+      document.getElementById('save-btn').innerText = '💾 Save Patient Record & Print Receipt';
     }
 
     function reopenPatient(id) {
@@ -531,11 +431,8 @@
       if (!p) return;
 
       document.getElementById('editing-patient-id').value = p.id;
-      document.getElementById('patient-name').value = p.name || '';
-      document.getElementById('patient-age-gender').value = p.ageGender || '';
-      document.getElementById('patient-phone').value = p.phone || '';
-      document.getElementById('patient-vitals').value = p.vitals || '';
-      document.getElementById('diagnosis').value = p.diagnosis || '';
+      document.getElementById('patient-name').value = p.name;
+      document.getElementById('diagnosis').value = p.diagnosis;
       document.getElementById('service-charge').value = (p.serviceCharge || 0).toFixed(2);
       document.getElementById('payment-status').value = p.paymentStatus;
       document.getElementById('patient-status').value = p.status;
@@ -549,22 +446,47 @@
       switchTab('entry');
     }
 
+    function saveDebtRecord() {
+      const name = document.getElementById('debt-name').value.trim();
+      const desc = document.getElementById('debt-desc').value.trim();
+      const amount = parseFloat(document.getElementById('debt-amount').value);
+
+      if (!name || !amount) return alert('Please fill in debt name and amount');
+
+      const data = getStoredData();
+      data.debts.unshift({
+        id: Date.now().toString(),
+        name,
+        desc,
+        amount,
+        status: 'Unpaid',
+        date: new Date().toLocaleDateString()
+      });
+
+      saveData('clinic_debts', data.debts);
+      alert('Debt record saved!');
+      document.getElementById('debt-name').value = '';
+      document.getElementById('debt-desc').value = '';
+      document.getElementById('debt-amount').value = '';
+      renderRecords();
+    }
+
     function renderRecords() {
       const data = getStoredData();
       const query = (document.getElementById('patient-search-query')?.value || '').toLowerCase();
 
       const activeContainer = document.getElementById('active-patients-list');
+      const completedContainer = document.getElementById('completed-patients-list');
+      
       const filtered = data.patients.filter(p => 
         p.name.toLowerCase().includes(query) || 
-        p.diagnosis.toLowerCase().includes(query) || 
-        (p.phone && p.phone.includes(query))
+        p.diagnosis.toLowerCase().includes(query)
       );
 
       const active = filtered.filter(p => p.status === 'Active');
       activeContainer.innerHTML = active.length ? '' : '<p style="color:var(--subtext)">No active patients found.</p>';
       active.forEach(p => { activeContainer.innerHTML += renderPatientCard(p); });
 
-      const completedContainer = document.getElementById('completed-patients-list');
       const completed = filtered.filter(p => p.status === 'Completed');
       completedContainer.innerHTML = completed.length ? '' : '<p style="color:var(--subtext)">No completed logs.</p>';
       completed.forEach(p => { completedContainer.innerHTML += renderPatientCard(p); });
@@ -577,7 +499,7 @@
             <div>
               <strong>👤 ${d.name}</strong> <small>(${d.date})</small><br>
               <small>💊 ${d.desc}</small><br>
-              <strong>Owed: USh ${d.amount.toLocaleString()}</strong>
+              <strong>Owed: USh ${d.amount.toFixed(2)}</strong>
             </div>
             <div style="text-align:right;">
               ${d.status === 'Paid' ? '<span class="tag paid">✅ Paid</span>' : `<button class="action-btn btn-reopen" onclick="markDebtPaid('${d.id}')">Mark Paid</button>`}
@@ -586,36 +508,57 @@
           </div>
         `;
       });
+
+      renderStock();
     }
 
     function renderPatientCard(p) {
+      const isPaid = p.paymentStatus === 'Paid';
       return `
-        <div class="patient-card ${p.paymentStatus.toLowerCase()}">
+        <div class="patient-card ${isPaid ? 'paid' : 'unpaid'}">
           <div class="patient-header">
-            <span class="patient-name">👤 ${p.name} ${p.ageGender ? `(${p.ageGender})` : ''}</span>
-            <span class="tag ${p.paymentStatus.toLowerCase()}">${p.paymentStatus}</span>
+            <span class="patient-name">👤 ${p.name}</span>
+            <button class="action-btn btn-complete" onclick="togglePatientStatus('${p.id}')">
+              ${p.status === 'Active' ? 'Mark Complete' : 'Mark Active'}
+            </button>
           </div>
-          <small>⏱️ ${p.date} ${p.phone ? `| 📞 ${p.phone}` : ''}</small><br>
-          ${p.vitals ? `<small>🩺 Vitals: ${p.vitals}</small><br>` : ''}
-          <small>📋 Diagnosis: ${p.diagnosis}</small><br>
+          <small>⏱️ ${p.date}</small><br>
+          <small>🩺 Diagnosis: ${p.diagnosis}</small><br>
           <small>💊 Meds: ${p.meds ? p.meds.map(m=>m.name+' x'+m.qty).join(', ') : 'None'}</small><br>
-          <strong>Total Fee: USh ${(p.fee || 0).toLocaleString()}</strong>
+          <strong>Fee: USh ${(p.fee || 0).toFixed(2)}</strong> 
+          <span class="tag ${isPaid ? 'paid' : 'unpaid'}">${p.paymentStatus}</span>
           <div class="card-actions">
-            <button class="action-btn btn-reopen" onclick="reopenPatient('${p.id}')">✏️ Edit</button>
-            <button class="action-btn btn-print" onclick="openReceiptModalById('${p.id}')">🖨️ Receipt</button>
+            <button class="action-btn btn-reopen" onclick="reopenPatient('${p.id}')">Re-open</button>
+            <button class="action-btn btn-receipt" onclick="alert('Printing Receipt for ${p.name}...')">🖨️ Receipt</button>
             <button class="action-btn btn-delete" onclick="deletePatientRecord('${p.id}')">🗑️ Delete</button>
           </div>
         </div>
       `;
     }
 
+    function togglePatientStatus(id) {
+      const data = getStoredData();
+      const patient = data.patients.find(p => p.id === id);
+      if (patient) {
+        patient.status = patient.status === 'Active' ? 'Completed' : 'Active';
+        saveData('clinic_patients', data.patients);
+        renderRecords();
+      }
+    }
+
+    // UPDATED FUNCTION: Fully syncs Debt status with Active/Completed Patient Cards
     function markDebtPaid(id) {
       const data = getStoredData();
+      
+      // Update Debt record
       const debt = data.debts.find(d => d.id === id);
       if (debt) debt.status = 'Paid';
 
-      const patient = data.patients.find(p => p.id === id);
-      if (patient) patient.paymentStatus = 'Paid';
+      // Cross-update Patient record by ID or Name matching
+      const patient = data.patients.find(p => p.id === id || (debt && p.name.toLowerCase() === debt.name.toLowerCase()));
+      if (patient) {
+        patient.paymentStatus = 'Paid';
+      }
 
       saveData('clinic_debts', data.debts);
       saveData('clinic_patients', data.patients);
@@ -624,9 +567,9 @@
 
     function verifyAdminPIN() {
       const data = getStoredData();
-      const pin = prompt('🔑 Enter Admin PIN to execute this operation:');
+      const pin = prompt('🔑 Enter Admin PIN to perform delete action:');
       if (pin === data.adminPin) return true;
-      alert('❌ Incorrect Admin PIN!');
+      alert('❌ Incorrect PIN!');
       return false;
     }
 
@@ -647,20 +590,15 @@
     }
 
     function renderStock() {
-      const query = (document.getElementById('stock-search')?.value || '').toLowerCase();
+      const query = document.getElementById('stock-search')?.value.toLowerCase() || '';
       const data = getStoredData();
       const container = document.getElementById('stock-list');
       container.innerHTML = '';
-      
       data.stock.filter(s => s.name.toLowerCase().includes(query)).forEach(s => {
-        const isLow = s.stock <= (s.minStock || 10);
         container.innerHTML += `
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border)">
-            <div>
-              <strong>${s.name}</strong> ${isLow ? '<span class="tag warning">Low Stock</span>' : ''}<br>
-              <small style="color:var(--subtext)">Stock: ${s.stock} | Exp: ${s.expiry || 'N/A'}</small>
-            </div>
-            <strong>USh ${(s.price || 0).toLocaleString()}</strong>
+          <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border)">
+            <span><strong>${s.name}</strong> (Stock: ${s.stock})</span>
+            <span>USh ${s.price.toFixed(2)}</span>
           </div>
         `;
       });
@@ -670,86 +608,21 @@
       const name = document.getElementById('new-drug-name').value.trim();
       const price = parseFloat(document.getElementById('new-drug-price').value);
       const stock = parseInt(document.getElementById('new-drug-stock').value);
-      const minStock = parseInt(document.getElementById('new-drug-min').value) || 10;
-      const expiry = document.getElementById('new-drug-expiry').value;
 
-      if (!name || isNaN(price) || isNaN(stock)) return alert('Please fill in drug name, price, and stock quantity!');
+      if (!name || isNaN(price) || isNaN(stock)) return alert('Fill in all drug fields!');
 
       const data = getStoredData();
-      data.stock.push({ id: Date.now().toString(), name, price, stock, minStock, expiry });
+      data.stock.push({ id: Date.now().toString(), name, price, stock });
       saveData('clinic_stock', data.stock);
-      alert('New drug registered successfully!');
-      
+      alert('Drug added to inventory register!');
       document.getElementById('new-drug-name').value = '';
       document.getElementById('new-drug-price').value = '';
       document.getElementById('new-drug-stock').value = '';
-      populateDrugDropdown();
+      populateDrugDatalist();
       renderStock();
     }
 
-    function openReceiptModal(p) {
-      document.getElementById('r-date').innerText = p.date || new Date().toLocaleString();
-      document.getElementById('r-name').innerText = p.name;
-      document.getElementById('r-diagnosis').innerText = p.diagnosis;
-      
-      let html = '';
-      if (p.meds && p.meds.length) {
-        p.meds.forEach(m => {
-          html += `<div class="receipt-line"><span>${m.name} x${m.qty}</span><span>${m.total.toLocaleString()}</span></div>`;
-        });
-      }
-      document.getElementById('r-meds-list').innerHTML = html;
-      document.getElementById('r-service').innerText = 'USh ' + (p.serviceCharge || 0).toLocaleString();
-      document.getElementById('r-total').innerText = 'USh ' + (p.fee || 0).toLocaleString();
-      document.getElementById('r-status').innerText = p.paymentStatus;
-      
-      document.getElementById('receipt-modal').classList.add('active');
-    }
-
-    function openReceiptModalById(id) {
-      const data = getStoredData();
-      const p = data.patients.find(item => item.id === id);
-      if (p) openReceiptModal(p);
-    }
-
-    function closeReceiptModal() {
-      document.getElementById('receipt-modal').classList.remove('active');
-    }
-
-    function renderAnalytics() {
-      const data = getStoredData();
-      const totalCollected = data.patients.filter(p => p.paymentStatus === 'Paid').reduce((sum, p) => sum + (p.fee || 0), 0);
-      const totalUnpaid = data.debts.filter(d => d.status === 'Unpaid').reduce((sum, d) => sum + (d.amount || 0), 0);
-
-      const ctx = document.getElementById('revenueChart').getContext('2d');
-      if (window.clinicChart) window.clinicChart.destroy();
-
-      window.clinicChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Collected Revenue (USh)', 'Outstanding Debt (USh)'],
-          datasets: [{
-            data: [totalCollected, totalUnpaid],
-            backgroundColor: ['#10b981', '#ef4444']
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { position: 'bottom' } }
-        }
-      });
-    }
-
-    function clearAllDataPIN() {
-      if (!verifyAdminPIN()) return;
-      if (confirm('⚠️ Are you sure you want to completely erase all patient, pharmacy, and financial records?')) {
-        localStorage.clear();
-        alert('All clinic data cleared!');
-        location.reload();
-      }
-    }
-
-    populateDrugDropdown();
+    populateDrugDatalist();
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js');
