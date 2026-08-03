@@ -1,41 +1,42 @@
-const CACHE_NAME = 'blessings-clinic-v1';
-const ASSETS_TO_CACHE = [
+const CACHE_NAME = 'mystoreapp-v2'; // Changed cache version to force update
+const urlsToCache = [
   './',
   './index.html',
   './manifest.json'
 ];
 
-// Install Event: Cache essential app files
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
-  );
+self.addEventListener('install', event => {
+  // Force new service worker to activate immediately
   self.skipWaiting();
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+  );
 });
 
-// Activate Event: Clean up old caches if any
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', event => {
+  // Delete all old cache stores
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    caches.keys().then(cacheNames => {
       return Promise.all(
-        cacheNames.map((cache) => {
+        cacheNames.map(cache => {
           if (cache !== CACHE_NAME) {
             return caches.delete(cache);
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-// Fetch Event: Serve cached content when offline
-self.addEventListener('fetch', (event) => {
+self.addEventListener('fetch', event => {
+  // Network first strategy: Try fetching fresh code first, fall back to cache offline
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    })
+    fetch(event.request)
+      .then(response => {
+        const responseClone = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseClone));
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
