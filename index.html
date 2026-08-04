@@ -269,7 +269,6 @@
     <!-- RECORDS TAB -->
     <div id="tab-records" class="tab-content">
       
-      <!-- SEPARATED INVENTORY ALERTS CARD -->
       <div class="card">
         <h2>⚠️ Inventory & Expiry Alerts</h2>
         
@@ -312,7 +311,7 @@
     <!-- ANALYTICS TAB -->
     <div id="tab-analytics" class="tab-content">
       <div class="card">
-        <div style="display:flex; justify-style:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:6px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:6px;">
           <h2 style="margin:0;">📅 Today's Financial Overview</h2>
           <button class="action-btn btn-delete" onclick="resetAllAnalytics()" style="padding:4px 8px; font-size:0.7rem;">🧹 Clear Counter Sales</button>
         </div>
@@ -1002,7 +1001,6 @@
       data.patients = data.patients.filter(p => p.id !== id);
       saveData('clinic_patients', data.patients);
       
-      syncToCloud();
       renderRecords();
       renderAnalyticsChart();
     }
@@ -1013,7 +1011,6 @@
       data.debts = data.debts.filter(d => d.id !== id);
       saveData('clinic_debts', data.debts);
       
-      syncToCloud();
       renderRecords();
       renderAnalyticsChart();
     }
@@ -1021,7 +1018,6 @@
     function resetAllAnalytics() {
       if (!verifyAdminPIN()) return;
       saveData('clinic_otc_sales', []);
-      syncToCloud();
       renderAnalyticsChart();
     }
 
@@ -1034,7 +1030,6 @@
 
       saveData('clinic_debts', data.debts);
       saveData('clinic_patients', data.patients);
-      syncToCloud();
       renderRecords();
       renderAnalyticsChart();
     }
