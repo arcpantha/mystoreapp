@@ -21,7 +21,6 @@
       --danger: #ef4444;
     }
 
-    /* Light Theme with Cyan, Lime, and Navy Blue Gradient Blend */
     [data-theme="light"] {
       --bg: linear-gradient(135deg, #0f172a 0%, #0e7490 40%, #06b6d4 70%, #84cc16 100%);
       --card-bg: rgba(255, 255, 255, 0.94);
@@ -60,11 +59,9 @@
     input, select, button { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 0.9rem; }
     
     .med-row { display: flex; gap: 6px; margin-bottom: 8px; position: relative; }
-    .med-row input[type="text"] { flex: 2; }
     .med-row input[type="number"] { flex: 1; }
     .med-row button { flex: 0.9; background: var(--btn-bg); color: white; border: none; font-weight: bold; cursor: pointer; }
     
-    /* Auto-suggest dropdown container */
     .autocomplete-wrapper { position: relative; flex: 2; }
     .autocomplete-items { position: absolute; border: 1px solid var(--border); border-top: none; z-index: 99; top: 100%; left: 0; right: 0; background: var(--card-bg); border-radius: 0 0 8px 8px; max-height: 180px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
     .autocomplete-items div { padding: 8px 10px; cursor: pointer; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
@@ -75,6 +72,7 @@
     .med-item:last-child { border-bottom: none; }
     
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
     
     .btn-main { background: var(--accent); color: #0f172a; border: none; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 6px; }
     .btn-main:hover { background: var(--accent-hover); }
@@ -94,6 +92,11 @@
     .btn-delete { background: var(--danger); color: white; }
 
     .debt-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+
+    /* Stats Grid */
+    .stat-box { background: var(--input-bg); border: 1px solid var(--border); padding: 10px; border-radius: 10px; text-align: center; }
+    .stat-box h4 { margin: 0; font-size: 0.75rem; color: var(--subtext); text-transform: uppercase; }
+    .stat-box .val { font-size: 1rem; font-weight: bold; margin-top: 4px; }
   </style>
 </head>
 <body>
@@ -186,6 +189,19 @@
           <button class="btn-main" style="margin:0; background:var(--btn-bg); color:white;" onclick="saveDebtRecord()">📌 Log Debt</button>
         </div>
       </div>
+
+      <!-- MOVED DRUG ADDITION TO ENTRY TAB -->
+      <div class="card">
+        <h2>📦 Add New Drug to Stock Register</h2>
+        <div class="grid-2">
+          <input type="text" id="new-drug-name" placeholder="Drug Name">
+          <input type="number" id="new-drug-price" placeholder="Unit Price (USh)">
+        </div>
+        <div class="grid-2" style="margin-top:6px;">
+          <input type="number" id="new-drug-stock" placeholder="Initial Stock Qty">
+          <button class="btn-main" style="margin:0; background:var(--btn-bg); color:white;" onclick="addNewDrug()">Add to Register</button>
+        </div>
+      </div>
     </div>
 
     <!-- RECORDS TAB -->
@@ -207,27 +223,67 @@
       </div>
 
       <div class="card">
-        <h2>📦 Pharmacy Counter & Drug Register</h2>
+        <h2>📦 Pharmacy Counter & Current Stock</h2>
         <input type="text" id="stock-search" placeholder="🔍 Search medicine stock..." oninput="renderStock()" style="margin-bottom:10px;">
         <div id="stock-list"></div>
-        <hr style="border:0; border-top:1px solid var(--border); margin:15px 0;">
-        <h3>➕ Add New Drug to Stock</h3>
-        <div class="grid-2">
-          <input type="text" id="new-drug-name" placeholder="Drug Name">
-          <input type="number" id="new-drug-price" placeholder="Unit Price">
-        </div>
-        <div class="grid-2" style="margin-top:6px;">
-          <input type="number" id="new-drug-stock" placeholder="Initial Stock Qty">
-          <button class="btn-main" style="margin:0; background:var(--btn-bg); color:white;" onclick="addNewDrug()">Add to Register</button>
-        </div>
       </div>
     </div>
 
     <!-- ANALYTICS TAB -->
     <div id="tab-analytics" class="tab-content">
+      <!-- TODAY'S DASHBOARD STATS -->
       <div class="card">
-        <h2>📊 Financial Overview</h2>
-        <canvas id="revenueChart" style="max-height: 300px;"></canvas>
+        <h2>📅 Today's Financial Overview</h2>
+        <div class="grid-3" style="margin-bottom:10px;">
+          <div class="stat-box">
+            <h4>Gross Revenue</h4>
+            <div class="val" id="today-gross" style="color:var(--btn-bg);">USh 0</div>
+          </div>
+          <div class="stat-box">
+            <h4>Actual Revenue</h4>
+            <div class="val" id="today-actual" style="color:var(--accent);">USh 0</div>
+          </div>
+          <div class="stat-box">
+            <h4>Outstanding Debt</h4>
+            <div class="val" id="today-debt" style="color:var(--danger);">USh 0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TIMEFRAME REPORTS -->
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <h2 style="margin:0;">📈 Periodic Reports</h2>
+          <select id="report-timeframe" onchange="renderAnalyticsChart()" style="width:auto; padding:4px 8px;">
+            <option value="daily">Daily Report</option>
+            <option value="weekly">Weekly Report</option>
+            <option value="monthly">Monthly Report</option>
+          </select>
+        </div>
+        <canvas id="revenueChart" style="max-height: 260px;"></canvas>
+      </div>
+
+      <!-- WORKERS & PAYROLL EXPENSE TRACKER -->
+      <div class="card">
+        <h2>👥 Staff Wages & Payroll Management</h2>
+        <div class="grid-2" style="margin-bottom:6px;">
+          <input type="text" id="worker-name" placeholder="Staff Name / Role">
+          <input type="number" id="worker-wage" placeholder="Wage Amount (USh)">
+        </div>
+        <button class="btn-main" style="margin-top:0; margin-bottom:12px; background:var(--btn-bg); color:white;" onclick="addWorker()">+ Add Staff Member</button>
+
+        <div id="workers-list" class="med-list"></div>
+
+        <div class="grid-2" style="margin-top:10px;">
+          <div class="stat-box">
+            <h4>Total Staff Payroll Expenses</h4>
+            <div class="val" id="total-wages" style="color:var(--danger)">USh 0</div>
+          </div>
+          <div class="stat-box">
+            <h4>Net Income (Actual Cash - Wages)</h4>
+            <div class="val" id="net-actual-income" style="color:var(--accent)">USh 0</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -252,6 +308,7 @@
         stock: JSON.parse(localStorage.getItem('clinic_stock')) || defaultStock,
         patients: JSON.parse(localStorage.getItem('clinic_patients')) || [],
         debts: JSON.parse(localStorage.getItem('clinic_debts')) || [],
+        workers: JSON.parse(localStorage.getItem('clinic_workers')) || [],
         adminPin: '14324'
       };
     }
@@ -281,7 +338,6 @@
       if (tabId === 'analytics') renderAnalyticsChart();
     }
 
-    // Live filtering typeahead search for drugs
     function filterDrugSuggestions(val) {
       const listContainer = document.getElementById('autocomplete-list');
       listContainer.innerHTML = '';
@@ -311,7 +367,6 @@
       listContainer.style.display = 'block';
     }
 
-    // Close autocomplete on outside click
     document.addEventListener('click', function (e) {
       if (e.target.id !== 'drug-input') {
         const list = document.getElementById('autocomplete-list');
@@ -327,7 +382,7 @@
       const data = getStoredData();
       const drug = data.stock.find(d => d.name.toLowerCase() === inputVal.toLowerCase());
 
-      if (!drug) return alert('Drug not found in inventory register! Please check the spelling.');
+      if (!drug) return alert('Drug not found in inventory register!');
       if (qty > drug.stock) return alert(`Not enough stock available! Current stock for ${drug.name} is ${drug.stock}.`);
 
       selectedMeds.push({ id: drug.id, name: drug.name, qty: qty, price: drug.price, total: drug.price * qty });
@@ -414,7 +469,8 @@
           fee: total,
           paymentStatus,
           status: patientStatus,
-          date: new Date().toLocaleString()
+          timestamp: Date.now(),
+          date: new Date().toLocaleDateString()
         };
         data.patients.unshift(newRecord);
       }
@@ -429,6 +485,7 @@
           desc: diagnosis + ' (' + (selectedMeds.map(m=>m.name+' x'+m.qty).join(', ') || 'Service Only') + ')',
           amount: total,
           status: 'Unpaid',
+          timestamp: Date.now(),
           date: new Date().toLocaleDateString()
         };
         if (debtIndex !== -1) {
@@ -461,27 +518,6 @@
       document.getElementById('save-btn').innerText = '💾 Save Patient Record & Print Receipt';
     }
 
-    function reopenPatient(id) {
-      const data = getStoredData();
-      const p = data.patients.find(item => item.id === id);
-      if (!p) return;
-
-      document.getElementById('editing-patient-id').value = p.id;
-      document.getElementById('patient-name').value = p.name;
-      document.getElementById('diagnosis').value = p.diagnosis;
-      document.getElementById('service-charge').value = (p.serviceCharge || 0).toFixed(2);
-      document.getElementById('payment-status').value = p.paymentStatus;
-      document.getElementById('patient-status').value = p.status;
-      
-      selectedMeds = p.meds ? [...p.meds] : [];
-      renderSelectedMeds();
-
-      document.getElementById('form-title').innerText = '✏️ Edit & Re-open Patient Record';
-      document.getElementById('save-btn').innerText = '💾 Update Patient Record';
-
-      switchTab('entry');
-    }
-
     function saveDebtRecord() {
       const name = document.getElementById('debt-name').value.trim();
       const desc = document.getElementById('debt-desc').value.trim();
@@ -496,6 +532,7 @@
         desc,
         amount,
         status: 'Unpaid',
+        timestamp: Date.now(),
         date: new Date().toLocaleDateString()
       });
 
@@ -505,6 +542,23 @@
       document.getElementById('debt-desc').value = '';
       document.getElementById('debt-amount').value = '';
       renderRecords();
+    }
+
+    function addNewDrug() {
+      const name = document.getElementById('new-drug-name').value.trim();
+      const price = parseFloat(document.getElementById('new-drug-price').value);
+      const stock = parseInt(document.getElementById('new-drug-stock').value);
+
+      if (!name || isNaN(price) || isNaN(stock)) return alert('Fill in all drug fields with valid numbers!');
+
+      const data = getStoredData();
+      data.stock.push({ id: Date.now().toString(), name, price, stock });
+      saveData('clinic_stock', data.stock);
+      alert('Drug added to inventory register!');
+      document.getElementById('new-drug-name').value = '';
+      document.getElementById('new-drug-price').value = '';
+      document.getElementById('new-drug-stock').value = '';
+      renderStock();
     }
 
     function renderRecords() {
@@ -572,33 +626,6 @@
       `;
     }
 
-    function togglePatientStatus(id) {
-      const data = getStoredData();
-      const patient = data.patients.find(p => p.id === id);
-      if (patient) {
-        patient.status = patient.status === 'Active' ? 'Completed' : 'Active';
-        saveData('clinic_patients', data.patients);
-        renderRecords();
-      }
-    }
-
-    function markDebtPaid(id) {
-      const data = getStoredData();
-      
-      const debt = data.debts.find(d => d.id === id);
-      if (debt) debt.status = 'Paid';
-
-      const patient = data.patients.find(p => p.id === id || (debt && p.name.toLowerCase() === debt.name.toLowerCase()));
-      if (patient) {
-        patient.paymentStatus = 'Paid';
-      }
-
-      saveData('clinic_debts', data.debts);
-      saveData('clinic_patients', data.patients);
-      renderRecords();
-    }
-
-    // ADMIN PIN CHECKER FOR ALL DELETIONS
     function verifyAdminPIN() {
       const data = getStoredData();
       const pin = prompt('🔑 Enter Admin Password to delete record:');
@@ -623,6 +650,18 @@
       renderRecords();
     }
 
+    function markDebtPaid(id) {
+      const data = getStoredData();
+      const debt = data.debts.find(d => d.id === id);
+      if (debt) debt.status = 'Paid';
+      const patient = data.patients.find(p => p.id === id || (debt && p.name.toLowerCase() === debt.name.toLowerCase()));
+      if (patient) patient.paymentStatus = 'Paid';
+
+      saveData('clinic_debts', data.debts);
+      saveData('clinic_patients', data.patients);
+      renderRecords();
+    }
+
     function renderStock() {
       const query = document.getElementById('stock-search')?.value.toLowerCase() || '';
       const data = getStoredData();
@@ -638,54 +677,112 @@
       });
     }
 
-    function addNewDrug() {
-      const name = document.getElementById('new-drug-name').value.trim();
-      const price = parseFloat(document.getElementById('new-drug-price').value);
-      const stock = parseInt(document.getElementById('new-drug-stock').value);
+    // WORKERS & PAYROLL LOGIC
+    function addWorker() {
+      const name = document.getElementById('worker-name').value.trim();
+      const wage = parseFloat(document.getElementById('worker-wage').value);
 
-      if (!name || isNaN(price) || isNaN(stock)) return alert('Fill in all drug fields with valid numbers!');
+      if (!name || isNaN(wage) || wage < 0) return alert('Please enter worker name and valid wage!');
 
       const data = getStoredData();
-      data.stock.push({ id: Date.now().toString(), name, price, stock });
-      saveData('clinic_stock', data.stock);
-      alert('Drug added to inventory register!');
-      document.getElementById('new-drug-name').value = '';
-      document.getElementById('new-drug-price').value = '';
-      document.getElementById('new-drug-stock').value = '';
-      renderStock();
+      data.workers.push({ id: Date.now().toString(), name, wage });
+      saveData('clinic_workers', data.workers);
+
+      document.getElementById('worker-name').value = '';
+      document.getElementById('worker-wage').value = '';
+      renderWorkers();
+      renderAnalyticsChart();
     }
 
+    function deleteWorker(id) {
+      if (!verifyAdminPIN()) return;
+      let data = getStoredData();
+      data.workers = data.workers.filter(w => w.id !== id);
+      saveData('clinic_workers', data.workers);
+      renderWorkers();
+      renderAnalyticsChart();
+    }
+
+    function renderWorkers() {
+      const data = getStoredData();
+      const container = document.getElementById('workers-list');
+      let totalWage = 0;
+
+      if (data.workers.length === 0) {
+        container.innerHTML = '<em style="color:var(--subtext)">No workers added.</em>';
+        document.getElementById('total-wages').innerText = 'USh 0';
+        return;
+      }
+
+      let html = '';
+      data.workers.forEach(w => {
+        totalWage += w.wage;
+        html += `<div class="med-item">
+          <span><strong>${w.name}</strong> - USh ${w.wage.toFixed(2)}</span>
+          <button style="width:auto; padding:2px 6px; background:var(--danger); color:white; border:none; border-radius:4px; cursor:pointer;" onclick="deleteWorker('${w.id}')">🗑️</button>
+        </div>`;
+      });
+
+      container.innerHTML = html;
+      document.getElementById('total-wages').innerText = `USh ${totalWage.toFixed(2)}`;
+    }
+
+    // ANALYTICS & TIMEFRAME CALCULATIONS
     function renderAnalyticsChart() {
+      const data = getStoredData();
+      renderWorkers();
+
+      const todayStr = new Date().toLocaleDateString();
+      const todayPatients = data.patients.filter(p => p.date === todayStr);
+      const todayDebts = data.debts.filter(d => d.date === todayStr && d.status === 'Unpaid');
+
+      const todayGross = todayPatients.reduce((acc, p) => acc + (p.fee || 0), 0);
+      const todayActual = todayPatients.filter(p => p.paymentStatus === 'Paid').reduce((acc, p) => acc + (p.fee || 0), 0);
+      const todayDebtVal = todayDebts.reduce((acc, d) => acc + (d.amount || 0), 0);
+
+      document.getElementById('today-gross').innerText = `USh ${todayGross.toFixed(0)}`;
+      document.getElementById('today-actual').innerText = `USh ${todayActual.toFixed(0)}`;
+      document.getElementById('today-debt').innerText = `USh ${todayDebtVal.toFixed(0)}`;
+
+      // Filter based on Timeframe Select
+      const timeframe = document.getElementById('report-timeframe')?.value || 'daily';
+      const now = Date.now();
+      let limitMs = 86400000; // Daily default
+
+      if (timeframe === 'weekly') limitMs = 7 * 86400000;
+      if (timeframe === 'monthly') limitMs = 30 * 86400000;
+
+      const filteredPatients = data.patients.filter(p => (now - (p.timestamp || now)) <= limitMs);
+      const filteredDebts = data.debts.filter(d => (now - (d.timestamp || now)) <= limitMs && d.status === 'Unpaid');
+
+      const actualRev = filteredPatients.filter(p => p.paymentStatus === 'Paid').reduce((sum, p) => sum + (p.fee || 0), 0);
+      const outstandingDebt = filteredDebts.reduce((sum, d) => sum + (d.amount || 0), 0);
+      const totalWages = data.workers.reduce((sum, w) => sum + w.wage, 0);
+
+      const netIncome = actualRev - totalWages;
+      document.getElementById('net-actual-income').innerText = `USh ${netIncome.toFixed(0)}`;
+
+      // Update Chart
       const ctx = document.getElementById('revenueChart');
       if (!ctx) return;
-
-      const data = getStoredData();
-      
-      const totalPaid = data.patients
-        .filter(p => p.paymentStatus === 'Paid')
-        .reduce((sum, p) => sum + (p.fee || 0), 0);
-
-      const totalUnpaid = data.debts
-        .filter(d => d.status === 'Unpaid')
-        .reduce((sum, d) => sum + (d.amount || 0), 0);
 
       if (chartInstance) chartInstance.destroy();
 
       chartInstance = new Chart(ctx, {
-        type: 'doughnut',
+        type: 'bar',
         data: {
-          labels: ['Collected Revenue (USh)', 'Outstanding Debt (USh)'],
+          labels: ['Actual Cash Collected', 'Outstanding Debt', 'Staff Wages Expense', 'Net Real Income'],
           datasets: [{
-            data: [totalPaid, totalUnpaid],
-            backgroundColor: ['#84cc16', '#ef4444'],
-            borderWidth: 1
+            label: `USh (${timeframe.toUpperCase()})`,
+            data: [actualRev, outstandingDebt, totalWages, netIncome],
+            backgroundColor: ['#06b6d4', '#ef4444', '#f59e0b', '#84cc16'],
+            borderRadius: 6
           }]
         },
         options: {
           responsive: true,
-          plugins: {
-            legend: { position: 'bottom' }
-          }
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } }
         }
       });
     }
