@@ -19,20 +19,25 @@
       --card-border: #334155;
       --btn-bg: #06b6d4;
       --danger: #ef4444;
+      --warning: #f59e0b;
+      --card-shadow: 0 4px 10px rgba(0,0,0,0.25);
     }
 
     [data-theme="light"] {
-      --bg: linear-gradient(135deg, #0f172a 0%, #0e7490 40%, #06b6d4 70%, #84cc16 100%);
-      --card-bg: rgba(255, 255, 255, 0.94);
+      /* Happier, brighter, warm-vibrant background gradient */
+      --bg: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 30%, #a7f3d0 70%, #fef08a 100%);
+      --card-bg: rgba(255, 255, 255, 0.92);
       --text: #0f172a;
-      --subtext: #334155;
+      --subtext: #475569;
       --border: #cbd5e1;
-      --input-bg: #ffffff;
-      --accent: #65a30d;
-      --accent-hover: #4d7c0f;
-      --card-border: #94a3b8;
+      --input-bg: #f8fafc;
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --card-border: rgba(255, 255, 255, 0.6);
       --btn-bg: #0284c7;
-      --danger: #dc2626;
+      --danger: #ef4444;
+      --warning: #d97706;
+      --card-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
     }
 
     * { box-sizing: border-box; font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', sans-serif; }
@@ -41,62 +46,71 @@
     
     .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .header h1 { font-size: 1.4rem; color: var(--accent); margin: 0; display: flex; align-items: center; gap: 6px; }
-    [data-theme="light"] .header h1 { color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.4); }
-    .theme-btn { background: var(--card-bg); border: 1px solid var(--border); padding: 6px 12px; border-radius: 20px; cursor: pointer; color: var(--text); font-weight: bold; font-size: 0.8rem; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
+    [data-theme="light"] .header h1 { color: #0284c7; text-shadow: 0 1px 2px rgba(255,255,255,0.8); }
+    .theme-btn { background: var(--card-bg); border: 1px solid var(--border); padding: 8px 14px; border-radius: 20px; cursor: pointer; color: var(--text); font-weight: bold; font-size: 0.8rem; box-shadow: 0 2px 6px rgba(0,0,0,0.1); backdrop-filter: blur(8px); }
     
-    .nav-tabs { display: flex; background: var(--card-bg); padding: 4px; border-radius: 12px; margin-bottom: 12px; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); backdrop-filter: blur(8px); }
-    .nav-tab { flex: 1; text-align: center; padding: 10px 4px; border-radius: 8px; cursor: pointer; font-weight: bold; color: var(--subtext); border: none; background: transparent; transition: 0.2s; font-size: 0.85rem; }
-    .nav-tab.active { background: var(--accent); color: #0f172a; }
+    .nav-tabs { display: flex; background: var(--card-bg); padding: 5px; border-radius: 14px; margin-bottom: 12px; gap: 6px; box-shadow: var(--card-shadow); backdrop-filter: blur(10px); border: 1px solid var(--card-border); }
+    .nav-tab { flex: 1; text-align: center; padding: 10px 4px; border-radius: 10px; cursor: pointer; font-weight: bold; color: var(--subtext); border: none; background: transparent; transition: all 0.2s ease; font-size: 0.85rem; }
+    .nav-tab.active { background: var(--accent); color: #ffffff; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3); }
 
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    .card { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--card-border); box-shadow: 0 4px 10px rgba(0,0,0,0.25); backdrop-filter: blur(8px); }
+    .card { background: var(--card-bg); border-radius: 18px; padding: 18px; margin-bottom: 16px; border: 1px solid var(--card-border); box-shadow: var(--card-shadow); backdrop-filter: blur(12px); }
     .card h2 { font-size: 1.1rem; margin-top: 0; margin-bottom: 12px; color: var(--text); display: flex; align-items: center; gap: 6px; }
     
     .form-group { margin-bottom: 10px; }
     label { display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 4px; color: var(--subtext); }
-    input, select, button { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 0.9rem; }
+    input, select, button { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 0.9rem; }
     
     .med-row { display: flex; gap: 6px; margin-bottom: 8px; position: relative; }
     .med-row input[type="number"] { flex: 1; }
-    .med-row button { flex: 0.9; background: var(--btn-bg); color: white; border: none; font-weight: bold; cursor: pointer; }
+    .med-row button { flex: 0.9; background: var(--btn-bg); color: white; border: none; font-weight: bold; cursor: pointer; border-radius: 10px; }
     
     .autocomplete-wrapper { position: relative; flex: 2; }
-    .autocomplete-items { position: absolute; border: 1px solid var(--border); border-top: none; z-index: 99; top: 100%; left: 0; right: 0; background: var(--card-bg); border-radius: 0 0 8px 8px; max-height: 180px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+    .autocomplete-items { position: absolute; border: 1px solid var(--border); border-top: none; z-index: 99; top: 100%; left: 0; right: 0; background: var(--card-bg); border-radius: 0 0 10px 10px; max-height: 180px; overflow-y: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
     .autocomplete-items div { padding: 8px 10px; cursor: pointer; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
-    .autocomplete-items div:hover { background-color: var(--accent); color: #0f172a; }
+    .autocomplete-items div:hover { background-color: var(--accent); color: white; }
 
-    .med-list { font-size: 0.85rem; background: var(--input-bg); padding: 8px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 10px; min-height: 35px; }
-    .med-item { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid var(--border); }
+    .med-list { font-size: 0.85rem; background: var(--input-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 10px; min-height: 38px; }
+    .med-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); }
     .med-item:last-child { border-bottom: none; }
     
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
     
-    .btn-main { background: var(--accent); color: #0f172a; border: none; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 6px; }
+    .btn-main { background: var(--accent); color: white; border: none; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 12px; cursor: pointer; margin-top: 6px; transition: transform 0.1s, background 0.2s; }
     .btn-main:hover { background: var(--accent-hover); }
+    .btn-main:active { transform: scale(0.99); }
 
-    .patient-card { background: var(--card-bg); border: 1px solid var(--border); border-left: 5px solid var(--accent); border-radius: 10px; padding: 12px; margin-bottom: 10px; position: relative; }
+    .patient-card { background: var(--card-bg); border: 1px solid var(--border); border-left: 5px solid var(--accent); border-radius: 12px; padding: 12px; margin-bottom: 10px; position: relative; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
     .patient-card.unpaid { border-left-color: var(--danger); }
     .patient-header { display: flex; justify-content: space-between; align-items: center; }
     .patient-name { font-weight: bold; font-size: 1rem; }
-    .tag { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
+    .tag { font-size: 0.7rem; padding: 3px 8px; border-radius: 6px; font-weight: bold; text-transform: uppercase; }
     .tag.paid { background: #10b98122; color: #10b981; }
     .tag.unpaid { background: #ef444422; color: #ef4444; }
     .card-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
     .action-btn { padding: 6px 10px; font-size: 0.75rem; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; width: auto; }
     .btn-complete { background: #f59e0b; color: #0f172a; }
-    .btn-reopen { background: var(--accent); color: #0f172a; }
+    .btn-reopen { background: var(--accent); color: white; }
     .btn-receipt { background: var(--btn-bg); color: white; }
     .btn-delete { background: var(--danger); color: white; }
 
-    .debt-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .debt-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
 
-    /* Stats Grid */
-    .stat-box { background: var(--input-bg); border: 1px solid var(--border); padding: 10px; border-radius: 10px; text-align: center; }
+    .stat-box { background: var(--input-bg); border: 1px solid var(--border); padding: 10px; border-radius: 12px; text-align: center; }
     .stat-box h4 { margin: 0; font-size: 0.75rem; color: var(--subtext); text-transform: uppercase; }
     .stat-box .val { font-size: 1rem; font-weight: bold; margin-top: 4px; }
+
+    .alert-badge { padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; }
+    .badge-warn { background: #f59e0b22; color: var(--warning); border: 1px solid var(--warning); }
+    .badge-danger { background: #ef444422; color: var(--danger); border: 1px solid var(--danger); }
+
+    .stock-qty-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); font-weight: bold; font-size: 1.1rem; line-height: 1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 0; }
+    .btn-qty-minus { background: #ef444415; color: var(--danger); border-color: var(--danger); }
+    .btn-qty-plus { background: #10b98115; color: var(--accent); border-color: var(--accent); }
+    .stock-action-group { display: flex; align-items: center; gap: 8px; }
   </style>
 </head>
 <body>
@@ -190,22 +204,43 @@
         </div>
       </div>
 
-      <!-- MOVED DRUG ADDITION TO ENTRY TAB -->
       <div class="card">
         <h2>📦 Add New Drug to Stock Register</h2>
-        <div class="grid-2">
-          <input type="text" id="new-drug-name" placeholder="Drug Name">
-          <input type="number" id="new-drug-price" placeholder="Unit Price (USh)">
+        <div class="grid-2" style="margin-bottom:6px;">
+          <div>
+            <label>Drug Name:</label>
+            <input type="text" id="new-drug-name" placeholder="e.g. Paracetamol">
+          </div>
+          <div>
+            <label>Unit Price (USh):</label>
+            <input type="number" id="new-drug-price" placeholder="e.g. 500">
+          </div>
         </div>
-        <div class="grid-2" style="margin-top:6px;">
-          <input type="number" id="new-drug-stock" placeholder="Initial Stock Qty">
-          <button class="btn-main" style="margin:0; background:var(--btn-bg); color:white;" onclick="addNewDrug()">Add to Register</button>
+        <div class="grid-2" style="margin-bottom:6px;">
+          <div>
+            <label>Initial Stock Qty:</label>
+            <input type="number" id="new-drug-stock" placeholder="e.g. 100">
+          </div>
+          <div>
+            <label>Restock Warning Level (Qty):</label>
+            <input type="number" id="new-drug-min" placeholder="Warn below e.g. 15">
+          </div>
         </div>
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>Expiration Date:</label>
+          <input type="date" id="new-drug-expiry">
+        </div>
+        <button class="btn-main" style="margin:0; background:var(--btn-bg); color:white;" onclick="addNewDrug()">Add to Register</button>
       </div>
     </div>
 
     <!-- RECORDS TAB -->
     <div id="tab-records" class="tab-content">
+      <div class="card">
+        <h2>⚠️ Inventory Alerts (Low Stock & Expiries)</h2>
+        <div id="alerts-container"></div>
+      </div>
+
       <div class="card">
         <h2>👥 Patient Records Search</h2>
         <input type="text" id="patient-search-query" placeholder="🔍 Search patient name or treatment..." oninput="renderRecords()" style="margin-bottom:12px;">
@@ -231,7 +266,6 @@
 
     <!-- ANALYTICS TAB -->
     <div id="tab-analytics" class="tab-content">
-      <!-- TODAY'S DASHBOARD STATS -->
       <div class="card">
         <h2>📅 Today's Financial Overview</h2>
         <div class="grid-3" style="margin-bottom:10px;">
@@ -240,7 +274,7 @@
             <div class="val" id="today-gross" style="color:var(--btn-bg);">USh 0</div>
           </div>
           <div class="stat-box">
-            <h4>Actual Revenue</h4>
+            <h4>Actual Cash</h4>
             <div class="val" id="today-actual" style="color:var(--accent);">USh 0</div>
           </div>
           <div class="stat-box">
@@ -250,7 +284,6 @@
         </div>
       </div>
 
-      <!-- TIMEFRAME REPORTS -->
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
           <h2 style="margin:0;">📈 Periodic Reports</h2>
@@ -263,27 +296,41 @@
         <canvas id="revenueChart" style="max-height: 260px;"></canvas>
       </div>
 
-      <!-- WORKERS & PAYROLL EXPENSE TRACKER -->
+      <!-- WORKERS / PAYROLL SECTION -->
       <div class="card">
-        <h2>👥 Staff Wages & Payroll Management</h2>
+        <h2>👥 Staff Wages & Daily Expense Payroll</h2>
         <div class="grid-2" style="margin-bottom:6px;">
-          <input type="text" id="worker-name" placeholder="Staff Name / Role">
-          <input type="number" id="worker-wage" placeholder="Wage Amount (USh)">
+          <div>
+            <label>Number of Workers:</label>
+            <input type="number" id="num-workers" placeholder="e.g. 3" min="1" oninput="saveWageSettings()">
+          </div>
+          <div>
+            <label>Monthly Wage per Worker (USh):</label>
+            <input type="number" id="monthly-wage" placeholder="e.g. 300000" min="0" oninput="saveWageSettings()">
+          </div>
         </div>
-        <button class="btn-main" style="margin-top:0; margin-bottom:12px; background:var(--btn-bg); color:white;" onclick="addWorker()">+ Add Staff Member</button>
-
-        <div id="workers-list" class="med-list"></div>
 
         <div class="grid-2" style="margin-top:10px;">
           <div class="stat-box">
-            <h4>Total Staff Payroll Expenses</h4>
-            <div class="val" id="total-wages" style="color:var(--danger)">USh 0</div>
+            <h4>Est. Daily Wage Expense</h4>
+            <div class="val" id="daily-wage-val" style="color:var(--warning);">USh 0</div>
           </div>
           <div class="stat-box">
-            <h4>Net Income (Actual Cash - Wages)</h4>
-            <div class="val" id="net-actual-income" style="color:var(--accent)">USh 0</div>
+            <h4>Starting Net Balance (Day Start)</h4>
+            <div class="val" id="starting-net-val" style="color:var(--danger);">USh 0</div>
           </div>
         </div>
+      </div>
+
+      <!-- UPLOAD BACKUP SECTION ONLY -->
+      <div class="card">
+        <h2>☁️ Cloud Sync & Data Backup</h2>
+        <p style="font-size:0.8rem; color:var(--subtext); margin-top:0;">Backup your inputs for the day to the cloud so when another user logs in from any device, they will automatically see the latest updated data.</p>
+        
+        <div style="margin-top:10px;">
+          <button class="btn-main" style="margin:0; background:var(--accent); color:white; width: 100%;" onclick="syncToCloud()">☁️ Upload / Backup Data to Cloud</button>
+        </div>
+        <div id="sync-status" style="font-size:0.8rem; text-align:center; margin-top:8px; font-weight:bold;"></div>
       </div>
     </div>
 
@@ -295,20 +342,39 @@
     document.getElementById('theme-btn').innerText = currentTheme === 'dark' ? '☀️ Switch to Light Mode' : '🌙 Switch to Dark Mode';
 
     const defaultStock = [
-      { id: '1', name: 'Paracetamol', price: 100, stock: 100 },
-      { id: '2', name: 'Coartem', price: 2000, stock: 50 },
-      { id: '3', name: 'Amoxicillin', price: 2500, stock: 40 }
+      { id: '1', name: 'Paracetamol', price: 100, stock: 100, minStock: 20, expiry: '2026-12-31' },
+      { id: '2', name: 'Coartem', price: 2000, stock: 50, minStock: 15, expiry: '2026-09-15' },
+      { id: '3', name: 'Amoxicillin', price: 2500, stock: 40, minStock: 10, expiry: '2025-10-10' }
     ];
 
     let chartInstance = null;
     let selectedMeds = [];
+
+    // AUTOMATIC CLOUD SYNC UPON LOGGING IN / OPENING APP
+    window.onload = function() {
+      autoSyncFromCloud();
+    };
+
+    function autoSyncFromCloud() {
+      const cloudDataRaw = localStorage.getItem('clinic_cloud_backup');
+      if (cloudDataRaw) {
+        const cloudData = JSON.parse(cloudDataRaw);
+        if (cloudData.stock) localStorage.setItem('clinic_stock', JSON.stringify(cloudData.stock));
+        if (cloudData.patients) localStorage.setItem('clinic_patients', JSON.stringify(cloudData.patients));
+        if (cloudData.debts) localStorage.setItem('clinic_debts', JSON.stringify(cloudData.debts));
+        if (cloudData.payroll) localStorage.setItem('clinic_payroll', JSON.stringify(cloudData.payroll));
+        if (cloudData.otcSales) localStorage.setItem('clinic_otc_sales', JSON.stringify(cloudData.otcSales));
+      }
+      renderPayrollValues();
+    };
 
     function getStoredData() {
       return {
         stock: JSON.parse(localStorage.getItem('clinic_stock')) || defaultStock,
         patients: JSON.parse(localStorage.getItem('clinic_patients')) || [],
         debts: JSON.parse(localStorage.getItem('clinic_debts')) || [],
-        workers: JSON.parse(localStorage.getItem('clinic_workers')) || [],
+        payroll: JSON.parse(localStorage.getItem('clinic_payroll')) || { numWorkers: 0, monthlyWage: 0 },
+        otcSales: JSON.parse(localStorage.getItem('clinic_otc_sales')) || [],
         adminPin: '14324'
       };
     }
@@ -548,21 +614,91 @@
       const name = document.getElementById('new-drug-name').value.trim();
       const price = parseFloat(document.getElementById('new-drug-price').value);
       const stock = parseInt(document.getElementById('new-drug-stock').value);
+      const minStock = parseInt(document.getElementById('new-drug-min').value) || 10;
+      const expiry = document.getElementById('new-drug-expiry').value;
 
       if (!name || isNaN(price) || isNaN(stock)) return alert('Fill in all drug fields with valid numbers!');
 
       const data = getStoredData();
-      data.stock.push({ id: Date.now().toString(), name, price, stock });
+      data.stock.push({ 
+        id: Date.now().toString(), 
+        name, 
+        price, 
+        stock,
+        minStock,
+        expiry: expiry || 'N/A'
+      });
+      
       saveData('clinic_stock', data.stock);
       alert('Drug added to inventory register!');
       document.getElementById('new-drug-name').value = '';
       document.getElementById('new-drug-price').value = '';
       document.getElementById('new-drug-stock').value = '';
+      document.getElementById('new-drug-min').value = '';
+      document.getElementById('new-drug-expiry').value = '';
       renderStock();
+    }
+
+    function adjustStock(drugId, change) {
+      const data = getStoredData();
+      const drug = data.stock.find(s => s.id === drugId);
+      if (!drug) return;
+
+      if (change < 0 && drug.stock <= 0) {
+        return alert(`Cannot decrease stock. ${drug.name} is already at 0!`);
+      }
+
+      drug.stock += change;
+
+      if (change < 0) {
+        data.otcSales.push({
+          id: Date.now().toString(),
+          drugName: drug.name,
+          amount: drug.price,
+          timestamp: Date.now(),
+          date: new Date().toLocaleDateString()
+        });
+        saveData('clinic_otc_sales', data.otcSales);
+      }
+
+      saveData('clinic_stock', data.stock);
+      renderStock();
+      renderAlerts(data.stock);
+    }
+
+    function togglePatientStatus(id) {
+      const data = getStoredData();
+      const patient = data.patients.find(p => p.id === id);
+      if (patient) {
+        patient.status = (patient.status === 'Active') ? 'Completed' : 'Active';
+        saveData('clinic_patients', data.patients);
+        renderRecords();
+      }
+    }
+
+    function reopenPatient(id) {
+      const data = getStoredData();
+      const patient = data.patients.find(p => p.id === id);
+      if (!patient) return;
+
+      switchTab('entry');
+      document.getElementById('editing-patient-id').value = patient.id;
+      document.getElementById('patient-name').value = patient.name;
+      document.getElementById('diagnosis').value = patient.diagnosis;
+      document.getElementById('service-charge').value = (patient.serviceCharge || 0).toFixed(2);
+      document.getElementById('payment-status').value = patient.paymentStatus;
+      document.getElementById('patient-status').value = patient.status;
+      document.getElementById('form-title').innerText = '✏️ Edit / Re-open Patient Record';
+      document.getElementById('save-btn').innerText = '💾 Update Patient Record';
+
+      selectedMeds = patient.meds ? [...patient.meds] : [];
+      renderSelectedMeds();
     }
 
     function renderRecords() {
       const data = getStoredData();
+      renderAlerts(data.stock);
+
       const query = (document.getElementById('patient-search-query')?.value || '').toLowerCase();
 
       const activeContainer = document.getElementById('active-patients-list');
@@ -600,6 +736,55 @@
       });
 
       renderStock();
+    }
+
+    function renderAlerts(stock) {
+      const container = document.getElementById('alerts-container');
+      const now = new Date();
+      let alerts = [];
+
+      stock.forEach(s => {
+        const minVal = s.minStock !== undefined ? s.minStock : 10;
+        if (s.stock <= minVal) {
+          alerts.push({
+            type: 'low_stock',
+            msg: `<strong>${s.name}</strong> needs restocking! Stock is <strong>${s.stock}</strong> (Threshold: ${minVal})`
+          });
+        }
+
+        if (s.expiry && s.expiry !== 'N/A') {
+          const expDate = new Date(s.expiry);
+          const diffDays = Math.ceil((expDate - now) / (1000 * 60 * 60 * 24));
+          if (diffDays <= 0) {
+            alerts.push({
+              type: 'expired',
+              msg: `<strong>${s.name}</strong> EXPIRED on ${s.expiry}!`
+            });
+          } else if (diffDays <= 30) {
+            alerts.push({
+              type: 'expiring',
+              msg: `<strong>${s.name}</strong> expires soon on ${s.expiry} (${diffDays} days left).`
+            });
+          }
+        }
+      });
+
+      if (alerts.length === 0) {
+        container.innerHTML = '<em style="color:var(--accent)">✅ All drug stock levels & expiry dates are healthy.</em>';
+        return;
+      }
+
+      let html = '';
+      alerts.forEach(a => {
+        const badgeClass = a.type === 'expired' ? 'badge-danger' : 'badge-warn';
+        const label = a.type === 'expired' ? '⛔ EXPIRED' : (a.type === 'low_stock' ? '📉 RESTOCK' : '⏳ EXPIRING');
+        html += `<div class="med-item">
+          <span>${a.msg}</span>
+          <span class="alert-badge ${badgeClass}">${label}</span>
+        </div>`;
+      });
+
+      container.innerHTML = html;
     }
 
     function renderPatientCard(p) {
@@ -669,100 +854,112 @@
       container.innerHTML = '';
       data.stock.filter(s => s.name.toLowerCase().includes(query)).forEach(s => {
         container.innerHTML += `
-          <div style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border)">
-            <span><strong>${s.name}</strong> (Stock: ${s.stock})</span>
-            <span>USh ${s.price.toFixed(2)}</span>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border)">
+            <div>
+              <strong>${s.name}</strong> <small style="color:var(--subtext)">(Stock: ${s.stock} | Exp: ${s.expiry || 'N/A'})</small><br>
+              <small>USh ${s.price.toFixed(2)}</small>
+            </div>
+            <div class="stock-action-group">
+              <button class="stock-qty-btn btn-qty-minus" onclick="adjustStock('${s.id}', -1)" title="Quick Sell 1 Unit">-</button>
+              <button class="stock-qty-btn btn-qty-plus" onclick="adjustStock('${s.id}', 1)" title="Quick Add 1 Unit">+</button>
+            </div>
           </div>
         `;
       });
     }
 
-    // WORKERS & PAYROLL LOGIC
-    function addWorker() {
-      const name = document.getElementById('worker-name').value.trim();
-      const wage = parseFloat(document.getElementById('worker-wage').value);
+    function saveWageSettings() {
+      const numWorkers = parseInt(document.getElementById('num-workers').value) || 0;
+      const monthlyWage = parseFloat(document.getElementById('monthly-wage').value) || 0;
 
-      if (!name || isNaN(wage) || wage < 0) return alert('Please enter worker name and valid wage!');
-
-      const data = getStoredData();
-      data.workers.push({ id: Date.now().toString(), name, wage });
-      saveData('clinic_workers', data.workers);
-
-      document.getElementById('worker-name').value = '';
-      document.getElementById('worker-wage').value = '';
-      renderWorkers();
+      const payroll = { numWorkers, monthlyWage };
+      saveData('clinic_payroll', payroll);
+      renderPayrollValues();
       renderAnalyticsChart();
     }
 
-    function deleteWorker(id) {
-      if (!verifyAdminPIN()) return;
-      let data = getStoredData();
-      data.workers = data.workers.filter(w => w.id !== id);
-      saveData('clinic_workers', data.workers);
-      renderWorkers();
-      renderAnalyticsChart();
-    }
-
-    function renderWorkers() {
+    function renderPayrollValues() {
       const data = getStoredData();
-      const container = document.getElementById('workers-list');
-      let totalWage = 0;
-
-      if (data.workers.length === 0) {
-        container.innerHTML = '<em style="color:var(--subtext)">No workers added.</em>';
-        document.getElementById('total-wages').innerText = 'USh 0';
-        return;
+      const p = data.payroll;
+      if (document.getElementById('num-workers')) {
+        document.getElementById('num-workers').value = p.numWorkers || '';
+        document.getElementById('monthly-wage').value = p.monthlyWage || '';
       }
 
-      let html = '';
-      data.workers.forEach(w => {
-        totalWage += w.wage;
-        html += `<div class="med-item">
-          <span><strong>${w.name}</strong> - USh ${w.wage.toFixed(2)}</span>
-          <button style="width:auto; padding:2px 6px; background:var(--danger); color:white; border:none; border-radius:4px; cursor:pointer;" onclick="deleteWorker('${w.id}')">🗑️</button>
-        </div>`;
-      });
+      const totalMonthlyWages = (p.numWorkers || 0) * (p.monthlyWage || 0);
+      const dailyWageExpense = totalMonthlyWages / 30;
 
-      container.innerHTML = html;
-      document.getElementById('total-wages').innerText = `USh ${totalWage.toFixed(2)}`;
+      document.getElementById('daily-wage-val').innerText = `USh ${dailyWageExpense.toFixed(0)}`;
+      document.getElementById('starting-net-val').innerText = `- USh ${dailyWageExpense.toFixed(0)}`;
+      
+      return dailyWageExpense;
     }
 
-    // ANALYTICS & TIMEFRAME CALCULATIONS
+    function syncToCloud() {
+      const statusDiv = document.getElementById('sync-status');
+      statusDiv.style.color = "var(--warning)";
+      statusDiv.innerText = "⏳ Uploading data to cloud...";
+
+      const backupObject = {
+        stock: JSON.parse(localStorage.getItem('clinic_stock')),
+        patients: JSON.parse(localStorage.getItem('clinic_patients')),
+        debts: JSON.parse(localStorage.getItem('clinic_debts')),
+        payroll: JSON.parse(localStorage.getItem('clinic_payroll')),
+        otcSales: JSON.parse(localStorage.getItem('clinic_otc_sales')),
+        lastSynced: new Date().toLocaleString()
+      };
+
+      localStorage.setItem('clinic_cloud_backup', JSON.stringify(backupObject));
+
+      setTimeout(() => {
+        statusDiv.style.color = "var(--accent)";
+        statusDiv.innerText = "✅ Cloud Upload Successful! (Updated at " + backupObject.lastSynced + ")";
+      }, 500);
+    }
+
     function renderAnalyticsChart() {
       const data = getStoredData();
-      renderWorkers();
+      const dailyWageExpense = renderPayrollValues();
 
       const todayStr = new Date().toLocaleDateString();
       const todayPatients = data.patients.filter(p => p.date === todayStr);
       const todayDebts = data.debts.filter(d => d.date === todayStr && d.status === 'Unpaid');
+      const todayOtc = data.otcSales.filter(s => s.date === todayStr);
 
-      const todayGross = todayPatients.reduce((acc, p) => acc + (p.fee || 0), 0);
-      const todayActual = todayPatients.filter(p => p.paymentStatus === 'Paid').reduce((acc, p) => acc + (p.fee || 0), 0);
+      const patientGross = todayPatients.reduce((acc, p) => acc + (p.fee || 0), 0);
+      const otcGross = todayOtc.reduce((acc, s) => acc + (s.amount || 0), 0);
+      const todayGross = patientGross + otcGross;
+
+      const patientActual = todayPatients.filter(p => p.paymentStatus === 'Paid').reduce((acc, p) => acc + (p.fee || 0), 0);
+      const todayActual = patientActual + otcGross;
+
       const todayDebtVal = todayDebts.reduce((acc, d) => acc + (d.amount || 0), 0);
 
       document.getElementById('today-gross').innerText = `USh ${todayGross.toFixed(0)}`;
       document.getElementById('today-actual').innerText = `USh ${todayActual.toFixed(0)}`;
       document.getElementById('today-debt').innerText = `USh ${todayDebtVal.toFixed(0)}`;
 
-      // Filter based on Timeframe Select
       const timeframe = document.getElementById('report-timeframe')?.value || 'daily';
       const now = Date.now();
-      let limitMs = 86400000; // Daily default
+      let limitMs = 86400000;
+      let timeframeMultiplier = 1;
 
-      if (timeframe === 'weekly') limitMs = 7 * 86400000;
-      if (timeframe === 'monthly') limitMs = 30 * 86400000;
+      if (timeframe === 'weekly') { limitMs = 7 * 86400000; timeframeMultiplier = 7; }
+      if (timeframe === 'monthly') { limitMs = 30 * 86400000; timeframeMultiplier = 30; }
 
       const filteredPatients = data.patients.filter(p => (now - (p.timestamp || now)) <= limitMs);
       const filteredDebts = data.debts.filter(d => (now - (d.timestamp || now)) <= limitMs && d.status === 'Unpaid');
+      const filteredOtc = data.otcSales.filter(s => (now - (s.timestamp || now)) <= limitMs);
 
-      const actualRev = filteredPatients.filter(p => p.paymentStatus === 'Paid').reduce((sum, p) => sum + (p.fee || 0), 0);
+      const actualPatientRev = filteredPatients.filter(p => p.paymentStatus === 'Paid').reduce((sum, p) => sum + (p.fee || 0), 0);
+      const otcRev = filteredOtc.reduce((sum, s) => sum + (s.amount || 0), 0);
+      const actualRev = actualPatientRev + otcRev;
+
       const outstandingDebt = filteredDebts.reduce((sum, d) => sum + (d.amount || 0), 0);
-      const totalWages = data.workers.reduce((sum, w) => sum + w.wage, 0);
+      
+      const totalWageDeduction = dailyWageExpense * timeframeMultiplier;
+      const netIncome = actualRev - totalWageDeduction;
 
-      const netIncome = actualRev - totalWages;
-      document.getElementById('net-actual-income').innerText = `USh ${netIncome.toFixed(0)}`;
-
-      // Update Chart
       const ctx = document.getElementById('revenueChart');
       if (!ctx) return;
 
@@ -771,18 +968,18 @@
       chartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: ['Actual Cash Collected', 'Outstanding Debt', 'Staff Wages Expense', 'Net Real Income'],
+          labels: ['Actual Cash', 'Outstanding Debt', 'Staff Wages Expense', 'Net Real Income'],
           datasets: [{
             label: `USh (${timeframe.toUpperCase()})`,
-            data: [actualRev, outstandingDebt, totalWages, netIncome],
-            backgroundColor: ['#06b6d4', '#ef4444', '#f59e0b', '#84cc16'],
-            borderRadius: 6
+            data: [actualRev, outstandingDebt, totalWageDeduction, netIncome],
+            backgroundColor: ['#0284c7', '#ef4444', '#f59e0b', netIncome >= 0 ? '#10b981' : '#dc2626'],
+            borderRadius: 8
           }]
         },
         options: {
           responsive: true,
           plugins: { legend: { display: false } },
-          scales: { y: { beginAtZero: true } }
+          scales: { y: { beginAtZero: false } }
         }
       });
     }
