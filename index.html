@@ -21,47 +21,55 @@
       --danger: #ef4444;
     }
 
+    /* Light Theme with Cyan, Lime, and Navy Blue Gradient Blend */
     [data-theme="light"] {
-      --bg: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%);
-      --card-bg: #ffffff;
-      --text: #1e293b;
-      --subtext: #64748b;
+      --bg: linear-gradient(135deg, #0f172a 0%, #0e7490 40%, #06b6d4 70%, #84cc16 100%);
+      --card-bg: rgba(255, 255, 255, 0.94);
+      --text: #0f172a;
+      --subtext: #334155;
       --border: #cbd5e1;
-      --input-bg: #f8fafc;
-      --accent: #10b981;
-      --accent-hover: #059669;
-      --card-border: #cbd5e1;
+      --input-bg: #ffffff;
+      --accent: #65a30d;
+      --accent-hover: #4d7c0f;
+      --card-border: #94a3b8;
       --btn-bg: #0284c7;
-      --danger: #ef4444;
+      --danger: #dc2626;
     }
 
     * { box-sizing: border-box; font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', sans-serif; }
-    body { background: var(--bg); min-height: 100vh; color: var(--text); margin: 0; padding: 12px; transition: background 0.3s, color 0.3s; }
+    body { background: var(--bg); background-attachment: fixed; min-height: 100vh; color: var(--text); margin: 0; padding: 12px; transition: background 0.3s, color 0.3s; }
     .container { max-width: 650px; margin: 0 auto; }
     
     .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .header h1 { font-size: 1.4rem; color: var(--accent); margin: 0; display: flex; align-items: center; gap: 6px; }
-    .theme-btn { background: var(--border); border: none; padding: 6px 12px; border-radius: 20px; cursor: pointer; color: var(--text); font-weight: bold; font-size: 0.8rem; }
+    [data-theme="light"] .header h1 { color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.4); }
+    .theme-btn { background: var(--card-bg); border: 1px solid var(--border); padding: 6px 12px; border-radius: 20px; cursor: pointer; color: var(--text); font-weight: bold; font-size: 0.8rem; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
     
-    .nav-tabs { display: flex; background: var(--card-bg); padding: 4px; border-radius: 12px; margin-bottom: 12px; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    .nav-tabs { display: flex; background: var(--card-bg); padding: 4px; border-radius: 12px; margin-bottom: 12px; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); backdrop-filter: blur(8px); }
     .nav-tab { flex: 1; text-align: center; padding: 10px 4px; border-radius: 8px; cursor: pointer; font-weight: bold; color: var(--subtext); border: none; background: transparent; transition: 0.2s; font-size: 0.85rem; }
     .nav-tab.active { background: var(--accent); color: #0f172a; }
 
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    .card { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--card-border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2); }
+    .card { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--card-border); box-shadow: 0 4px 10px rgba(0,0,0,0.25); backdrop-filter: blur(8px); }
     .card h2 { font-size: 1.1rem; margin-top: 0; margin-bottom: 12px; color: var(--text); display: flex; align-items: center; gap: 6px; }
     
     .form-group { margin-bottom: 10px; }
     label { display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 4px; color: var(--subtext); }
     input, select, button { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 0.9rem; }
     
-    .med-row { display: flex; gap: 6px; margin-bottom: 8px; }
+    .med-row { display: flex; gap: 6px; margin-bottom: 8px; position: relative; }
     .med-row input[type="text"] { flex: 2; }
     .med-row input[type="number"] { flex: 1; }
     .med-row button { flex: 0.9; background: var(--btn-bg); color: white; border: none; font-weight: bold; cursor: pointer; }
     
+    /* Auto-suggest dropdown container */
+    .autocomplete-wrapper { position: relative; flex: 2; }
+    .autocomplete-items { position: absolute; border: 1px solid var(--border); border-top: none; z-index: 99; top: 100%; left: 0; right: 0; background: var(--card-bg); border-radius: 0 0 8px 8px; max-height: 180px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+    .autocomplete-items div { padding: 8px 10px; cursor: pointer; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
+    .autocomplete-items div:hover { background-color: var(--accent); color: #0f172a; }
+
     .med-list { font-size: 0.85rem; background: var(--input-bg); padding: 8px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 10px; min-height: 35px; }
     .med-item { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid var(--border); }
     .med-item:last-child { border-bottom: none; }
@@ -78,7 +86,7 @@
     .tag { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
     .tag.paid { background: #10b98122; color: #10b981; }
     .tag.unpaid { background: #ef444422; color: #ef4444; }
-    .card-actions { display: flex; gap: 6px; margin-top: 10px; }
+    .card-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
     .action-btn { padding: 6px 10px; font-size: 0.75rem; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; width: auto; }
     .btn-complete { background: #f59e0b; color: #0f172a; }
     .btn-reopen { background: var(--accent); color: #0f172a; }
@@ -117,8 +125,10 @@
         
         <label>💊 Prescribe Medications from Inventory:</label>
         <div class="med-row">
-          <input type="text" id="drug-input" list="stock-datalist" placeholder="Type or select drug name..." oninput="autoFillPrice()">
-          <datalist id="stock-datalist"></datalist>
+          <div class="autocomplete-wrapper">
+            <input type="text" id="drug-input" placeholder="Type to search drug..." onkeyup="filterDrugSuggestions(this.value)">
+            <div id="autocomplete-list" class="autocomplete-items" style="display:none;"></div>
+          </div>
           
           <input type="number" id="drug-qty" placeholder="Qty / Tabs" min="1">
           <button type="button" onclick="addMedication()">+ Add</button>
@@ -271,26 +281,43 @@
       if (tabId === 'analytics') renderAnalyticsChart();
     }
 
-    function populateDrugDatalist() {
-      const data = getStoredData();
-      const datalist = document.getElementById('stock-datalist');
-      datalist.innerHTML = '';
-      data.stock.forEach(item => {
-        datalist.innerHTML += `<option value="${item.name}">USh ${item.price} - Stock: ${item.stock}</option>`;
-      });
-    }
-
-    function autoFillPrice() {
-      const inputVal = document.getElementById('drug-input').value.trim();
-      if (!inputVal) return;
-
-      const data = getStoredData();
-      const drug = data.stock.find(d => d.name.toLowerCase() === inputVal.toLowerCase());
-      if (drug) {
-        const qtyInput = document.getElementById('drug-qty');
-        if (!qtyInput.value) qtyInput.value = 1;
+    // Live filtering typeahead search for drugs
+    function filterDrugSuggestions(val) {
+      const listContainer = document.getElementById('autocomplete-list');
+      listContainer.innerHTML = '';
+      if (!val.trim()) {
+        listContainer.style.display = 'none';
+        return;
       }
+
+      const data = getStoredData();
+      const matches = data.stock.filter(d => d.name.toLowerCase().includes(val.toLowerCase()));
+
+      if (matches.length === 0) {
+        listContainer.style.display = 'none';
+        return;
+      }
+
+      matches.forEach(item => {
+        const div = document.createElement('div');
+        div.innerHTML = `<strong>${item.name}</strong> - USh ${item.price} (Stock: ${item.stock})`;
+        div.onclick = function() {
+          document.getElementById('drug-input').value = item.name;
+          document.getElementById('drug-qty').value = 1;
+          listContainer.style.display = 'none';
+        };
+        listContainer.appendChild(div);
+      });
+      listContainer.style.display = 'block';
     }
+
+    // Close autocomplete on outside click
+    document.addEventListener('click', function (e) {
+      if (e.target.id !== 'drug-input') {
+        const list = document.getElementById('autocomplete-list');
+        if (list) list.style.display = 'none';
+      }
+    });
 
     function addMedication() {
       const inputVal = document.getElementById('drug-input').value.trim();
@@ -307,6 +334,7 @@
       
       document.getElementById('drug-input').value = '';
       document.getElementById('drug-qty').value = '';
+      document.getElementById('autocomplete-list').style.display = 'none';
       renderSelectedMeds();
     }
 
@@ -418,7 +446,6 @@
 
       alert('Patient record saved successfully!');
       resetForm();
-      populateDrugDatalist();
     }
 
     function resetForm() {
@@ -571,11 +598,12 @@
       renderRecords();
     }
 
+    // ADMIN PIN CHECKER FOR ALL DELETIONS
     function verifyAdminPIN() {
       const data = getStoredData();
-      const pin = prompt('🔑 Enter Admin PIN to perform delete action:');
+      const pin = prompt('🔑 Enter Admin Password to delete record:');
       if (pin === data.adminPin) return true;
-      alert('❌ Incorrect PIN!');
+      alert('❌ Incorrect Password! Access Denied.');
       return false;
     }
 
@@ -624,7 +652,6 @@
       document.getElementById('new-drug-name').value = '';
       document.getElementById('new-drug-price').value = '';
       document.getElementById('new-drug-stock').value = '';
-      populateDrugDatalist();
       renderStock();
     }
 
@@ -650,7 +677,7 @@
           labels: ['Collected Revenue (USh)', 'Outstanding Debt (USh)'],
           datasets: [{
             data: [totalPaid, totalUnpaid],
-            backgroundColor: ['#10b981', '#ef4444'],
+            backgroundColor: ['#84cc16', '#ef4444'],
             borderWidth: 1
           }]
         },
@@ -663,11 +690,8 @@
       });
     }
 
-    // Initialize
-    populateDrugDatalist();
-
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(err => console.log('ServiceWorker registration skipped:', err));
+      navigator.serviceWorker.register('sw.js').catch(err => console.log('ServiceWorker skipped:', err));
     }
   </script>
 </body>
