@@ -44,10 +44,10 @@
 
     * { box-sizing: border-box; font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', sans-serif; }
     body { background: var(--bg); background-attachment: fixed; min-height: 100vh; color: var(--text); margin: 0; padding: 12px; transition: background 0.3s, color 0.3s; }
-    .container { max-width: 650px; margin: 0 auto; }
+    .container { max-width: 650px; margin: 0 auto; width: 100%; }
     
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .header h1 { font-size: 1.4rem; color: var(--accent); margin: 0; display: flex; align-items: center; gap: 6px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; flex-wrap: wrap; }
+    .header h1 { font-size: 1.3rem; color: var(--accent); margin: 0; display: flex; align-items: center; gap: 6px; }
     [data-theme="light"] .header h1 { color: #0284c7; text-shadow: 0 1px 2px rgba(255,255,255,0.8); }
     .theme-btn { background: var(--card-bg); border: 1px solid var(--border); padding: 8px 14px; border-radius: 20px; cursor: pointer; color: var(--text); font-weight: bold; font-size: 0.8rem; box-shadow: 0 2px 6px rgba(0,0,0,0.1); backdrop-filter: blur(8px); }
     
@@ -58,7 +58,7 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    .card { background: var(--card-bg); border-radius: 18px; padding: 18px; margin-bottom: 16px; border: 1px solid var(--card-border); box-shadow: var(--card-shadow); backdrop-filter: blur(12px); }
+    .card { background: var(--card-bg); border-radius: 18px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--card-border); box-shadow: var(--card-shadow); backdrop-filter: blur(12px); width: 100%; }
     .card h2 { font-size: 1.1rem; margin-top: 0; margin-bottom: 12px; color: var(--text); display: flex; align-items: center; gap: 6px; }
     .card h3 { font-size: 0.95rem; margin-top: 14px; margin-bottom: 8px; color: var(--subtext); border-bottom: 1px dashed var(--border); padding-bottom: 4px; }
 
@@ -66,44 +66,40 @@
     label { display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 4px; color: var(--subtext); }
     input, select, button { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 0.9rem; }
     
-    .med-row { display: flex; gap: 6px; margin-bottom: 8px; position: relative; }
-    .med-row input[type="number"] { flex: 1; }
-    .med-row button { flex: 0.9; background: var(--btn-bg); color: white; border: none; font-weight: bold; cursor: pointer; border-radius: 10px; }
+    .med-row { display: flex; gap: 6px; margin-bottom: 8px; position: relative; flex-wrap: wrap; }
+    .med-row input[type="number"] { flex: 1; min-width: 80px; }
+    .med-row button { flex: 0.9; background: var(--btn-bg); color: white; border: none; font-weight: bold; cursor: pointer; border-radius: 10px; min-width: 70px; }
     
-    .autocomplete-wrapper { position: relative; flex: 2; }
+    .autocomplete-wrapper { position: relative; flex: 2; min-width: 140px; }
     .autocomplete-items { position: absolute; border: 1px solid var(--border); border-top: none; z-index: 99; top: 100%; left: 0; right: 0; background: var(--card-bg); border-radius: 0 0 10px 10px; max-height: 180px; overflow-y: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
     .autocomplete-items div { padding: 8px 10px; cursor: pointer; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
     .autocomplete-items div:hover { background-color: var(--accent); color: white; }
 
     .med-list { font-size: 0.85rem; background: var(--input-bg); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 10px; min-height: 38px; }
-    .med-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); }
+    .med-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); gap: 6px; }
     .med-item:last-child { border-bottom: none; }
     
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; }
     
-    .btn-main { background: var(--accent); color: white; border: none; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 12px; cursor: pointer; margin-top: 6px; transition: transform 0.1s, background 0.2s; }
+    .btn-main { background: var(--accent); color: white; border: none; padding: 12px; font-size: 0.95rem; font-weight: bold; border-radius: 12px; cursor: pointer; margin-top: 6px; transition: transform 0.1s, background 0.2s; }
     .btn-main:hover { background: var(--accent-hover); }
     .btn-main:active { transform: scale(0.99); }
 
-    /* --- PATIENT CARDS WITH CLEAR COLOR DISTINCTION --- */
     .patient-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; position: relative; box-shadow: 0 2px 6px rgba(0,0,0,0.05); transition: border 0.3s ease; }
-    
-    /* Active (In Treatment) -> Warm Amber/Yellow Styling */
     .patient-card.status-active { 
       border-left: 6px solid var(--warning); 
       background: linear-gradient(90deg, rgba(245, 158, 11, 0.08) 0%, var(--card-bg) 40%);
     }
-    /* Completed -> Fresh Emerald Green Styling */
     .patient-card.status-completed { 
       border-left: 6px solid var(--accent); 
       background: linear-gradient(90deg, rgba(16, 185, 129, 0.08) 0%, var(--card-bg) 40%);
     }
 
-    .patient-header { display: flex; justify-content: space-between; align-items: center; }
-    .patient-name { font-weight: bold; font-size: 1rem; }
+    .patient-header { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+    .patient-name { font-weight: bold; font-size: 0.95rem; }
     
-    .tag { font-size: 0.7rem; padding: 3px 8px; border-radius: 6px; font-weight: bold; text-transform: uppercase; }
+    .tag { font-size: 0.7rem; padding: 3px 8px; border-radius: 6px; font-weight: bold; text-transform: uppercase; display: inline-block; }
     .tag.paid { background: #10b98122; color: #10b981; }
     .tag.unpaid { background: #ef444422; color: #ef4444; }
     .tag.treatment-active { background: #f59e0b22; color: var(--warning); border: 1px solid var(--warning); }
@@ -116,13 +112,13 @@
     .btn-receipt { background: var(--btn-bg); color: white; }
     .btn-delete { background: var(--danger); color: white; }
 
-    .debt-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .debt-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
 
     .stat-box { background: var(--input-bg); border: 1px solid var(--border); padding: 10px; border-radius: 12px; text-align: center; }
-    .stat-box h4 { margin: 0; font-size: 0.75rem; color: var(--subtext); text-transform: uppercase; }
-    .stat-box .val { font-size: 1rem; font-weight: bold; margin-top: 4px; }
+    .stat-box h4 { margin: 0; font-size: 0.7rem; color: var(--subtext); text-transform: uppercase; }
+    .stat-box .val { font-size: 0.95rem; font-weight: bold; margin-top: 4px; word-break: break-word; }
 
-    .alert-badge { padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; }
+    .alert-badge { padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; white-space: nowrap; }
     .badge-warn { background: #f59e0b22; color: var(--warning); border: 1px solid var(--warning); }
     .badge-danger { background: #ef444422; color: var(--danger); border: 1px solid var(--danger); }
 
@@ -134,12 +130,12 @@
     .btn-pdf { background: #0284c7; color: white; border: none; padding: 8px 12px; font-size: 0.8rem; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 8px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; }
     .btn-pdf:hover { background: #0369a1; }
 
-    .btn-show-more { background: transparent; border: 1px dashed var(--border); color: var(--btn-bg); font-weight: bold; padding: 8px; border-radius: 10px; margin-top: 6px; cursor: pointer; font-size: 0.8rem; }
+    .btn-show-more { background: transparent; border: 1px dashed var(--border); color: var(--btn-bg); font-weight: bold; padding: 8px; border-radius: 10px; margin-top: 6px; cursor: pointer; font-size: 0.8rem; width: 100%; }
     .btn-show-more:hover { background: var(--input-bg); }
 
     .report-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-    .report-table th, .report-table td { padding: 10px; border-bottom: 1px solid var(--border); font-size: 0.85rem; text-align: left; }
-    .report-table th { color: var(--subtext); text-transform: uppercase; font-size: 0.75rem; }
+    .report-table th, .report-table td { padding: 8px; border-bottom: 1px solid var(--border); font-size: 0.8rem; text-align: left; }
+    .report-table th { color: var(--subtext); text-transform: uppercase; font-size: 0.7rem; }
     .report-table tr.highlight-row { background-color: var(--input-bg); font-weight: bold; }
   </style>
 </head>
@@ -316,7 +312,10 @@
     <!-- ANALYTICS TAB -->
     <div id="tab-analytics" class="tab-content">
       <div class="card">
-        <h2>📅 Today's Financial Overview</h2>
+        <div style="display:flex; justify-style:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:6px;">
+          <h2 style="margin:0;">📅 Today's Financial Overview</h2>
+          <button class="action-btn btn-delete" onclick="resetAllAnalytics()" style="padding:4px 8px; font-size:0.7rem;">🧹 Clear Counter Sales</button>
+        </div>
         <div class="grid-3" style="margin-bottom:10px;">
           <div class="stat-box">
             <h4>Gross Revenue</h4>
@@ -334,7 +333,7 @@
       </div>
 
       <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:6px;">
           <h2 style="margin:0;">📈 Periodic Reports</h2>
           <select id="report-timeframe" onchange="renderAnalyticsChart()" style="width:auto; padding:4px 8px;">
             <option value="daily">Daily Report</option>
@@ -405,13 +404,14 @@
       const cloudDataRaw = localStorage.getItem('clinic_cloud_backup');
       if (cloudDataRaw) {
         const cloudData = JSON.parse(cloudDataRaw);
-        if (cloudData.stock) localStorage.setItem('clinic_stock', JSON.stringify(cloudData.stock));
-        if (cloudData.patients) localStorage.setItem('clinic_patients', JSON.stringify(cloudData.patients));
-        if (cloudData.debts) localStorage.setItem('clinic_debts', JSON.stringify(cloudData.debts));
-        if (cloudData.payroll) localStorage.setItem('clinic_payroll', JSON.stringify(cloudData.payroll));
-        if (cloudData.otcSales) localStorage.setItem('clinic_otc_sales', JSON.stringify(cloudData.otcSales));
+        if (cloudData.stock && !localStorage.getItem('clinic_stock')) localStorage.setItem('clinic_stock', JSON.stringify(cloudData.stock));
+        if (cloudData.patients && !localStorage.getItem('clinic_patients')) localStorage.setItem('clinic_patients', JSON.stringify(cloudData.patients));
+        if (cloudData.debts && !localStorage.getItem('clinic_debts')) localStorage.setItem('clinic_debts', JSON.stringify(cloudData.debts));
+        if (cloudData.payroll && !localStorage.getItem('clinic_payroll')) localStorage.setItem('clinic_payroll', JSON.stringify(cloudData.payroll));
+        if (cloudData.otcSales && !localStorage.getItem('clinic_otc_sales')) localStorage.setItem('clinic_otc_sales', JSON.stringify(cloudData.otcSales));
       }
       renderPayrollValues();
+      renderAnalyticsChart();
     };
 
     function getStoredData() {
@@ -614,6 +614,7 @@
       saveData('clinic_debts', data.debts);
 
       resetForm();
+      renderAnalyticsChart();
     }
 
     function resetForm() {
@@ -652,6 +653,7 @@
       document.getElementById('debt-desc').value = '';
       document.getElementById('debt-amount').value = '';
       renderRecords();
+      renderAnalyticsChart();
     }
 
     function addNewDrug() {
@@ -830,7 +832,6 @@
       renderStock();
     }
 
-    // --- SEPARATED ALERTS & PDF GENERATION ---
     function renderAlerts(stock) {
       const stockContainer = document.getElementById('stock-alerts-container');
       const expiryContainer = document.getElementById('expiry-alerts-container');
@@ -869,7 +870,6 @@
         }
       });
 
-      // Render Low Stock Section
       if (stockAlerts.length === 0) {
         stockContainer.innerHTML = '<em style="color:var(--accent)">✅ All stock levels are sufficient.</em>';
         pdfBtnContainer.style.display = 'none';
@@ -885,7 +885,6 @@
         pdfBtnContainer.style.display = 'block';
       }
 
-      // Render Expiry Section
       if (expiryAlerts.length === 0) {
         expiryContainer.innerHTML = '<em style="color:var(--accent)">✅ No expired or soon-to-expire drugs.</em>';
       } else {
@@ -902,7 +901,6 @@
       }
     }
 
-    // PDF Generator for Low Stock Order Sheet
     function downloadLowStockPDF() {
       const data = getStoredData();
       const lowStockItems = data.stock.filter(s => s.stock <= (s.minStock !== undefined ? s.minStock : 10));
@@ -959,7 +957,6 @@
       doc.save(`Blessings_Clinic_Low_Stock_Order_${new Date().toISOString().slice(0,10)}.pdf`);
     }
 
-    // Render Patient Card with High-Contrast Status Colors
     function renderPatientCard(p) {
       const isPaid = p.paymentStatus === 'Paid';
       const isActive = p.status === 'Active';
@@ -1004,7 +1001,10 @@
       let data = getStoredData();
       data.patients = data.patients.filter(p => p.id !== id);
       saveData('clinic_patients', data.patients);
+      
+      syncToCloud();
       renderRecords();
+      renderAnalyticsChart();
     }
 
     function deleteDebt(id) {
@@ -1012,7 +1012,17 @@
       let data = getStoredData();
       data.debts = data.debts.filter(d => d.id !== id);
       saveData('clinic_debts', data.debts);
+      
+      syncToCloud();
       renderRecords();
+      renderAnalyticsChart();
+    }
+
+    function resetAllAnalytics() {
+      if (!verifyAdminPIN()) return;
+      saveData('clinic_otc_sales', []);
+      syncToCloud();
+      renderAnalyticsChart();
     }
 
     function markDebtPaid(id) {
@@ -1024,7 +1034,9 @@
 
       saveData('clinic_debts', data.debts);
       saveData('clinic_patients', data.patients);
+      syncToCloud();
       renderRecords();
+      renderAnalyticsChart();
     }
 
     function renderStock() {
@@ -1075,24 +1087,28 @@
 
     function syncToCloud() {
       const statusDiv = document.getElementById('sync-status');
-      statusDiv.style.color = "var(--warning)";
-      statusDiv.innerText = "⏳ Uploading data to cloud...";
+      if (statusDiv) {
+        statusDiv.style.color = "var(--warning)";
+        statusDiv.innerText = "⏳ Uploading data to cloud...";
+      }
 
       const backupObject = {
-        stock: JSON.parse(localStorage.getItem('clinic_stock')),
-        patients: JSON.parse(localStorage.getItem('clinic_patients')),
-        debts: JSON.parse(localStorage.getItem('clinic_debts')),
-        payroll: JSON.parse(localStorage.getItem('clinic_payroll')),
-        otcSales: JSON.parse(localStorage.getItem('clinic_otc_sales')),
+        stock: JSON.parse(localStorage.getItem('clinic_stock')) || [],
+        patients: JSON.parse(localStorage.getItem('clinic_patients')) || [],
+        debts: JSON.parse(localStorage.getItem('clinic_debts')) || [],
+        payroll: JSON.parse(localStorage.getItem('clinic_payroll')) || { numWorkers: 0, monthlyWage: 0 },
+        otcSales: JSON.parse(localStorage.getItem('clinic_otc_sales')) || [],
         lastSynced: new Date().toLocaleString()
       };
 
       localStorage.setItem('clinic_cloud_backup', JSON.stringify(backupObject));
 
-      setTimeout(() => {
-        statusDiv.style.color = "var(--accent)";
-        statusDiv.innerText = "✅ Cloud Upload Successful! (Updated at " + backupObject.lastSynced + ")";
-      }, 500);
+      if (statusDiv) {
+        setTimeout(() => {
+          statusDiv.style.color = "var(--accent)";
+          statusDiv.innerText = "✅ Cloud Upload Successful! (Updated at " + backupObject.lastSynced + ")";
+        }, 300);
+      }
     }
 
     function renderAnalyticsChart() {
@@ -1113,9 +1129,13 @@
       const todayActualPaidGross = patientActual + otcGross;
       const todayActualCash = todayActualPaidGross - todayExpenses;
 
-      document.getElementById('today-gross').innerText = `USh ${todayGross.toLocaleString()}`;
-      document.getElementById('today-expenses').innerText = `USh ${todayExpenses.toLocaleString()}`;
-      document.getElementById('today-actual').innerText = `USh ${todayActualCash.toLocaleString()}`;
+      const grossElem = document.getElementById('today-gross');
+      const expElem = document.getElementById('today-expenses');
+      const actualElem = document.getElementById('today-actual');
+
+      if (grossElem) grossElem.innerText = `USh ${todayGross.toLocaleString()}`;
+      if (expElem) expElem.innerText = `USh ${todayExpenses.toLocaleString()}`;
+      if (actualElem) actualElem.innerText = `USh ${todayActualCash.toLocaleString()}`;
 
       const timeframe = document.getElementById('report-timeframe')?.value || 'daily';
       const tbody = document.getElementById('reportsTableBody');
