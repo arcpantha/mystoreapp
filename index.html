@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Blessings Clinic</title>
   <link rel="manifest" href="manifest.json">
+  <!-- jsPDF & AutoTable for PDF Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
   <style>
     :root {
       --bg: #0f172a;
@@ -23,7 +27,6 @@
     }
 
     [data-theme="light"] {
-      /* Happier, brighter, warm-vibrant background gradient */
       --bg: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 30%, #a7f3d0 70%, #fef08a 100%);
       --card-bg: rgba(255, 255, 255, 0.92);
       --text: #0f172a;
@@ -57,7 +60,8 @@
 
     .card { background: var(--card-bg); border-radius: 18px; padding: 18px; margin-bottom: 16px; border: 1px solid var(--card-border); box-shadow: var(--card-shadow); backdrop-filter: blur(12px); }
     .card h2 { font-size: 1.1rem; margin-top: 0; margin-bottom: 12px; color: var(--text); display: flex; align-items: center; gap: 6px; }
-    
+    .card h3 { font-size: 0.95rem; margin-top: 14px; margin-bottom: 8px; color: var(--subtext); border-bottom: 1px dashed var(--border); padding-bottom: 4px; }
+
     .form-group { margin-bottom: 10px; }
     label { display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 4px; color: var(--subtext); }
     input, select, button { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 0.9rem; }
@@ -82,13 +86,29 @@
     .btn-main:hover { background: var(--accent-hover); }
     .btn-main:active { transform: scale(0.99); }
 
-    .patient-card { background: var(--card-bg); border: 1px solid var(--border); border-left: 5px solid var(--accent); border-radius: 12px; padding: 12px; margin-bottom: 10px; position: relative; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
-    .patient-card.unpaid { border-left-color: var(--danger); }
+    /* --- PATIENT CARDS WITH CLEAR COLOR DISTINCTION --- */
+    .patient-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; position: relative; box-shadow: 0 2px 6px rgba(0,0,0,0.05); transition: border 0.3s ease; }
+    
+    /* Active (In Treatment) -> Warm Amber/Yellow Styling */
+    .patient-card.status-active { 
+      border-left: 6px solid var(--warning); 
+      background: linear-gradient(90deg, rgba(245, 158, 11, 0.08) 0%, var(--card-bg) 40%);
+    }
+    /* Completed -> Fresh Emerald Green Styling */
+    .patient-card.status-completed { 
+      border-left: 6px solid var(--accent); 
+      background: linear-gradient(90deg, rgba(16, 185, 129, 0.08) 0%, var(--card-bg) 40%);
+    }
+
     .patient-header { display: flex; justify-content: space-between; align-items: center; }
     .patient-name { font-weight: bold; font-size: 1rem; }
+    
     .tag { font-size: 0.7rem; padding: 3px 8px; border-radius: 6px; font-weight: bold; text-transform: uppercase; }
     .tag.paid { background: #10b98122; color: #10b981; }
     .tag.unpaid { background: #ef444422; color: #ef4444; }
+    .tag.treatment-active { background: #f59e0b22; color: var(--warning); border: 1px solid var(--warning); }
+    .tag.treatment-completed { background: #10b98122; color: var(--accent); border: 1px solid var(--accent); }
+
     .card-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
     .action-btn { padding: 6px 10px; font-size: 0.75rem; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; width: auto; }
     .btn-complete { background: #f59e0b; color: #0f172a; }
@@ -109,9 +129,14 @@
     .stock-qty-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); font-weight: bold; font-size: 1.1rem; line-height: 1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 0; }
     .btn-qty-minus { background: #ef444415; color: var(--danger); border-color: var(--danger); }
     .btn-qty-plus { background: #10b98115; color: var(--accent); border-color: var(--accent); }
-    .stock-action-group { display: flex; align-items: center; gap: 8px; }
+    .stock-action-group { display: flex; align-items: center; gap: 6px; }
 
-    /* Report Table Formatting */
+    .btn-pdf { background: #0284c7; color: white; border: none; padding: 8px 12px; font-size: 0.8rem; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 8px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn-pdf:hover { background: #0369a1; }
+
+    .btn-show-more { background: transparent; border: 1px dashed var(--border); color: var(--btn-bg); font-weight: bold; padding: 8px; border-radius: 10px; margin-top: 6px; cursor: pointer; font-size: 0.8rem; }
+    .btn-show-more:hover { background: var(--input-bg); }
+
     .report-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
     .report-table th, .report-table td { padding: 10px; border-bottom: 1px solid var(--border); font-size: 0.85rem; text-align: left; }
     .report-table th { color: var(--subtext); text-transform: uppercase; font-size: 0.75rem; }
@@ -247,9 +272,19 @@
 
     <!-- RECORDS TAB -->
     <div id="tab-records" class="tab-content">
+      
+      <!-- SEPARATED INVENTORY ALERTS CARD -->
       <div class="card">
-        <h2>⚠️ Inventory Alerts (Low Stock & Expiries)</h2>
-        <div id="alerts-container"></div>
+        <h2>⚠️ Inventory & Expiry Alerts</h2>
+        
+        <h3>📉 Stock Restock Alerts</h3>
+        <div id="stock-alerts-container"></div>
+        <div id="pdf-button-container" style="display:none;">
+          <button class="btn-pdf" onclick="downloadLowStockPDF()">📄 Download Low Stock Order List (PDF)</button>
+        </div>
+
+        <h3 style="margin-top:16px;">⏳ Expiry & Expired Alerts</h3>
+        <div id="expiry-alerts-container"></div>
       </div>
 
       <div class="card">
@@ -258,14 +293,17 @@
         
         <h2>🟡 Active / In-Treatment Patients</h2>
         <div id="active-patients-list"></div>
+        <button id="show-more-active-btn" class="btn-show-more" style="display:none;" onclick="toggleShowMore('active')">Show More</button>
 
-        <h2>✅ Completed Patient Care Logs</h2>
+        <h2 style="margin-top:16px;">🟢 Completed Patient Care Logs</h2>
         <div id="completed-patients-list"></div>
+        <button id="show-more-completed-btn" class="btn-show-more" style="display:none;" onclick="toggleShowMore('completed')">Show More</button>
       </div>
 
       <div class="card">
         <h2>💳 Patient Debt & Bill Tracker</h2>
         <div id="debt-list"></div>
+        <button id="show-more-debt-btn" class="btn-show-more" style="display:none;" onclick="toggleShowMore('debt')">Show More</button>
       </div>
 
       <div class="card">
@@ -295,7 +333,6 @@
         </div>
       </div>
 
-      <!-- PERIODIC REPORTS TABLE -->
       <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
           <h2 style="margin:0;">📈 Periodic Reports</h2>
@@ -312,13 +349,10 @@
               <th>Amount (USh)</th>
             </tr>
           </thead>
-          <tbody id="reportsTableBody">
-            <!-- Dynamic rows rendered here -->
-          </tbody>
+          <tbody id="reportsTableBody"></tbody>
         </table>
       </div>
 
-      <!-- WORKERS / PAYROLL SECTION -->
       <div class="card">
         <h2>👥 Staff Wages & Daily Expense Payroll</h2>
         <div class="grid-2" style="margin-bottom:6px;">
@@ -333,7 +367,6 @@
         </div>
       </div>
 
-      <!-- UPLOAD BACKUP SECTION ONLY -->
       <div class="card">
         <h2>☁️ Cloud Sync & Data Backup</h2>
         <p style="font-size:0.8rem; color:var(--subtext); margin-top:0;">Backup your inputs for the day to the cloud so when another user logs in from any device, they will automatically see the latest updated data.</p>
@@ -354,13 +387,16 @@
 
     const defaultStock = [
       { id: '1', name: 'Paracetamol', costPrice: 50, price: 100, stock: 100, minStock: 20, expiry: '2026-12-31' },
-      { id: '2', name: 'Coartem', costPrice: 1200, price: 2000, stock: 50, minStock: 15, expiry: '2026-09-15' },
-      { id: '3', name: 'Amoxicillin', costPrice: 1500, price: 2500, stock: 40, minStock: 10, expiry: '2025-10-10' }
+      { id: '2', name: 'Coartem', costPrice: 1200, price: 2000, stock: 10, minStock: 15, expiry: '2026-09-15' },
+      { id: '3', name: 'Amoxicillin', costPrice: 1500, price: 2500, stock: 5, minStock: 10, expiry: '2025-10-10' }
     ];
 
     let selectedMeds = [];
 
-    // AUTOMATIC CLOUD SYNC UPON LOGGING IN / OPENING APP
+    let showAllActive = false;
+    let showAllCompleted = false;
+    let showAllDebt = false;
+
     window.onload = function() {
       autoSyncFromCloud();
     };
@@ -453,13 +489,13 @@
     function addMedication() {
       const inputVal = document.getElementById('drug-input').value.trim();
       const qty = parseInt(document.getElementById('drug-qty').value);
-      if (!inputVal || isNaN(qty) || qty <= 0) return alert('Please select or type a valid drug and enter a quantity.');
+      if (!inputVal || isNaN(qty) || qty <= 0) return;
 
       const data = getStoredData();
       const drug = data.stock.find(d => d.name.toLowerCase() === inputVal.toLowerCase());
 
-      if (!drug) return alert('Drug not found in inventory register!');
-      if (qty > drug.stock) return alert(`Not enough stock available! Current stock for ${drug.name} is ${drug.stock}.`);
+      if (!drug) return;
+      if (qty > drug.stock) return;
 
       selectedMeds.push({ id: drug.id, name: drug.name, qty: qty, price: drug.price, total: drug.price * qty });
       
@@ -512,7 +548,7 @@
       const paymentStatus = document.getElementById('payment-status').value;
       const patientStatus = document.getElementById('patient-status').value;
 
-      if (!name || !diagnosis) return alert('Please enter patient name and diagnosis');
+      if (!name || !diagnosis) return;
 
       const data = getStoredData();
 
@@ -577,7 +613,6 @@
       saveData('clinic_patients', data.patients);
       saveData('clinic_debts', data.debts);
 
-      alert('Patient record saved successfully!');
       resetForm();
     }
 
@@ -599,7 +634,7 @@
       const desc = document.getElementById('debt-desc').value.trim();
       const amount = parseFloat(document.getElementById('debt-amount').value);
 
-      if (!name || isNaN(amount) || amount <= 0) return alert('Please fill in valid debt name and amount');
+      if (!name || isNaN(amount) || amount <= 0) return;
 
       const data = getStoredData();
       data.debts.unshift({
@@ -613,7 +648,6 @@
       });
 
       saveData('clinic_debts', data.debts);
-      alert('Debt record saved!');
       document.getElementById('debt-name').value = '';
       document.getElementById('debt-desc').value = '';
       document.getElementById('debt-amount').value = '';
@@ -628,7 +662,7 @@
       const minStock = parseInt(document.getElementById('new-drug-min').value) || 10;
       const expiry = document.getElementById('new-drug-expiry').value;
 
-      if (!name || isNaN(price) || isNaN(stock)) return alert('Fill in all drug fields with valid numbers!');
+      if (!name || isNaN(price) || isNaN(stock)) return;
 
       const data = getStoredData();
       data.stock.push({ 
@@ -642,7 +676,6 @@
       });
       
       saveData('clinic_stock', data.stock);
-      alert('Drug added to inventory register!');
       document.getElementById('new-drug-name').value = '';
       document.getElementById('new-drug-cost').value = '';
       document.getElementById('new-drug-price').value = '';
@@ -652,16 +685,21 @@
       renderStock();
     }
 
-    function adjustStock(drugId, change) {
+    function deleteDrug(drugId) {
+      let data = getStoredData();
+      data.stock = data.stock.filter(s => s.id !== drugId);
+      saveData('clinic_stock', data.stock);
+      renderStock();
+      renderAlerts(data.stock);
+    }
+
+    function adjustStock(drugId, action) {
       const data = getStoredData();
       const drug = data.stock.find(s => s.id === drugId);
       if (!drug) return;
 
-      if (change < 0) {
-        // Selling item (drives stock down, adds to revenue)
-        if (drug.stock <= 0) {
-          return alert(`Cannot sell. ${drug.name} is out of stock!`);
-        }
+      if (action === 'sell') {
+        if (drug.stock <= 0) return;
         drug.stock -= 1;
         data.otcSales.push({
           id: Date.now().toString(),
@@ -670,8 +708,7 @@
           timestamp: Date.now(),
           date: new Date().toLocaleDateString()
         });
-      } else if (change > 0) {
-        // Restocking/returning item (increases stock, removes latest OTC sale matching amount if exists)
+      } else if (action === 'return') {
         drug.stock += 1;
         const lastSaleIndex = data.otcSales.map(s => s.drugName).lastIndexOf(drug.name);
         if (lastSaleIndex !== -1) {
@@ -715,6 +752,13 @@
       renderSelectedMeds();
     }
 
+    function toggleShowMore(type) {
+      if (type === 'active') showAllActive = !showAllActive;
+      if (type === 'completed') showAllCompleted = !showAllCompleted;
+      if (type === 'debt') showAllDebt = !showAllDebt;
+      renderRecords();
+    }
+
     function renderRecords() {
       const data = getStoredData();
       renderAlerts(data.stock);
@@ -723,23 +767,45 @@
 
       const activeContainer = document.getElementById('active-patients-list');
       const completedContainer = document.getElementById('completed-patients-list');
-      
+      const debtContainer = document.getElementById('debt-list');
+
       const filtered = data.patients.filter(p => 
         p.name.toLowerCase().includes(query) || 
         p.diagnosis.toLowerCase().includes(query)
       );
 
+      // Active Patients
       const active = filtered.filter(p => p.status === 'Active');
+      const activeBtn = document.getElementById('show-more-active-btn');
       activeContainer.innerHTML = active.length ? '' : '<p style="color:var(--subtext)">No active patients found.</p>';
-      active.forEach(p => { activeContainer.innerHTML += renderPatientCard(p); });
+      const visibleActive = showAllActive ? active : active.slice(0, 3);
+      visibleActive.forEach(p => { activeContainer.innerHTML += renderPatientCard(p); });
+      if (active.length > 3) {
+        activeBtn.style.display = 'block';
+        activeBtn.innerText = showAllActive ? 'Show Less' : `Show More (${active.length - 3} more)`;
+      } else {
+        activeBtn.style.display = 'none';
+      }
 
+      // Completed Patients
       const completed = filtered.filter(p => p.status === 'Completed');
+      const completedBtn = document.getElementById('show-more-completed-btn');
       completedContainer.innerHTML = completed.length ? '' : '<p style="color:var(--subtext)">No completed logs.</p>';
-      completed.forEach(p => { completedContainer.innerHTML += renderPatientCard(p); });
+      const visibleCompleted = showAllCompleted ? completed : completed.slice(0, 3);
+      visibleCompleted.forEach(p => { completedContainer.innerHTML += renderPatientCard(p); });
+      if (completed.length > 3) {
+        completedBtn.style.display = 'block';
+        completedBtn.innerText = showAllCompleted ? 'Show Less' : `Show More (${completed.length - 3} more)`;
+      } else {
+        completedBtn.style.display = 'none';
+      }
 
-      const debtContainer = document.getElementById('debt-list');
-      debtContainer.innerHTML = data.debts.length ? '' : '<p style="color:var(--subtext)">No debt records.</p>';
-      data.debts.forEach(d => {
+      // Debt Records
+      const filteredDebts = data.debts.filter(d => d.name.toLowerCase().includes(query) || d.desc.toLowerCase().includes(query));
+      const debtBtn = document.getElementById('show-more-debt-btn');
+      debtContainer.innerHTML = filteredDebts.length ? '' : '<p style="color:var(--subtext)">No debt records.</p>';
+      const visibleDebt = showAllDebt ? filteredDebts : filteredDebts.slice(0, 3);
+      visibleDebt.forEach(d => {
         debtContainer.innerHTML += `
           <div class="debt-card">
             <div>
@@ -754,21 +820,35 @@
           </div>
         `;
       });
+      if (filteredDebts.length > 3) {
+        debtBtn.style.display = 'block';
+        debtBtn.innerText = showAllDebt ? 'Show Less' : `Show More (${filteredDebts.length - 3} more)`;
+      } else {
+        debtBtn.style.display = 'none';
+      }
 
       renderStock();
     }
 
+    // --- SEPARATED ALERTS & PDF GENERATION ---
     function renderAlerts(stock) {
-      const container = document.getElementById('alerts-container');
+      const stockContainer = document.getElementById('stock-alerts-container');
+      const expiryContainer = document.getElementById('expiry-alerts-container');
+      const pdfBtnContainer = document.getElementById('pdf-button-container');
+      
       const now = new Date();
-      let alerts = [];
+      let stockAlerts = [];
+      let expiryAlerts = [];
 
       stock.forEach(s => {
         const minVal = s.minStock !== undefined ? s.minStock : 10;
         if (s.stock <= minVal) {
-          alerts.push({
-            type: 'low_stock',
-            msg: `<strong>${s.name}</strong> needs restocking! Stock is <strong>${s.stock}</strong> (Threshold: ${minVal})`
+          stockAlerts.push({
+            name: s.name,
+            stock: s.stock,
+            minStock: minVal,
+            costPrice: s.costPrice || 0,
+            msg: `<strong>${s.name}</strong> needs restocking! Current Stock: <strong>${s.stock}</strong> (Threshold: ${minVal})`
           });
         }
 
@@ -776,12 +856,12 @@
           const expDate = new Date(s.expiry);
           const diffDays = Math.ceil((expDate - now) / (1000 * 60 * 60 * 24));
           if (diffDays <= 0) {
-            alerts.push({
+            expiryAlerts.push({
               type: 'expired',
               msg: `<strong>${s.name}</strong> EXPIRED on ${s.expiry}!`
             });
           } else if (diffDays <= 30) {
-            alerts.push({
+            expiryAlerts.push({
               type: 'expiring',
               msg: `<strong>${s.name}</strong> expires soon on ${s.expiry} (${diffDays} days left).`
             });
@@ -789,42 +869,122 @@
         }
       });
 
-      if (alerts.length === 0) {
-        container.innerHTML = '<em style="color:var(--accent)">✅ All drug stock levels & expiry dates are healthy.</em>';
-        return;
+      // Render Low Stock Section
+      if (stockAlerts.length === 0) {
+        stockContainer.innerHTML = '<em style="color:var(--accent)">✅ All stock levels are sufficient.</em>';
+        pdfBtnContainer.style.display = 'none';
+      } else {
+        let html = '';
+        stockAlerts.forEach(a => {
+          html += `<div class="med-item">
+            <span>${a.msg}</span>
+            <span class="alert-badge badge-warn">📉 RESTOCK</span>
+          </div>`;
+        });
+        stockContainer.innerHTML = html;
+        pdfBtnContainer.style.display = 'block';
       }
 
-      let html = '';
-      alerts.forEach(a => {
-        const badgeClass = a.type === 'expired' ? 'badge-danger' : 'badge-warn';
-        const label = a.type === 'expired' ? '⛔ EXPIRED' : (a.type === 'low_stock' ? '📉 RESTOCK' : '⏳ EXPIRING');
-        html += `<div class="med-item">
-          <span>${a.msg}</span>
-          <span class="alert-badge ${badgeClass}">${label}</span>
-        </div>`;
-      });
-
-      container.innerHTML = html;
+      // Render Expiry Section
+      if (expiryAlerts.length === 0) {
+        expiryContainer.innerHTML = '<em style="color:var(--accent)">✅ No expired or soon-to-expire drugs.</em>';
+      } else {
+        let html = '';
+        expiryAlerts.forEach(a => {
+          const badgeClass = a.type === 'expired' ? 'badge-danger' : 'badge-warn';
+          const label = a.type === 'expired' ? '⛔ EXPIRED' : '⏳ EXPIRING';
+          html += `<div class="med-item">
+            <span>${a.msg}</span>
+            <span class="alert-badge ${badgeClass}">${label}</span>
+          </div>`;
+        });
+        expiryContainer.innerHTML = html;
+      }
     }
 
+    // PDF Generator for Low Stock Order Sheet
+    function downloadLowStockPDF() {
+      const data = getStoredData();
+      const lowStockItems = data.stock.filter(s => s.stock <= (s.minStock !== undefined ? s.minStock : 10));
+
+      if (lowStockItems.length === 0) return;
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFontSize(18);
+      doc.setFont("helvetica", "bold");
+      doc.text("BLESSINGS CLINIC", 14, 18);
+
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "normal");
+      doc.text("Official Stock Restock Requisition & Purchase Order", 14, 25);
+      doc.text(`Date Generated: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`, 14, 31);
+
+      const tableRows = [];
+      let grandTotalCost = 0;
+
+      lowStockItems.forEach((item, index) => {
+        const cost = item.costPrice || 0;
+        const targetRestock = Math.max(20, (item.minStock || 10) * 2);
+        const qtyNeeded = Math.max(0, targetRestock - item.stock);
+        const totalCost = qtyNeeded * cost;
+        grandTotalCost += totalCost;
+
+        tableRows.push([
+          index + 1,
+          item.name,
+          item.stock,
+          item.minStock || 10,
+          `USh ${cost.toLocaleString()}`,
+          qtyNeeded,
+          `USh ${totalCost.toLocaleString()}`
+        ]);
+      });
+
+      doc.autoTable({
+        startY: 38,
+        head: [['#', 'Medicine Name', 'Current Stock', 'Min Stock', 'Unit Cost Price', 'Suggested Order Qty', 'Est. Total Cost']],
+        body: tableRows,
+        theme: 'grid',
+        headStyles: { fillColor: [16, 185, 129], textColor: [255, 255, 255], fontStyle: 'bold' },
+        styles: { fontSize: 9 }
+      });
+
+      const finalY = doc.lastAutoTable.finalY || 50;
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "bold");
+      doc.text(`Total Estimated Requisition Value: USh ${grandTotalCost.toLocaleString()}`, 14, finalY + 10);
+
+      doc.save(`Blessings_Clinic_Low_Stock_Order_${new Date().toISOString().slice(0,10)}.pdf`);
+    }
+
+    // Render Patient Card with High-Contrast Status Colors
     function renderPatientCard(p) {
       const isPaid = p.paymentStatus === 'Paid';
+      const isActive = p.status === 'Active';
+
       return `
-        <div class="patient-card ${isPaid ? 'paid' : 'unpaid'}">
+        <div class="patient-card ${isActive ? 'status-active' : 'status-completed'}">
           <div class="patient-header">
             <span class="patient-name">👤 ${p.name}</span>
-            <button class="action-btn btn-complete" onclick="togglePatientStatus('${p.id}')">
-              ${p.status === 'Active' ? 'Mark Complete' : 'Mark Active'}
-            </button>
+            <span class="tag ${isActive ? 'treatment-active' : 'treatment-completed'}">
+              ${isActive ? '🟡 In Treatment' : '🟢 Discharged'}
+            </span>
           </div>
           <small>⏱️ ${p.date}</small><br>
           <small>🩺 Diagnosis: ${p.diagnosis}</small><br>
           <small>💊 Meds: ${p.meds ? p.meds.map(m=>m.name+' x'+m.qty).join(', ') : 'None'}</small><br>
-          <strong>Fee: USh ${(p.fee || 0).toFixed(2)}</strong> 
-          <span class="tag ${isPaid ? 'paid' : 'unpaid'}">${p.paymentStatus}</span>
+          <div style="margin-top:4px;">
+            <strong>Fee: USh ${(p.fee || 0).toFixed(2)}</strong> 
+            <span class="tag ${isPaid ? 'paid' : 'unpaid'}">${p.paymentStatus}</span>
+          </div>
           <div class="card-actions">
-            <button class="action-btn btn-reopen" onclick="reopenPatient('${p.id}')">Re-open</button>
-            <button class="action-btn btn-receipt" onclick="alert('Printing Receipt for ${p.name}...')">🖨️ Receipt</button>
+            <button class="action-btn btn-complete" onclick="togglePatientStatus('${p.id}')">
+              ${isActive ? 'Mark Complete' : 'Mark Active'}
+            </button>
+            <button class="action-btn btn-reopen" onclick="reopenPatient('${p.id}')">Re-open / Edit</button>
+            <button class="action-btn btn-receipt" onclick="window.print()">🖨️ Receipt</button>
             <button class="action-btn btn-delete" onclick="deletePatientRecord('${p.id}')">🗑️ Delete</button>
           </div>
         </div>
@@ -881,8 +1041,9 @@
               <small>Sell: USh ${s.price.toFixed(2)}${costStr}</small>
             </div>
             <div class="stock-action-group">
-              <button class="stock-qty-btn btn-qty-minus" onclick="adjustStock('${s.id}', -1)" title="Sell 1 Unit (Deducts Stock, Adds to Gross Revenue)">-</button>
-              <button class="stock-qty-btn btn-qty-plus" onclick="adjustStock('${s.id}', 1)" title="Return 1 Unit (Increases Stock, Removes Sale)">+</button>
+              <button class="stock-qty-btn btn-qty-minus" onclick="adjustStock('${s.id}', 'return')" title="Return 1 Unit (Restores Stock, Reverts Sale)">-</button>
+              <button class="stock-qty-btn btn-qty-plus" onclick="adjustStock('${s.id}', 'sell')" title="Sell 1 Unit (Deducts Stock, Adds to Sales)">+</button>
+              <button class="action-btn btn-delete" onclick="deleteDrug('${s.id}')" title="Delete Drug Register Entry">🗑️</button>
             </div>
           </div>
         `;
@@ -908,8 +1069,8 @@
       }
 
       const totalMonthlyWages = (p.numWorkers || 0) * (p.monthlyWage || 0);
-      const dailyWageExpense = Math.round(totalMonthlyWages / 30);
-      return dailyWageExpense;
+      const exactDailyWage = totalMonthlyWages / 30;
+      return exactDailyWage;
     }
 
     function syncToCloud() {
@@ -936,7 +1097,7 @@
 
     function renderAnalyticsChart() {
       const data = getStoredData();
-      const dailyWageExpense = renderPayrollValues();
+      const exactDailyWage = renderPayrollValues();
 
       const todayStr = new Date().toLocaleDateString();
       const todayPatients = data.patients.filter(p => p.date === todayStr);
@@ -946,10 +1107,8 @@
       const otcGross = todayOtc.reduce((acc, s) => acc + (s.amount || 0), 0);
       const todayGross = patientGross + otcGross;
 
-      // Today's Expenses = Worker's Daily Wage
-      const todayExpenses = dailyWageExpense;
+      const todayExpenses = Math.round(exactDailyWage);
 
-      // Actual Cash = Today's Paid Gross Revenue - Today's Expenses
       const patientActual = todayPatients.filter(p => p.paymentStatus === 'Paid').reduce((acc, p) => acc + (p.fee || 0), 0);
       const todayActualPaidGross = patientActual + otcGross;
       const todayActualCash = todayActualPaidGross - todayExpenses;
@@ -958,7 +1117,6 @@
       document.getElementById('today-expenses').innerText = `USh ${todayExpenses.toLocaleString()}`;
       document.getElementById('today-actual').innerText = `USh ${todayActualCash.toLocaleString()}`;
 
-      // Periodic Report Table Calculations
       const timeframe = document.getElementById('report-timeframe')?.value || 'daily';
       const tbody = document.getElementById('reportsTableBody');
       if (!tbody) return;
@@ -968,21 +1126,21 @@
       if (timeframe === 'monthly') timeframeMultiplier = 30;
 
       const reportRevenue = todayGross * timeframeMultiplier;
-      const reportExpenses = dailyWageExpense * timeframeMultiplier;
+      const reportExpenses = exactDailyWage * timeframeMultiplier;
       const reportNet = reportRevenue - reportExpenses;
 
       tbody.innerHTML = `
         <tr>
           <td>Gross Revenue</td>
-          <td>USh ${reportRevenue.toLocaleString()}</td>
+          <td>USh ${Math.round(reportRevenue).toLocaleString()}</td>
         </tr>
         <tr>
           <td>Staff Wage Expenses</td>
-          <td>USh ${reportExpenses.toLocaleString()}</td>
+          <td>USh ${Math.round(reportExpenses).toLocaleString()}</td>
         </tr>
         <tr class="highlight-row">
           <td><strong>Actual Net Revenue</strong></td>
-          <td><strong style="color: ${reportNet >= 0 ? 'var(--accent)' : 'var(--danger)'}">USh ${reportNet.toLocaleString()}</strong></td>
+          <td><strong style="color: ${reportNet >= 0 ? 'var(--accent)' : 'var(--danger)'}">USh ${Math.round(reportNet).toLocaleString()}</strong></td>
         </tr>
       `;
     }
