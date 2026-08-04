@@ -117,7 +117,6 @@
         
         <label>💊 Prescribe Medications from Inventory:</label>
         <div class="med-row">
-          <!-- Live Typeahead Search connected to Stock Datalist -->
           <input type="text" id="drug-input" list="stock-datalist" placeholder="Type or select drug name..." oninput="autoFillPrice()">
           <datalist id="stock-datalist"></datalist>
           
@@ -218,20 +217,25 @@
     <div id="tab-analytics" class="tab-content">
       <div class="card">
         <h2>📊 Financial Overview</h2>
-        <canvas id="revenueChart"></canvas>
+        <canvas id="revenueChart" style="max-height: 300px;"></canvas>
       </div>
     </div>
 
   </div>
-    <script>
+
+  <script>
     let currentTheme = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', currentTheme);
+    document.getElementById('theme-btn').innerText = currentTheme === 'dark' ? '☀️ Switch to Light Mode' : '🌙 Switch to Dark Mode';
 
     const defaultStock = [
       { id: '1', name: 'Paracetamol', price: 100, stock: 100 },
       { id: '2', name: 'Coartem', price: 2000, stock: 50 },
       { id: '3', name: 'Amoxicillin', price: 2500, stock: 40 }
     ];
+
+    let chartInstance = null;
+    let selectedMeds = [];
 
     function getStoredData() {
       return {
@@ -264,27 +268,36 @@
       if (content) content.classList.add('active');
       
       if (tabId === 'records') renderRecords();
+      if (tabId === 'analytics') renderAnalyticsChart();
     }
 
-    let selectedMeds = [];
-
-    // Populates datalist options dynamically so users can type & get auto-suggestions
     function populateDrugDatalist() {
       const data = getStoredData();
       const datalist = document.getElementById('stock-datalist');
       datalist.innerHTML = '';
       data.stock.forEach(item => {
-        datalist.innerHTML += `<option value="${item.name}">USh ${item.price} - Available Stock: ${item.stock}</option>`;
+        datalist.innerHTML += `<option value="${item.name}">USh ${item.price} - Stock: ${item.stock}</option>`;
       });
+    }
+
+    function autoFillPrice() {
+      const inputVal = document.getElementById('drug-input').value.trim();
+      if (!inputVal) return;
+
+      const data = getStoredData();
+      const drug = data.stock.find(d => d.name.toLowerCase() === inputVal.toLowerCase());
+      if (drug) {
+        const qtyInput = document.getElementById('drug-qty');
+        if (!qtyInput.value) qtyInput.value = 1;
+      }
     }
 
     function addMedication() {
       const inputVal = document.getElementById('drug-input').value.trim();
       const qty = parseInt(document.getElementById('drug-qty').value);
-      if (!inputVal || !qty || qty <= 0) return alert('Please select or type a valid drug and enter a quantity.');
+      if (!inputVal || isNaN(qty) || qty <= 0) return alert('Please select or type a valid drug and enter a quantity.');
 
       const data = getStoredData();
-      // Case-insensitive match on drug name
       const drug = data.stock.find(d => d.name.toLowerCase() === inputVal.toLowerCase());
 
       if (!drug) return alert('Drug not found in inventory register! Please check the spelling.');
@@ -358,11 +371,7 @@
             status: patientStatus
           };
         }
-        document.getElementById('editing-patient-id').value = '';
-        document.getElementById('form-title').innerText = '🩺 Patient Consultation & Care Input';
-        document.getElementById('save-btn').innerText = '💾 Save Patient Record & Print Receipt';
       } else {
-        // Deduct inventory stock
         selectedMeds.forEach(m => {
           const item = data.stock.find(s => s.id === m.id);
           if (item) item.stock = Math.max(0, item.stock - m.qty);
@@ -382,7 +391,6 @@
         data.patients.unshift(newRecord);
       }
 
-      // Synchronize with Debt Tracker accurately
       const targetId = editingId || data.patients[0].id;
       const debtIndex = data.debts.findIndex(d => d.id === targetId);
       
@@ -412,7 +420,8 @@
       resetForm();
       populateDrugDatalist();
     }
-          function resetForm() {
+
+    function resetForm() {
       selectedMeds = [];
       renderSelectedMeds();
       document.getElementById('editing-patient-id').value = '';
@@ -451,7 +460,7 @@
       const desc = document.getElementById('debt-desc').value.trim();
       const amount = parseFloat(document.getElementById('debt-amount').value);
 
-      if (!name || !amount) return alert('Please fill in debt name and amount');
+      if (!name || isNaN(amount) || amount <= 0) return alert('Please fill in valid debt name and amount');
 
       const data = getStoredData();
       data.debts.unshift({
@@ -499,7 +508,7 @@
             <div>
               <strong>👤 ${d.name}</strong> <small>(${d.date})</small><br>
               <small>💊 ${d.desc}</small><br>
-              <strong>Owed: USh ${d.amount.toFixed(2)}</strong>
+              <strong>Owed: USh ${(d.amount || 0).toFixed(2)}</strong>
             </div>
             <div style="text-align:right;">
               ${d.status === 'Paid' ? '<span class="tag paid">✅ Paid</span>' : `<button class="action-btn btn-reopen" onclick="markDebtPaid('${d.id}')">Mark Paid</button>`}
@@ -546,15 +555,12 @@
       }
     }
 
-    // UPDATED FUNCTION: Fully syncs Debt status with Active/Completed Patient Cards
     function markDebtPaid(id) {
       const data = getStoredData();
       
-      // Update Debt record
       const debt = data.debts.find(d => d.id === id);
       if (debt) debt.status = 'Paid';
 
-      // Cross-update Patient record by ID or Name matching
       const patient = data.patients.find(p => p.id === id || (debt && p.name.toLowerCase() === debt.name.toLowerCase()));
       if (patient) {
         patient.paymentStatus = 'Paid';
@@ -609,7 +615,7 @@
       const price = parseFloat(document.getElementById('new-drug-price').value);
       const stock = parseInt(document.getElementById('new-drug-stock').value);
 
-      if (!name || isNaN(price) || isNaN(stock)) return alert('Fill in all drug fields!');
+      if (!name || isNaN(price) || isNaN(stock)) return alert('Fill in all drug fields with valid numbers!');
 
       const data = getStoredData();
       data.stock.push({ id: Date.now().toString(), name, price, stock });
@@ -622,10 +628,46 @@
       renderStock();
     }
 
+    function renderAnalyticsChart() {
+      const ctx = document.getElementById('revenueChart');
+      if (!ctx) return;
+
+      const data = getStoredData();
+      
+      const totalPaid = data.patients
+        .filter(p => p.paymentStatus === 'Paid')
+        .reduce((sum, p) => sum + (p.fee || 0), 0);
+
+      const totalUnpaid = data.debts
+        .filter(d => d.status === 'Unpaid')
+        .reduce((sum, d) => sum + (d.amount || 0), 0);
+
+      if (chartInstance) chartInstance.destroy();
+
+      chartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Collected Revenue (USh)', 'Outstanding Debt (USh)'],
+          datasets: [{
+            data: [totalPaid, totalUnpaid],
+            backgroundColor: ['#10b981', '#ef4444'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'bottom' }
+          }
+        }
+      });
+    }
+
+    // Initialize
     populateDrugDatalist();
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
+      navigator.serviceWorker.register('sw.js').catch(err => console.log('ServiceWorker registration skipped:', err));
     }
   </script>
 </body>
