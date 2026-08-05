@@ -274,12 +274,15 @@
         
         <h3>📉 Stock Restock Alerts</h3>
         <div id="stock-alerts-container"></div>
+        <button id="show-more-stock-alerts-btn" class="btn-show-more" style="display:none;" onclick="toggleShowMore('stockAlerts')">Show More</button>
+
         <div id="pdf-button-container" style="display:none;">
           <button class="btn-pdf" onclick="downloadLowStockPDF()">📄 Download Low Stock Order List (PDF)</button>
         </div>
 
         <h3 style="margin-top:16px;">⏳ Expiry & Expired Alerts</h3>
         <div id="expiry-alerts-container"></div>
+        <button id="show-more-expiry-alerts-btn" class="btn-show-more" style="display:none;" onclick="toggleShowMore('expiryAlerts')">Show More</button>
       </div>
 
       <div class="card">
@@ -297,6 +300,7 @@
 
       <div class="card">
         <h2>💳 Patient Debt & Bill Tracker</h2>
+        <input type="text" id="debt-search-query" placeholder="🔍 Search debtors name, treatment or items..." oninput="renderRecords()" style="margin-bottom:12px;">
         <div id="debt-list"></div>
         <button id="show-more-debt-btn" class="btn-show-more" style="display:none;" onclick="toggleShowMore('debt')">Show More</button>
       </div>
@@ -305,6 +309,7 @@
         <h2>📦 Pharmacy Counter & Current Stock</h2>
         <input type="text" id="stock-search" placeholder="🔍 Search medicine stock..." oninput="renderStock()" style="margin-bottom:10px;">
         <div id="stock-list"></div>
+        <button id="show-more-stock-btn" class="btn-show-more" style="display:none;" onclick="toggleShowMore('stock')">Show More</button>
       </div>
     </div>
 
@@ -386,9 +391,10 @@
     document.getElementById('theme-btn').innerText = currentTheme === 'dark' ? '☀️ Switch to Light Mode' : '🌙 Switch to Dark Mode';
 
     const defaultStock = [
-      { id: '1', name: 'Paracetamol', costPrice: 50, price: 100, stock: 100, initialStock: 100, minStock: 20, expiry: '2026-12-31' },
-      { id: '2', name: 'Coartem', costPrice: 1200, price: 2000, stock: 10, initialStock: 10, minStock: 15, expiry: '2026-09-15' },
-      { id: '3', name: 'Amoxicillin', costPrice: 1500, price: 2500, stock: 5, initialStock: 5, minStock: 10, expiry: '2025-10-10' }
+      { id: '1', name: 'Paracetamol', costPrice: 200, price: 500, stock: 7, initialStock: 10, minStock: 10, expiry: '2026-08-31' },
+      { id: '2', name: 'Amoxicillin', costPrice: 200, price: 500, stock: 7, initialStock: 10, minStock: 10, expiry: '2026-09-01' },
+      { id: '3', name: 'Panadol extra', costPrice: 200, price: 500, stock: 100, initialStock: 100, minStock: 10, expiry: '2026-08-31' },
+      { id: '4', name: 'Coartem', costPrice: 200, price: 500, stock: 100, initialStock: 100, minStock: 10, expiry: '2026-08-31' }
     ];
 
     let selectedMeds = [];
@@ -396,6 +402,9 @@
     let showAllActive = false;
     let showAllCompleted = false;
     let showAllDebt = false;
+    let showAllStockAlerts = false;
+    let showAllExpiryAlerts = false;
+    let showAllStock = false;
 
     window.onload = function() {
       autoSyncFromCloud();
@@ -768,6 +777,9 @@
       if (type === 'active') showAllActive = !showAllActive;
       if (type === 'completed') showAllCompleted = !showAllCompleted;
       if (type === 'debt') showAllDebt = !showAllDebt;
+      if (type === 'stockAlerts') showAllStockAlerts = !showAllStockAlerts;
+      if (type === 'expiryAlerts') showAllExpiryAlerts = !showAllExpiryAlerts;
+      if (type === 'stock') showAllStock = !showAllStock;
       renderRecords();
     }
 
@@ -776,6 +788,7 @@
       renderAlerts(data.stock);
 
       const query = (document.getElementById('patient-search-query')?.value || '').toLowerCase();
+      const debtQuery = (document.getElementById('debt-search-query')?.value || '').toLowerCase();
 
       const activeContainer = document.getElementById('active-patients-list');
       const completedContainer = document.getElementById('completed-patients-list');
@@ -812,10 +825,13 @@
         completedBtn.style.display = 'none';
       }
 
-      // Debt Records
-      const filteredDebts = data.debts.filter(d => d.name.toLowerCase().includes(query) || d.desc.toLowerCase().includes(query));
+      // Debt Records with dedicated Search Bar
+      const filteredDebts = data.debts.filter(d => 
+        d.name.toLowerCase().includes(debtQuery) || 
+        d.desc.toLowerCase().includes(debtQuery)
+      );
       const debtBtn = document.getElementById('show-more-debt-btn');
-      debtContainer.innerHTML = filteredDebts.length ? '' : '<p style="color:var(--subtext)">No debt records.</p>';
+      debtContainer.innerHTML = filteredDebts.length ? '' : '<p style="color:var(--subtext)">No debt records found.</p>';
       const visibleDebt = showAllDebt ? filteredDebts : filteredDebts.slice(0, 3);
       visibleDebt.forEach(d => {
         debtContainer.innerHTML += `
@@ -847,6 +863,9 @@
       const expiryContainer = document.getElementById('expiry-alerts-container');
       const pdfBtnContainer = document.getElementById('pdf-button-container');
       
+      const stockAlertBtn = document.getElementById('show-more-stock-alerts-btn');
+      const expiryAlertBtn = document.getElementById('show-more-expiry-alerts-btn');
+
       const now = new Date();
       let stockAlerts = [];
       let expiryAlerts = [];
@@ -880,12 +899,15 @@
         }
       });
 
+      // Stock Alerts List Render
       if (stockAlerts.length === 0) {
         stockContainer.innerHTML = '<em style="color:var(--accent)">✅ All stock levels are sufficient.</em>';
         pdfBtnContainer.style.display = 'none';
+        stockAlertBtn.style.display = 'none';
       } else {
         let html = '';
-        stockAlerts.forEach(a => {
+        const visibleStockAlerts = showAllStockAlerts ? stockAlerts : stockAlerts.slice(0, 3);
+        visibleStockAlerts.forEach(a => {
           html += `<div class="med-item">
             <span>${a.msg}</span>
             <span class="alert-badge badge-warn">📉 RESTOCK</span>
@@ -893,13 +915,23 @@
         });
         stockContainer.innerHTML = html;
         pdfBtnContainer.style.display = 'block';
+
+        if (stockAlerts.length > 3) {
+          stockAlertBtn.style.display = 'block';
+          stockAlertBtn.innerText = showAllStockAlerts ? 'Show Less' : `Show More (${stockAlerts.length - 3} more)`;
+        } else {
+          stockAlertBtn.style.display = 'none';
+        }
       }
 
+      // Expiry Alerts List Render
       if (expiryAlerts.length === 0) {
         expiryContainer.innerHTML = '<em style="color:var(--accent)">✅ No expired or soon-to-expire drugs.</em>';
+        expiryAlertBtn.style.display = 'none';
       } else {
         let html = '';
-        expiryAlerts.forEach(a => {
+        const visibleExpiryAlerts = showAllExpiryAlerts ? expiryAlerts : expiryAlerts.slice(0, 3);
+        visibleExpiryAlerts.forEach(a => {
           const badgeClass = a.type === 'expired' ? 'badge-danger' : 'badge-warn';
           const label = a.type === 'expired' ? '⛔ EXPIRED' : '⏳ EXPIRING';
           html += `<div class="med-item">
@@ -908,6 +940,13 @@
           </div>`;
         });
         expiryContainer.innerHTML = html;
+
+        if (expiryAlerts.length > 3) {
+          expiryAlertBtn.style.display = 'block';
+          expiryAlertBtn.innerText = showAllExpiryAlerts ? 'Show Less' : `Show More (${expiryAlerts.length - 3} more)`;
+        } else {
+          expiryAlertBtn.style.display = 'none';
+        }
       }
     }
 
@@ -1047,8 +1086,13 @@
       const query = document.getElementById('stock-search')?.value.toLowerCase() || '';
       const data = getStoredData();
       const container = document.getElementById('stock-list');
-      container.innerHTML = '';
-      data.stock.filter(s => s.name.toLowerCase().includes(query)).forEach(s => {
+      const stockBtn = document.getElementById('show-more-stock-btn');
+
+      const filteredStock = data.stock.filter(s => s.name.toLowerCase().includes(query));
+      container.innerHTML = filteredStock.length ? '' : '<p style="color:var(--subtext)">No drugs found in stock.</p>';
+      
+      const visibleStock = showAllStock ? filteredStock : filteredStock.slice(0, 3);
+      visibleStock.forEach(s => {
         const costStr = s.costPrice ? ` | Cost: USh ${s.costPrice.toFixed(2)}` : '';
         container.innerHTML += `
           <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border)">
@@ -1064,6 +1108,13 @@
           </div>
         `;
       });
+
+      if (filteredStock.length > 3) {
+        stockBtn.style.display = 'block';
+        stockBtn.innerText = showAllStock ? 'Show Less' : `Show More (${filteredStock.length - 3} more)`;
+      } else {
+        stockBtn.style.display = 'none';
+      }
     }
 
     function saveWageSettings() {
