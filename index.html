@@ -137,6 +137,116 @@
     .report-table th, .report-table td { padding: 8px; border-bottom: 1px solid var(--border); font-size: 0.8rem; text-align: left; }
     .report-table th { color: var(--subtext); text-transform: uppercase; font-size: 0.7rem; }
     .report-table tr.highlight-row { background-color: var(--input-bg); font-weight: bold; }
+
+    /* --- RECEIPT MODAL & STYLING --- */
+    .receipt-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(4px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 99999;
+      padding: 16px;
+    }
+
+    .receipt-card {
+      background: #ffffff;
+      color: #0f172a;
+      padding: 24px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      border: 2px solid #84cc16;
+    }
+
+    .receipt-header h1 {
+      margin: 0;
+      font-size: 1.4rem;
+      color: #166534;
+      text-align: center;
+    }
+
+    .receipt-subtitle {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #64748b;
+      margin: 4px 0 12px 0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .receipt-divider {
+      border: none;
+      border-top: 2px solid #166534;
+      margin: 12px 0;
+    }
+
+    .receipt-divider-dashed {
+      border: none;
+      border-top: 1px dashed #cbd5e1;
+      margin: 12px 0;
+    }
+
+    .receipt-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      color: #334155;
+    }
+
+    .receipt-total {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #15803d;
+      padding-top: 4px;
+    }
+
+    .receipt-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .btn-receipt-print { background: #0284c7; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .btn-receipt-whatsapp { background: #22c55e; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .btn-receipt-close { background: #e2e8f0; color: #475569; border: none; padding: 8px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+    /* 🖨️ PRINT-ONLY CSS RULES */
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+      #receiptModal, #receiptModal * {
+        visibility: visible !important;
+      }
+      #receiptModal {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: auto;
+        background: #ffffff !important;
+        padding: 0;
+      }
+      .receipt-card {
+        border: none !important;
+        box-shadow: none !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -385,6 +495,50 @@
 
   </div>
 
+  <!-- RECEIPT MODAL -->
+  <div id="receiptModal" class="receipt-modal-overlay" style="display: none;">
+    <div class="receipt-card">
+      <div class="receipt-header">
+        <h1>🏥 BLESSINGS CLINIC</h1>
+        <p class="receipt-subtitle">Official Medical Receipt</p>
+      </div>
+      
+      <hr class="receipt-divider" />
+
+      <div class="receipt-body">
+        <div class="receipt-row">
+          <span><strong>Patient Name:</strong></span>
+          <span id="receiptPatientName">-</span>
+        </div>
+        <div class="receipt-row">
+          <span><strong>Date & Time:</strong></span>
+          <span id="receiptDateTime">-</span>
+        </div>
+        <div class="receipt-row">
+          <span><strong>Diagnosis:</strong></span>
+          <span id="receiptDiagnosis" style="text-align: right; max-width: 60%;">-</span>
+        </div>
+        <div class="receipt-row">
+          <span><strong>Meds / Services:</strong></span>
+          <span id="receiptMeds" style="text-align: right; max-width: 60%;">-</span>
+        </div>
+        
+        <hr class="receipt-divider-dashed" />
+        
+        <div class="receipt-row receipt-total">
+          <span><strong>Total Charged:</strong></span>
+          <span id="receiptTotalAmount">USh 0.00</span>
+        </div>
+      </div>
+      
+      <div class="receipt-actions no-print">
+        <button onclick="printReceiptModal()" class="btn-receipt-print">🖨️ Print Receipt</button>
+        <button onclick="shareWhatsAppReceipt()" class="btn-receipt-whatsapp">📲 Share via WhatsApp</button>
+        <button onclick="closeReceiptModal()" class="btn-receipt-close">Close</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     let currentTheme = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', currentTheme);
@@ -398,6 +552,7 @@
     ];
 
     let selectedMeds = [];
+    let activeReceiptData = null;
 
     let showAllActive = false;
     let showAllCompleted = false;
@@ -561,6 +716,7 @@
       if (!name || !diagnosis) return;
 
       const data = getStoredData();
+      let recordToPrint = null;
 
       if (editingId) {
         const index = data.patients.findIndex(p => p.id === editingId);
@@ -575,6 +731,7 @@
             paymentStatus,
             status: patientStatus
           };
+          recordToPrint = data.patients[index];
         }
       } else {
         selectedMeds.forEach(m => {
@@ -592,9 +749,10 @@
           paymentStatus,
           status: patientStatus,
           timestamp: Date.now(),
-          date: new Date().toLocaleDateString()
+          date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
         };
         data.patients.unshift(newRecord);
+        recordToPrint = newRecord;
       }
 
       const targetId = editingId || data.patients[0].id;
@@ -625,6 +783,66 @@
 
       resetForm();
       renderAnalyticsChart();
+
+      if (recordToPrint) {
+        openReceiptModal(recordToPrint.id);
+      }
+    }
+
+    /* --- RECEIPT SYSTEM LOGIC --- */
+    function openReceiptModal(patientId) {
+      const data = getStoredData();
+      const patient = data.patients.find(p => p.id === patientId);
+      if (!patient) return;
+
+      const medsSummary = patient.meds && patient.meds.length > 0 
+        ? patient.meds.map(m => `${m.name} x${m.qty}`).join(', ') 
+        : 'Medical Care / Procedure';
+
+      activeReceiptData = {
+        clinicName: "BLESSINGS CLINIC",
+        patientName: patient.name,
+        dateTime: patient.date || new Date().toLocaleDateString(),
+        diagnosis: patient.diagnosis,
+        meds: medsSummary,
+        totalAmount: `USh ${(patient.fee || 0).toLocaleString()}`
+      };
+
+      document.getElementById('receiptPatientName').innerText = activeReceiptData.patientName;
+      document.getElementById('receiptDateTime').innerText = activeReceiptData.dateTime;
+      document.getElementById('receiptDiagnosis').innerText = activeReceiptData.diagnosis;
+      document.getElementById('receiptMeds').innerText = activeReceiptData.meds;
+      document.getElementById('receiptTotalAmount').innerText = activeReceiptData.totalAmount;
+
+      document.getElementById('receiptModal').style.display = 'flex';
+    }
+
+    function closeReceiptModal() {
+      document.getElementById('receiptModal').style.display = 'none';
+      activeReceiptData = null;
+    }
+
+    function printReceiptModal() {
+      window.print();
+    }
+
+    function shareWhatsAppReceipt() {
+      if (!activeReceiptData) return;
+
+      const formattedText = 
+`🏥 *${activeReceiptData.clinicName}*
+----------------------------------------
+👤 *Patient:* ${activeReceiptData.patientName}
+⏱️ *Date:* ${activeReceiptData.dateTime}
+🩺 *Diagnosis:* ${activeReceiptData.diagnosis}
+💊 *Meds/Service:* ${activeReceiptData.meds}
+----------------------------------------
+💰 *Total Charged:* ${activeReceiptData.totalAmount}
+
+Thank you for choosing Blessings Clinic!`;
+
+      const encodedMsg = encodeURIComponent(formattedText);
+      window.open(`https://wa.me/?text=${encodedMsg}`, '_blank');
     }
 
     function resetForm() {
@@ -1028,7 +1246,7 @@
               ${isActive ? 'Mark Complete' : 'Mark Active'}
             </button>
             <button class="action-btn btn-reopen" onclick="reopenPatient('${p.id}')">Re-open / Edit</button>
-            <button class="action-btn btn-receipt" onclick="window.print()">🖨️ Receipt</button>
+            <button class="action-btn btn-receipt" onclick="openReceiptModal('${p.id}')">🧾 Receipt</button>
             <button class="action-btn btn-delete" onclick="deletePatientRecord('${p.id}')">🗑️ Delete</button>
           </div>
         </div>
@@ -1171,7 +1389,7 @@
       const exactDailyWage = renderPayrollValues();
 
       const todayStr = new Date().toLocaleDateString();
-      const todayPatients = data.patients.filter(p => p.date === todayStr);
+      const todayPatients = data.patients.filter(p => p.date && p.date.includes(todayStr));
       const todayOtc = data.otcSales.filter(s => s.date === todayStr);
 
       const patientGross = todayPatients.reduce((acc, p) => acc + (p.fee || 0), 0);
