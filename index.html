@@ -133,7 +133,7 @@
     .btn-show-more { background: transparent; border: 1px dashed var(--border); color: var(--btn-bg); font-weight: bold; padding: 8px; border-radius: 10px; margin-top: 6px; cursor: pointer; font-size: 0.8rem; width: 100%; }
     .btn-show-more:hover { background: var(--input-bg); }
 
-    .report-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    .report-table { width: 100%; border-collapse: collapse; margin-top: 8px; overflow-x: auto; display: block; }
     .report-table th, .report-table td { padding: 8px; border-bottom: 1px solid var(--border); font-size: 0.8rem; text-align: left; }
     .report-table th { color: var(--subtext); text-transform: uppercase; font-size: 0.7rem; }
     .report-table tr.highlight-row { background-color: var(--input-bg); font-weight: bold; }
@@ -340,19 +340,21 @@
             <option value="monthly">Monthly Report</option>
           </select>
         </div>
-        <table class="report-table">
-          <thead>
-            <tr>
-              <th>Metric</th>
-              <th>Amount (USh)</th>
-            </tr>
-          </thead>
-          <tbody id="reportsTableBody"></tbody>
-        </table>
+        <div id="report-table-container">
+          <table class="report-table">
+            <thead id="reportsTableHead">
+              <tr>
+                <th>Metric</th>
+                <th>Amount (USh)</th>
+              </tr>
+            </thead>
+            <tbody id="reportsTableBody"></tbody>
+          </table>
+        </div>
       </div>
 
       <div class="card">
-        <h2>👥 Number of staff & Wage</h2>
+        <h2>👥 Staff Wages & Daily Expense Payroll</h2>
         <div class="grid-2" style="margin-bottom:6px;">
           <div>
             <label>Number of Workers:</label>
@@ -384,9 +386,9 @@
     document.getElementById('theme-btn').innerText = currentTheme === 'dark' ? '☀️ Switch to Light Mode' : '🌙 Switch to Dark Mode';
 
     const defaultStock = [
-      { id: '1', name: 'Paracetamol', costPrice: 50, price: 100, stock: 100, minStock: 20, expiry: '2026-12-31' },
-      { id: '2', name: 'Coartem', costPrice: 1200, price: 2000, stock: 10, minStock: 15, expiry: '2026-09-15' },
-      { id: '3', name: 'Amoxicillin', costPrice: 1500, price: 2500, stock: 5, minStock: 10, expiry: '2025-10-10' }
+      { id: '1', name: 'Paracetamol', costPrice: 50, price: 100, stock: 100, initialStock: 100, minStock: 20, expiry: '2026-12-31' },
+      { id: '2', name: 'Coartem', costPrice: 1200, price: 2000, stock: 10, initialStock: 10, minStock: 15, expiry: '2026-09-15' },
+      { id: '3', name: 'Amoxicillin', costPrice: 1500, price: 2500, stock: 5, initialStock: 5, minStock: 10, expiry: '2025-10-10' }
     ];
 
     let selectedMeds = [];
@@ -672,6 +674,7 @@
         costPrice,
         price, 
         stock,
+        initialStock: stock,
         minStock,
         expiry: expiry || 'N/A'
       });
@@ -699,6 +702,10 @@
       const drug = data.stock.find(s => s.id === drugId);
       if (!drug) return;
 
+      if (drug.initialStock === undefined) {
+        drug.initialStock = drug.stock;
+      }
+
       if (action === 'sell') {
         if (drug.stock <= 0) return;
         drug.stock -= 1;
@@ -710,6 +717,10 @@
           date: new Date().toLocaleDateString()
         });
       } else if (action === 'return') {
+        if (drug.stock >= drug.initialStock) {
+          alert(`⚠️ Cannot increase stock above initial stock level (${drug.initialStock}).`);
+          return;
+        }
         drug.stock += 1;
         const lastSaleIndex = data.otcSales.map(s => s.drugName).lastIndexOf(drug.name);
         if (lastSaleIndex !== -1) {
@@ -1133,31 +1144,128 @@
       if (actualElem) actualElem.innerText = `USh ${todayActualCash.toLocaleString()}`;
 
       const timeframe = document.getElementById('report-timeframe')?.value || 'daily';
+      const thead = document.getElementById('reportsTableHead');
       const tbody = document.getElementById('reportsTableBody');
-      if (!tbody) return;
+      if (!tbody || !thead) return;
 
-      let timeframeMultiplier = 1;
-      if (timeframe === 'weekly') timeframeMultiplier = 7;
-      if (timeframe === 'monthly') timeframeMultiplier = 30;
+      if (timeframe === 'daily') {
+        thead.innerHTML = `
+          <tr>
+            <th>Metric</th>
+            <th>Amount (USh)</th>
+          </tr>
+        `;
+        const reportRevenue = todayGross;
+        const reportExpenses = exactDailyWage;
+        const reportNet = reportRevenue - reportExpenses;
 
-      const reportRevenue = todayGross * timeframeMultiplier;
-      const reportExpenses = exactDailyWage * timeframeMultiplier;
-      const reportNet = reportRevenue - reportExpenses;
+        tbody.innerHTML = `
+          <tr>
+            <td>Gross Revenue</td>
+            <td>USh ${Math.round(reportRevenue).toLocaleString()}</td>
+          </tr>
+          <tr>
+            <td>Staff Wage Expenses</td>
+            <td>USh ${Math.round(reportExpenses).toLocaleString()}</td>
+          </tr>
+          <tr class="highlight-row">
+            <td><strong>Actual Net Revenue</strong></td>
+            <td><strong style="color: ${reportNet >= 0 ? 'var(--accent)' : 'var(--danger)'}">USh ${Math.round(reportNet).toLocaleString()}</strong></td>
+          </tr>
+        `;
+      } else if (timeframe === 'weekly') {
+        thead.innerHTML = `
+          <tr>
+            <th>Day</th>
+            <th>Gross Revenue</th>
+            <th>Wage Expenses</th>
+            <th>Actual Net Revenue</th>
+          </tr>
+        `;
+        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        let html = '';
+        let totalGross = 0;
+        let totalExpenses = 0;
+        let totalNet = 0;
 
-      tbody.innerHTML = `
-        <tr>
-          <td>Gross Revenue</td>
-          <td>USh ${Math.round(reportRevenue).toLocaleString()}</td>
-        </tr>
-        <tr>
-          <td>Staff Wage Expenses</td>
-          <td>USh ${Math.round(reportExpenses).toLocaleString()}</td>
-        </tr>
-        <tr class="highlight-row">
-          <td><strong>Actual Net Revenue</strong></td>
-          <td><strong style="color: ${reportNet >= 0 ? 'var(--accent)' : 'var(--danger)'}">USh ${Math.round(reportNet).toLocaleString()}</strong></td>
-        </tr>
-      `;
+        days.forEach(day => {
+          const dayGross = todayGross;
+          const dayExp = exactDailyWage;
+          const dayNet = dayGross - dayExp;
+
+          totalGross += dayGross;
+          totalExpenses += dayExp;
+          totalNet += dayNet;
+
+          html += `
+            <tr>
+              <td>${day}</td>
+              <td>USh ${Math.round(dayGross).toLocaleString()}</td>
+              <td>USh ${Math.round(dayExp).toLocaleString()}</td>
+              <td style="color: ${dayNet >= 0 ? 'var(--accent)' : 'var(--danger)'}">USh ${Math.round(dayNet).toLocaleString()}</td>
+            </tr>
+          `;
+        });
+
+        html += `
+          <tr class="highlight-row">
+            <td><strong>TOTAL WEEKLY</strong></td>
+            <td><strong>USh ${Math.round(totalGross).toLocaleString()}</strong></td>
+            <td><strong>USh ${Math.round(totalExpenses).toLocaleString()}</strong></td>
+            <td><strong style="color: ${totalNet >= 0 ? 'var(--accent)' : 'var(--danger)'}">USh ${Math.round(totalNet).toLocaleString()}</strong></td>
+          </tr>
+        `;
+        tbody.innerHTML = html;
+      } else if (timeframe === 'monthly') {
+        thead.innerHTML = `
+          <tr>
+            <th>Period</th>
+            <th>Gross Revenue</th>
+            <th>Wage Expenses</th>
+            <th>Actual Net Revenue</th>
+          </tr>
+        `;
+        const weeks = [
+          { name: 'Week 1 (Days 1–7)', days: 7 },
+          { name: 'Week 2 (Days 8–14)', days: 7 },
+          { name: 'Week 3 (Days 15–21)', days: 7 },
+          { name: 'Week 4+ (Days 22–End)', days: 9 }
+        ];
+
+        let html = '';
+        let totalGross = 0;
+        let totalExpenses = 0;
+        let totalNet = 0;
+
+        weeks.forEach(w => {
+          const wGross = todayGross * w.days;
+          const wExp = exactDailyWage * w.days;
+          const wNet = wGross - wExp;
+
+          totalGross += wGross;
+          totalExpenses += wExp;
+          totalNet += wNet;
+
+          html += `
+            <tr>
+              <td>${w.name}</td>
+              <td>USh ${Math.round(wGross).toLocaleString()}</td>
+              <td>USh ${Math.round(wExp).toLocaleString()}</td>
+              <td style="color: ${wNet >= 0 ? 'var(--accent)' : 'var(--danger)'}">USh ${Math.round(wNet).toLocaleString()}</td>
+            </tr>
+          `;
+        });
+
+        html += `
+          <tr class="highlight-row">
+            <td><strong>TOTAL MONTHLY</strong></td>
+            <td><strong>USh ${Math.round(totalGross).toLocaleString()}</strong></td>
+            <td><strong>USh ${Math.round(totalExpenses).toLocaleString()}</strong></td>
+            <td><strong style="color: ${totalNet >= 0 ? 'var(--accent)' : 'var(--danger)'}">USh ${Math.round(totalNet).toLocaleString()}</strong></td>
+          </tr>
+        `;
+        tbody.innerHTML = html;
+      }
     }
 
     if ('serviceWorker' in navigator) {
