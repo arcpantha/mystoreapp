@@ -110,6 +110,7 @@
     .btn-complete { background: #f59e0b; color: #0f172a; }
     .btn-reopen { background: var(--accent); color: white; }
     .btn-receipt { background: var(--btn-bg); color: white; }
+    .btn-restock { background: #8b5cf6; color: white; }
     .btn-delete { background: var(--danger); color: white; }
 
     .debt-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -125,7 +126,7 @@
     .stock-qty-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); font-weight: bold; font-size: 1.1rem; line-height: 1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 0; }
     .btn-qty-minus { background: #ef444415; color: var(--danger); border-color: var(--danger); }
     .btn-qty-plus { background: #10b98115; color: var(--accent); border-color: var(--accent); }
-    .stock-action-group { display: flex; align-items: center; gap: 6px; }
+    .stock-action-group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 
     .btn-pdf { background: #0284c7; color: white; border: none; padding: 8px 12px; font-size: 0.8rem; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 8px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; }
     .btn-pdf:hover { background: #0369a1; }
@@ -138,8 +139,8 @@
     .report-table th { color: var(--subtext); text-transform: uppercase; font-size: 0.7rem; }
     .report-table tr.highlight-row { background-color: var(--input-bg); font-weight: bold; }
 
-    /* --- RECEIPT MODAL & STYLING --- */
-    .receipt-modal-overlay {
+    /* --- RECEIPT & RESTOCK MODAL OVERLAYS --- */
+    .modal-overlay {
       position: fixed;
       top: 0;
       left: 0;
@@ -152,6 +153,17 @@
       align-items: center;
       z-index: 99999;
       padding: 16px;
+    }
+
+    .modal-card {
+      background: var(--card-bg);
+      color: var(--text);
+      padding: 24px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      border: 1px solid var(--card-border);
     }
 
     .receipt-card {
@@ -480,6 +492,10 @@
             <input type="number" id="monthly-wage" placeholder="e.g. 300000" min="0" oninput="saveWageSettings()">
           </div>
         </div>
+        <div class="form-group" style="margin-top:6px;">
+          <label>Allowances / Extras (USh):</label>
+          <input type="number" id="staff-allowances" placeholder="e.g. 50000" min="0" oninput="saveWageSettings()">
+        </div>
       </div>
 
       <div class="card">
@@ -495,8 +511,59 @@
 
   </div>
 
+  <!-- RESTOCK DRUG MODAL -->
+  <div id="restockModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+      <h2 style="margin-top:0; color:var(--accent);">🔄 Restock Drug</h2>
+      <input type="hidden" id="restock-drug-id">
+      
+      <div class="form-group">
+        <label>Drug Name (Fixed):</label>
+        <input type="text" id="restock-drug-name" readonly style="opacity:0.7; cursor:not-allowed;">
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Current Stock:</label>
+          <input type="number" id="restock-current-stock" readonly style="opacity:0.7; cursor:not-allowed;">
+        </div>
+        <div class="form-group">
+          <label>Qty to Add:</label>
+          <input type="number" id="restock-add-qty" placeholder="e.g. 50" min="1">
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Cost Price (USh):</label>
+          <input type="number" id="restock-cost-price" placeholder="Cost Price">
+        </div>
+        <div class="form-group">
+          <label>Selling Price (USh):</label>
+          <input type="number" id="restock-selling-price" placeholder="Selling Price">
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Restock Warning Level:</label>
+          <input type="number" id="restock-min-level" placeholder="Min level">
+        </div>
+        <div class="form-group">
+          <label>Expiry Date:</label>
+          <input type="date" id="restock-expiry-date">
+        </div>
+      </div>
+
+      <div style="display:flex; gap:8px; margin-top:14px;">
+        <button class="btn-main" style="margin:0; flex:1;" onclick="saveRestock()">💾 Save Restock</button>
+        <button class="btn-main" style="margin:0; flex:0.6; background:var(--border); color:var(--text);" onclick="closeRestockModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <!-- RECEIPT MODAL -->
-  <div id="receiptModal" class="receipt-modal-overlay" style="display: none;">
+  <div id="receiptModal" class="modal-overlay" style="display: none;">
     <div class="receipt-card">
       <div class="receipt-header">
         <h1>🏥 BLESSINGS CLINIC</h1>
@@ -584,7 +651,7 @@
         stock: JSON.parse(localStorage.getItem('clinic_stock')) || defaultStock,
         patients: JSON.parse(localStorage.getItem('clinic_patients')) || [],
         debts: JSON.parse(localStorage.getItem('clinic_debts')) || [],
-        payroll: JSON.parse(localStorage.getItem('clinic_payroll')) || { numWorkers: 0, monthlyWage: 0 },
+        payroll: JSON.parse(localStorage.getItem('clinic_payroll')) || { numWorkers: 0, monthlyWage: 0, allowances: 0 },
         otcSales: JSON.parse(localStorage.getItem('clinic_otc_sales')) || [],
         adminPin: '14324'
       };
@@ -914,6 +981,58 @@ Thank you for choosing Blessings Clinic!`;
       document.getElementById('new-drug-min').value = '';
       document.getElementById('new-drug-expiry').value = '';
       renderStock();
+    }
+
+    /* --- RESTOCK MODAL FUNCTIONS --- */
+    function openRestockModal(drugId) {
+      const data = getStoredData();
+      const drug = data.stock.find(s => s.id === drugId);
+      if (!drug) return;
+
+      document.getElementById('restock-drug-id').value = drug.id;
+      document.getElementById('restock-drug-name').value = drug.name;
+      document.getElementById('restock-current-stock').value = drug.stock;
+      document.getElementById('restock-add-qty').value = '';
+      document.getElementById('restock-cost-price').value = drug.costPrice !== undefined ? drug.costPrice : '';
+      document.getElementById('restock-selling-price').value = drug.price || '';
+      document.getElementById('restock-min-level').value = drug.minStock !== undefined ? drug.minStock : 10;
+      document.getElementById('restock-expiry-date').value = (drug.expiry && drug.expiry !== 'N/A') ? drug.expiry : '';
+
+      document.getElementById('restockModal').style.display = 'flex';
+    }
+
+    function closeRestockModal() {
+      document.getElementById('restockModal').style.display = 'none';
+    }
+
+    function saveRestock() {
+      const drugId = document.getElementById('restock-drug-id').value;
+      const addQty = parseInt(document.getElementById('restock-add-qty').value) || 0;
+      const costPrice = parseFloat(document.getElementById('restock-cost-price').value) || 0;
+      const sellingPrice = parseFloat(document.getElementById('restock-selling-price').value);
+      const minLevel = parseInt(document.getElementById('restock-min-level').value) || 10;
+      const expiryDate = document.getElementById('restock-expiry-date').value;
+
+      if (isNaN(sellingPrice)) {
+        alert('Please specify a valid selling price.');
+        return;
+      }
+
+      const data = getStoredData();
+      const drug = data.stock.find(s => s.id === drugId);
+      if (!drug) return;
+
+      drug.stock = drug.stock + addQty;
+      drug.initialStock = drug.stock;
+      drug.costPrice = costPrice;
+      drug.price = sellingPrice;
+      drug.minStock = minLevel;
+      drug.expiry = expiryDate || 'N/A';
+
+      saveData('clinic_stock', data.stock);
+      closeRestockModal();
+      renderStock();
+      renderAlerts(data.stock);
     }
 
     function deleteDrug(drugId) {
@@ -1313,7 +1432,7 @@ Thank you for choosing Blessings Clinic!`;
       visibleStock.forEach(s => {
         const costStr = s.costPrice ? ` | Cost: USh ${s.costPrice.toFixed(2)}` : '';
         container.innerHTML += `
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border)">
+          <div style="display:flex; justify-space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border)">
             <div>
               <strong>${s.name}</strong> <small style="color:var(--subtext)">(Stock: ${s.stock} | Exp: ${s.expiry || 'N/A'})</small><br>
               <small>Sell: USh ${s.price.toFixed(2)}${costStr}</small>
@@ -1321,6 +1440,7 @@ Thank you for choosing Blessings Clinic!`;
             <div class="stock-action-group">
               <button class="stock-qty-btn btn-qty-minus" onclick="adjustStock('${s.id}', 'return')" title="Return 1 Unit (Restores Stock, Reverts Sale)">-</button>
               <button class="stock-qty-btn btn-qty-plus" onclick="adjustStock('${s.id}', 'sell')" title="Sell 1 Unit (Deducts Stock, Adds to Sales)">+</button>
+              <button class="action-btn btn-restock" onclick="openRestockModal('${s.id}')" title="Restock / Edit Details">🔄 Restock</button>
               <button class="action-btn btn-delete" onclick="deleteDrug('${s.id}')" title="Delete Drug Register Entry">🗑️</button>
             </div>
           </div>
@@ -1338,8 +1458,9 @@ Thank you for choosing Blessings Clinic!`;
     function saveWageSettings() {
       const numWorkers = parseInt(document.getElementById('num-workers').value) || 0;
       const monthlyWage = parseFloat(document.getElementById('monthly-wage').value) || 0;
+      const allowances = parseFloat(document.getElementById('staff-allowances').value) || 0;
 
-      const payroll = { numWorkers, monthlyWage };
+      const payroll = { numWorkers, monthlyWage, allowances };
       saveData('clinic_payroll', payroll);
       renderPayrollValues();
       renderAnalyticsChart();
@@ -1351,9 +1472,10 @@ Thank you for choosing Blessings Clinic!`;
       if (document.getElementById('num-workers')) {
         document.getElementById('num-workers').value = p.numWorkers || '';
         document.getElementById('monthly-wage').value = p.monthlyWage || '';
+        document.getElementById('staff-allowances').value = p.allowances || '';
       }
 
-      const totalMonthlyWages = (p.numWorkers || 0) * (p.monthlyWage || 0);
+      const totalMonthlyWages = ((p.numWorkers || 0) * (p.monthlyWage || 0)) + (p.allowances || 0);
       const exactDailyWage = totalMonthlyWages / 30;
       return exactDailyWage;
     }
@@ -1369,7 +1491,7 @@ Thank you for choosing Blessings Clinic!`;
         stock: JSON.parse(localStorage.getItem('clinic_stock')) || [],
         patients: JSON.parse(localStorage.getItem('clinic_patients')) || [],
         debts: JSON.parse(localStorage.getItem('clinic_debts')) || [],
-        payroll: JSON.parse(localStorage.getItem('clinic_payroll')) || { numWorkers: 0, monthlyWage: 0 },
+        payroll: JSON.parse(localStorage.getItem('clinic_payroll')) || { numWorkers: 0, monthlyWage: 0, allowances: 0 },
         otcSales: JSON.parse(localStorage.getItem('clinic_otc_sales')) || [],
         lastSynced: new Date().toLocaleString()
       };
@@ -1432,7 +1554,7 @@ Thank you for choosing Blessings Clinic!`;
             <td>USh ${Math.round(reportRevenue).toLocaleString()}</td>
           </tr>
           <tr>
-            <td>Staff Wage Expenses</td>
+            <td>Staff Wage & Allowance Expenses</td>
             <td>USh ${Math.round(reportExpenses).toLocaleString()}</td>
           </tr>
           <tr class="highlight-row">
@@ -1445,7 +1567,7 @@ Thank you for choosing Blessings Clinic!`;
           <tr>
             <th>Day</th>
             <th>Gross Revenue</th>
-            <th>Wage Expenses</th>
+            <th>Wage & Allowances</th>
             <th>Actual Net Revenue</th>
           </tr>
         `;
@@ -1488,7 +1610,7 @@ Thank you for choosing Blessings Clinic!`;
           <tr>
             <th>Period</th>
             <th>Gross Revenue</th>
-            <th>Wage Expenses</th>
+            <th>Wage & Allowances</th>
             <th>Actual Net Revenue</th>
           </tr>
         `;
